@@ -1,0 +1,133 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section class="section-space">
+
+    <div class="container">
+
+        <div class="breadcrumbs">
+            <a href="{{ url_for('index.home') }}">
+                Home
+            </a>
+
+            <span>/</span>
+
+            <a href="{{ url_for('products.browse') }}">
+                Products
+            </a>
+
+            <span>/</span>
+
+            <span>{{ product.name }}</span>
+        </div>
+
+        <div class="detail-grid">
+
+            <!-- PRODUCT IMAGE -->
+            <div class="detail-media">
+
+                {% if product.image_path %}
+
+                    <img
+                        src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
+                        alt="{{ product.name }}"
+                    >
+
+                {% else %}
+
+                    <span class="detail-placeholder" aria-hidden="true">
+
+                        {% if product.category_slug == 'cookies' %}
+                            🍪
+                        {% elif product.category_slug == 'almonds' %}
+                            🍫
+                        {% elif product.category_slug == 'savory-breads' %}
+                            🍞
+                        {% else %}
+                            🥐
+                        {% endif %}
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            <!-- PRODUCT INFORMATION -->
+            <div class="detail-info">
+
+                <span class="eyebrow">
+                    {{ product.category_name }}
+                </span>
+
+                <h1>
+                    {{ product.name }}
+                </h1>
+
+                <p class="detail-price">
+                    ₱{{ '%.2f'|format(product.price) }}
+                </p>
+
+                {% if product.is_available %}
+
+                    <span class="availability available">
+                        Available to order
+                    </span>
+
+                {% else %}
+
+                    <span class="availability unavailable">
+                        Currently unavailable
+                    </span>
+
+                {% endif %}
+
+                {% if product.is_made_to_order %}
+                    <p class="detail-note">
+                        Made-to-order product
+                    </p>
+                {% endif %}
+
+                <hr>
+
+                <h3>Product Description</h3>
+
+                <p class="detail-description">
+                    {% if product.description %}
+                        {{ product.description }}
+                    {% else %}
+                        More product details will be added soon.
+                    {% endif %}
+                </p>
+
+                <button
+                    type="button"
+                    class="btn disabled-button"
+                    disabled
+                >
+                    Add to Cart — Coming Soon
+                </button>
+
+                <p class="detail-note">
+                    Online ordering will be enabled
+                    after cart and checkout development.
+                </p>
+
+                <a
+                    href="{{ url_for('products.browse') }}"
+                    class="text-arrow"
+                >
+                    ← Back to Products
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

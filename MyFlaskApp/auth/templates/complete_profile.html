@@ -1,0 +1,175 @@
+
+{% extends "_auth_base.html" %}
+
+{% block content %}
+
+<div class="card-heading">
+    <span class="eyebrow">My account</span>
+    <h2 id="form-title">Complete your profile</h2>
+    <p>Add your delivery information to finish registration.</p>
+</div>
+
+{% set saved_province = request.form.get(
+    'province',
+    address.province if address else ''
+) %}
+
+<form
+    method="post"
+    action="{{ url_for('auth.complete_profile') }}"
+    class="auth-form"
+>
+
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <!-- RECIPIENT NAME -->
+    <label for="recipient_name">Recipient name</label>
+
+    <input
+        id="recipient_name"
+        name="recipient_name"
+        type="text"
+        autocomplete="name"
+        minlength="2"
+        maxlength="160"
+        data-letters-only
+        required
+        value="{{ request.form.get('recipient_name', address.recipient_name if address else user.first_name ~ ' ' ~ user.last_name) }}"
+    >
+
+    <!-- MOBILE NUMBER -->
+    <label for="mobile_number">Mobile number</label>
+
+    <input
+        id="mobile_number"
+        name="mobile_number"
+        type="tel"
+        inputmode="numeric"
+        maxlength="11"
+        minlength="11"
+        pattern="09[0-9]{9}"
+        data-ph-mobile
+        required
+        placeholder="09XXXXXXXXX"
+        value="{{ request.form.get('mobile_number', address.mobile_number if address else (user.mobile_number or '')) }}"
+    >
+
+    <!-- PROVINCE -->
+    <label for="province">Province / Region</label>
+
+    <select
+        id="province"
+        name="province"
+        data-locations-url="{{ url_for('auth.address_options') }}"
+        required
+    >
+        <option value="">Select Province / Region</option>
+
+        <option
+            value="Laguna"
+            {% if saved_province == 'Laguna' %}selected{% endif %}
+        >Laguna</option>
+
+        <option
+            value="Cavite"
+            {% if saved_province == 'Cavite' %}selected{% endif %}
+        >Cavite</option>
+
+        <option
+            value="Metro Manila (NCR)"
+            {% if saved_province == 'Metro Manila (NCR)' %}selected{% endif %}
+        >Metro Manila (NCR)</option>
+    </select>
+
+    <!-- CITY AND BARANGAY -->
+    <div class="two-fields">
+
+        <div>
+            <label for="city_municipality">
+                City / Municipality
+            </label>
+
+            <select
+                id="city_municipality"
+                name="city_municipality"
+                data-initial="{{ request.form.get('city_municipality', address.city_municipality if address else '') }}"
+                required
+                disabled
+            >
+                <option value="">
+                    Select province first
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <label for="barangay">Barangay</label>
+
+            <select
+                id="barangay"
+                name="barangay"
+                data-initial="{{ request.form.get('barangay', address.barangay if address else '') }}"
+                required
+                disabled
+            >
+                <option value="">
+                    Select city first
+                </option>
+            </select>
+        </div>
+
+    </div>
+
+    <p
+        id="address-loading"
+        class="help-text"
+        aria-live="polite"
+    ></p>
+
+    <!-- STREET ADDRESS -->
+    <label for="street_address">
+        House No., Street, Subdivision
+    </label>
+
+    <input
+        id="street_address"
+        name="street_address"
+        type="text"
+        minlength="3"
+        maxlength="255"
+        required
+        placeholder="House 12, Main Street"
+        value="{{ request.form.get('street_address', address.street_address if address else '') }}"
+    >
+
+    <!-- POSTAL CODE -->
+    <label for="postal_code">Postal Code (Optional)</label>
+
+    <input
+        id="postal_code"
+        name="postal_code"
+        type="text"
+        inputmode="numeric"
+        maxlength="4"
+        pattern="[0-9]{4}"
+        data-ph-postal
+        placeholder="4000"
+        value="{{ request.form.get('postal_code', (address.postal_code or '') if address else '') }}"
+    >
+
+    <p class="help-text">
+        Select your location from the dropdowns.
+        Delivery availability will be confirmed at checkout.
+    </p>
+
+    <button type="submit" class="button primary">
+        Save and Continue
+    </button>
+
+</form>
+
+{% endblock %}

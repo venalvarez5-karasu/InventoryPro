@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f9fa">
+  <title>{{ title }} | Tali's Bread & Pastries</title>
+  <link rel="stylesheet" href="{{ url_for('auth.static', filename='style.css') }}">
+  <script defer src="{{ url_for('auth.static', filename='main.js') }}"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Tali's Bakery home">
+      <img src="{{ url_for('auth.static', filename='logo.jpg') }}" alt="Tali's Bread and Pastries logo" width="54" height="54">
+      <span><strong>Tali's</strong><small>Bread &amp; Pastries</small></span>
+    </a>
+    <nav class="header-nav" aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/products/">Browse Products</a>
+    </nav>
+  </header>
+  <main class="auth-main">
+    <section class="intro" aria-label="About Tali's Bakery">
+      <span class="eyebrow">Tali's Bread &amp; Pastries</span>
+      <h1>Freshly baked,<br><em>simply delightful.</em></h1>
+      <p>Browse our ensaimadas, cookies, almond treats, and savory breads. Create an account when you're ready to order.</p>
+      <div class="intro-note"><span aria-hidden="true">✦</span> Customers can browse without logging in.</div>
+      <p class="coverage">Delivery coverage depends on approved areas in Laguna (including Lumban), Cavite, and Metro Manila.</p>
+    </section>
+    <section class="auth-card" aria-labelledby="form-title">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="messages" role="status" aria-live="polite">
+            {% for category, message in messages %}
+              <p class="alert alert-{{ category|e }}">{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+  <footer class="site-footer">© Tali's Bread &amp; Pastries · InventoryPro</footer>
+</body>
+</html>

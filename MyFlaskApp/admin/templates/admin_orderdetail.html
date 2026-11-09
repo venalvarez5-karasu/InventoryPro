@@ -1,0 +1,254 @@
+
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="adm-page-heading">
+    <div>
+        <a class="adm-back-link"
+           href="{{ url_for('admin.admin_orders') }}">
+            ← Back to Orders
+        </a>
+
+        <h1>Order {{ order.order_number }}</h1>
+
+        <p>
+            Placed {{ order.created_at }} ·
+            {{ order.order_type|title }} ·
+            {{ order.payment_method|replace('_', ' ')|upper }}
+        </p>
+    </div>
+
+    <span class="adm-status {{ 'available' if order.status == 'completed' else 'unavailable' }}">
+        {{ order.status|replace('_', ' ')|title }}
+    </span>
+</div>
+
+
+<div class="adm-console-detail-grid">
+
+    <!-- ORDER ITEMS -->
+    <section class="adm-panel adm-console-panel">
+
+        <h2>Order Items</h2>
+
+        <div class="adm-table-scroll">
+            <table class="adm-table">
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Unit Price</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <strong>
+                                {{ item.product_name_snapshot }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ₱{{ '%.2f'|format(item.unit_price) }}
+                        </td>
+
+                        <td>{{ item.quantity }}</td>
+
+                        <td class="adm-price-cell">
+                            ₱{{ '%.2f'|format(item.line_total) }}
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            No order items recorded.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="adm-console-totals">
+            <p>
+                Subtotal
+                <strong>
+                    ₱{{ '%.2f'|format(order.subtotal) }}
+                </strong>
+            </p>
+
+            <p>
+                Delivery fee
+                <strong>
+                    ₱{{ '%.2f'|format(order.delivery_fee) }}
+                </strong>
+            </p>
+
+            <p class="adm-console-grand">
+                Total
+                <strong>
+                    ₱{{ '%.2f'|format(order.total_amount) }}
+                </strong>
+            </p>
+        </div>
+
+    </section>
+
+
+    <div class="adm-console-stack">
+
+        <!-- CUSTOMER DETAILS -->
+        <section class="adm-panel adm-console-panel">
+
+            <h2>Customer &amp; Fulfillment</h2>
+
+            <dl class="adm-console-details">
+
+                <dt>Customer</dt>
+                <dd>
+                    {{ order.first_name }}
+                    {{ order.last_name }}
+                </dd>
+
+                <dt>Email</dt>
+                <dd>{{ order.email }}</dd>
+
+                <dt>Recipient</dt>
+                <dd>{{ order.recipient_name }}</dd>
+
+                <dt>Contact</dt>
+                <dd>{{ order.contact_number }}</dd>
+
+                <dt>Address</dt>
+                <dd>
+                    {{ order.delivery_address_snapshot or 'Pickup order' }}
+                </dd>
+
+                <dt>Requested date</dt>
+                <dd>
+                    {{ order.requested_date or 'Not specified' }}
+                </dd>
+
+                <dt>Requested time</dt>
+                <dd>
+                    {{ order.requested_time or 'Not specified' }}
+                </dd>
+
+                <dt>Customer note</dt>
+                <dd>
+                    {{ order.customer_note or 'None' }}
+                </dd>
+
+            </dl>
+
+        </section>
+
+
+        <!-- STATUS -->
+        <section class="adm-panel adm-console-panel">
+
+            <h2>Order Status</h2>
+
+            {% if allowed %}
+
+            <form class="adm-mini-form"
+                  method="post"
+                  action="{{ url_for('admin.admin_order_status', order_id=order.id) }}"
+                  data-confirm="Change the order status? Confirm the fulfillment step has actually happened.">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label>
+                    Next status
+
+                    <select name="status" required>
+                        {% for s in allowed %}
+                        <option value="{{ s }}">
+                            {{ s|replace('_', ' ')|title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <button type="submit"
+                        class="adm-primary-btn">
+                    Update Status
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <p class="adm-console-muted">
+                This order has reached a terminal status.
+            </p>
+
+            {% endif %}
+
+            <p class="adm-console-muted">
+                Changing order status does not
+                automatically deduct stock or confirm
+                that a COD payment has been collected.
+            </p>
+
+        </section>
+
+
+        <!-- PAYMENT -->
+        <section class="adm-panel adm-console-panel">
+
+            <h2>Payment</h2>
+
+            {% for payment in payments %}
+            <p>
+                <strong>
+                    {{ payment.status|replace('_', ' ')|title }}
+                </strong>
+                · ₱{{ '%.2f'|format(payment.amount) }}
+                · {{ payment.payment_method|replace('_', ' ')|upper }}
+            </p>
+
+            {% else %}
+
+            <p class="adm-console-muted">
+                No payment record yet.
+            </p>
+
+            {% endfor %}
+
+            {% set paid = payments and payments[0].status == 'paid' %}
+
+            {% if order.status == 'completed' and not paid %}
+
+            <form method="post"
+                  action="{{ url_for('admin.admin_payment_received', order_id=order.id) }}"
+                  data-confirm="Only confirm if payment was actually received. Mark this order as paid?">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <button type="submit"
+                        class="adm-primary-btn">
+                    Confirm Payment Received
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}

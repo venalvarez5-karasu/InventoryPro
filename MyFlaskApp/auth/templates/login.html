@@ -1,0 +1,75 @@
+
+{% extends "_auth_base.html" %}
+
+{% block content %}
+
+<div class="card-heading">
+    <span class="eyebrow">Customer &amp; staff accounts</span>
+    <h2 id="form-title">Welcome back</h2>
+    <p>Log in to manage your account and orders.</p>
+</div>
+
+<form method="post" action="{{ url_for('auth.login') }}" class="auth-form">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
+    <label for="email">Email address</label>
+    <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        maxlength="190"
+        required
+        placeholder="you@example.com"
+        value="{{ request.form.get('email', '') }}"
+    >
+
+    <label for="password">Password</label>
+
+    <div class="password-field">
+        <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            placeholder="Enter your password"
+        >
+
+        <button
+            type="button"
+            class="reveal"
+            data-password-toggle="password"
+            aria-label="Show password"
+        >
+            Show
+        </button>
+    </div>
+
+    <!-- Forgot Password below the password field -->
+    <div style="text-align: right; margin-top: 8px; margin-bottom: 12px;">
+        <a
+            class="text-link"
+            href="{{ url_for('auth.forgot_password') }}"
+        >
+            Forgot password?
+        </a>
+    </div>
+
+    <button type="submit" class="button primary">
+        Log In
+    </button>
+
+</form>
+
+<p class="bottom-note">
+    New to Tali's?
+    <a href="{{ url_for('auth.register') }}">
+        Create an account
+    </a>
+</p>
+
+{% endblock %}

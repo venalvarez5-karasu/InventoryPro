@@ -1,0 +1,416 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<!-- ==============================
+     HERO SECTION
+     ============================== -->
+
+<section class="tl-hero">
+    <div class="container tl-hero-grid">
+
+        <div class="tl-hero-copy">
+
+            <div class="tl-eyebrow">
+                <span class="tl-dot"></span>
+                WELCOME TO TALI'S BAKERY
+            </div>
+
+            <h1>
+                Freshly baked.
+                <em>Simply delightful.</em>
+            </h1>
+
+            <p class="tl-hero-lead">
+                A little sweetness in every bite.
+            </p>
+
+            <p class="tl-hero-description">
+                Discover our selection of soft ensaimadas,
+                delightful cookies, chocolatey almond treats,
+                and savory breads — something special for
+                every craving.
+            </p>
+
+            <div class="tl-hero-actions">
+                <a
+                    href="{{ url_for('products.browse') }}"
+                    class="tl-primary-button"
+                >
+                    Explore Our Menu
+                    <span aria-hidden="true">↗</span>
+                </a>
+
+                <a
+                    href="{{ url_for('index.about') }}"
+                    class="tl-secondary-link"
+                >
+                    Discover Our Story
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+
+            <div class="tl-hero-categories">
+                <span>Ensaimadas</span>
+                <span class="tl-separator">·</span>
+                <span>Cookies</span>
+                <span class="tl-separator">·</span>
+                <span>Savory Breads</span>
+            </div>
+
+        </div>
+
+        <!-- LOGO PRESENTATION -->
+        <div class="tl-hero-visual">
+
+            <div class="tl-hero-visual-inner">
+
+                <span class="tl-visual-top">
+                    TALI'S BREAD &amp; PASTRIES
+                </span>
+
+                <div class="tl-logo-frame">
+                    <img
+                        src="{{ url_for('auth.static', filename='logo.jpg') }}"
+                        alt="Tali's Bread & Pastries Logo"
+                    >
+                </div>
+
+                <div class="tl-visual-bottom">
+                    <span class="tl-visual-rule"></span>
+
+                    <p>
+                        Made for your
+                        <em>sweet moments.</em>
+                    </p>
+
+                    <small>
+                        SWEET &amp; SAVORY FAVORITES
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ==============================
+     SMALL BAKERY STRIP
+     ============================== -->
+
+<section class="tl-intro-strip">
+    <div class="container tl-intro-content">
+        <span aria-hidden="true">✦</span>
+        <p>
+            Delicious little moments start here.
+        </p>
+        <span aria-hidden="true">✦</span>
+    </div>
+</section>
+
+
+<!-- ==============================
+     PRODUCT CATEGORIES
+     ============================== -->
+
+<section class="tl-section tl-categories-section">
+    <div class="container">
+
+        <div class="tl-section-heading">
+
+            <div>
+                <span class="tl-section-label">
+                    DISCOVER OUR SELECTION
+                </span>
+
+                <h2>
+                    Something for
+                    <em>every craving.</em>
+                </h2>
+
+                <p>
+                    Find the treats you love.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('products.browse') }}"
+                class="tl-section-link"
+            >
+                View All Products
+                <span aria-hidden="true">↗</span>
+            </a>
+
+        </div>
+
+        <div class="tl-category-grid">
+
+            {% for category in categories %}
+
+            <a
+                href="{{ url_for('products.browse', category=category.slug) }}"
+                class="tl-category-card"
+            >
+
+                <span class="tl-category-number">
+                    {{ '%02d'|format(loop.index) }}
+                </span>
+
+                <div class="tl-category-content">
+
+                    <span class="tl-category-small">
+                        TALI'S SELECTION
+                    </span>
+
+                    <h3>{{ category.name }}</h3>
+
+                    <div class="tl-category-bottom">
+                        <span>Explore category</span>
+                        <span class="tl-category-arrow">↗</span>
+                    </div>
+
+                </div>
+
+            </a>
+
+            {% else %}
+
+            <p class="tl-empty">
+                Product categories will appear here.
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ==============================
+     FEATURED PRODUCTS
+     ============================== -->
+
+<section class="tl-section tl-featured-section">
+    <div class="container">
+
+        <div class="tl-section-heading">
+
+            <div>
+                <span class="tl-section-label">
+                    FROM OUR MENU
+                </span>
+
+                <h2>
+                    Discover something
+                    <em>delightful.</em>
+                </h2>
+
+                <p>
+                    A little preview of our bakery favorites.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('products.browse') }}"
+                class="tl-section-link"
+            >
+                Browse Full Menu
+                <span aria-hidden="true">↗</span>
+            </a>
+
+        </div>
+
+        <div class="tl-product-grid">
+
+            {% for product in featured_products %}
+
+            <article class="tl-product-card">
+
+                <a
+                    href="{{ url_for('products.product_detail', slug=product.slug) }}"
+                    class="tl-product-media"
+                    aria-label="View {{ product.name }}"
+                >
+
+                    {% if product.image_path %}
+
+                    <img
+                        src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
+                        alt="{{ product.name }}"
+                        loading="lazy"
+                    >
+
+                    {% else %}
+
+                    <div class="tl-product-placeholder">
+                        <span class="tl-product-monogram">
+                            {{ product.category_name[:1] }}
+                        </span>
+
+                        <span class="tl-product-placeholder-label">
+                            {{ product.category_name }}
+                        </span>
+                    </div>
+
+                    {% endif %}
+
+                </a>
+
+                <div class="tl-product-info">
+
+                    <span class="tl-product-category">
+                        {{ product.category_name }}
+                    </span>
+
+                    <h3>
+                        <a href="{{ url_for('products.product_detail', slug=product.slug) }}">
+                            {{ product.name }}
+                        </a>
+                    </h3>
+
+                    <div class="tl-product-details">
+
+                        <span class="tl-price">
+                            ₱{{ '%.2f'|format(product.price) }}
+                        </span>
+
+                        {% if product.is_available %}
+                        <span class="tl-status tl-available">
+                            Available
+                        </span>
+                        {% else %}
+                        <span class="tl-status tl-unavailable">
+                            Unavailable
+                        </span>
+                        {% endif %}
+
+                    </div>
+
+                    <a
+                        class="tl-product-link"
+                        href="{{ url_for('products.product_detail', slug=product.slug) }}"
+                    >
+                        View Product
+                        <span aria-hidden="true">→</span>
+                    </a>
+
+                </div>
+
+            </article>
+
+            {% else %}
+
+            <p class="tl-empty">
+                Our bakery products will appear here soon.
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="tl-featured-footer">
+            <a
+                href="{{ url_for('products.browse') }}"
+                class="tl-primary-button"
+            >
+                Explore Full Menu
+                <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ==============================
+     ABOUT / BRAND SECTION
+     ============================== -->
+
+<section class="tl-about-section">
+    <div class="container tl-about-grid">
+
+        <div class="tl-about-decoration">
+            <div class="tl-about-logo">
+                <img
+                    src="{{ url_for('auth.static', filename='logo.jpg') }}"
+                    alt="Tali's Bread & Pastries"
+                    loading="lazy"
+                >
+            </div>
+        </div>
+
+        <div class="tl-about-content">
+
+            <span class="tl-section-label">
+                GET TO KNOW TALI'S
+            </span>
+
+            <h2>
+                A little treat can
+                <em>brighten any day.</em>
+            </h2>
+
+            <p>
+                From something sweet to something savory,
+                explore our bakery's selection of breads,
+                cookies, and pastries.
+            </p>
+
+            <a
+                href="{{ url_for('index.about') }}"
+                class="tl-secondary-link"
+            >
+                More About Tali's
+                <span aria-hidden="true">→</span>
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ==============================
+     FINAL CTA
+     ============================== -->
+
+<section class="tl-final-section">
+    <div class="container">
+
+        <div class="tl-final-card">
+
+            <div>
+                <span class="tl-final-label">
+                    TALI'S BREAD &amp; PASTRIES
+                </span>
+
+                <h2>
+                    Your next favorite
+                    <em>is waiting.</em>
+                </h2>
+
+                <p>
+                    Explore our freshly inspired selection
+                    of delicious treats.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('products.browse') }}"
+                class="tl-final-button"
+            >
+                Browse Our Menu
+                <span aria-hidden="true">↗</span>
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

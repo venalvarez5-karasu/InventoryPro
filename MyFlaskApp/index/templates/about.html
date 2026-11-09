@@ -1,0 +1,36 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section class="simple-page">
+    <div class="container">
+
+        <span class="eyebrow">
+            GET TO KNOW TALI'S
+        </span>
+
+        <h1>About Tali's Bread &amp; Pastries</h1>
+
+        <p>
+            Welcome to Tali's Bread &amp; Pastries.
+            Our menu features ensaimadas, almond treats,
+            cookies, and savory breads.
+        </p>
+
+        <p>
+            Explore our selection and discover
+            your next favorite baked treat.
+        </p>
+
+        <a
+            href="{{ url_for('products.browse') }}"
+            class="btn"
+        >
+            Explore Our Menu
+        </a>
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "admin_base.html" %}
+{% block content %}
+{% set metrics = overview|default({}) %}
+<div class="adm-page-heading">
+  <div>
+    <span class="adm-eyebrow">BAKERY OPERATIONS</span>
+    <h1>Dashboard overview</h1>
+    <p>Manage your product catalog and monitor bakery operations in one
+      place.</p>
+  </div>
+  <a class="adm-primary-btn" href="{{ url_for('admin.add_product') }}">+ Add
+    Product</a>
+</div>
+
+<div class="adm-stats-grid" aria-label="Product statistics">
+  <div class="adm-stat-card"><span class="adm-stat-label">Total
+      Products</span><strong>{{ stats.total or 0 }}</strong><small>All product
+      records</small></div>
+  <div class="adm-stat-card"><span class="adm-stat-label">Visible in
+      Catalog</span><strong>{{ stats.active or 0 }}</strong><small>Active
+      products</small></div>
+  <div class="adm-stat-card"><span class="adm-stat-label">Available to
+      Order</span><strong>{{ stats.available or 0 }}</strong><small>Ordering
+      enabled</small></div>
+  <div class="adm-stat-card"><span class="adm-stat-label">Archived
+      Products</span><strong>{{ stats.archived or 0 }}</strong><small>Hidden
+      from customers</small></div>
+</div>
+
+<section class="adm-panel" aria-labelledby="recent-products-heading">
+  <div class="adm-panel-heading">
+    <div><h2 id="recent-products-heading">Recently Updated Products</h2><p>Most
+        recent changes to the menu.</p></div>
+    <a class="adm-text-link"
+      href="{{ url_for('admin.manage_products') }}">Manage Products →</a>
+  </div>
+  <div class="adm-table-scroll">
+    <table class="adm-table">
+      <thead><tr><th scope="col">Product</th><th scope="col">Category</th><th
+            scope="col">Price</th><th scope="col">Status</th><th
+            scope="col">Action</th></tr></thead>
+      <tbody>
+        {% for product in recent_products %}
+        <tr>
+          <td><div class="adm-product-cell">
+              <span class="adm-thumbnail">
+                {% if product.image_path %}<img
+                  src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
+                  alt loading="lazy">
+                {% else %}<svg viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.7"
+                  aria-hidden="true"><rect x="3" y="3" width="18" height="18"
+                    rx="3" /><path d="m3 16 5-5 4 4 4-6 5 7" /></svg>{% endif %}
+              </span>
+              <span><strong>{{ product.name }}</strong><small>Product #{{
+                  product.id }}</small></span>
+            </div></td>
+          <td>{{ product.category_name }}</td>
+          <td class="adm-price-cell">₱{{ '%.2f'|format(product.price) }}</td>
+          <td><span
+              class="adm-status {{ 'archived' if not product.is_active else ('available' if product.is_available else 'unavailable') }}">{{
+              'Archived' if not product.is_active else ('Available' if
+              product.is_available else 'Unavailable') }}</span></td>
+          <td>{% if product.is_active %}<a class="adm-action-button"
+              href="{{ url_for('admin.edit_product', product_id=product.id) }}">Edit</a>{%
+            else %}<a class="adm-text-link"
+              href="{{ url_for('admin.manage_products', status='archived') }}">Archive</a>{%
+            endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="adm-empty-cell">No products yet. Add your
+            first product to begin.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="adm-page-heading adm-overview-heading">
+  <div><span class="adm-eyebrow">OPERATIONS AT A GLANCE</span><h1>Business
+      activity</h1><p>Current counts from your MySQL records.</p></div>
+</div>
+<div class="adm-stats-grid" aria-label="Business statistics">
+  <div class="adm-stat-card"><span
+      class="adm-stat-label">Customers</span><strong>{{
+      customer_count|default(0) }}</strong><small>Registered customer
+      accounts</small></div>
+  <div class="adm-stat-card"><span class="adm-stat-label">Total
+      Orders</span><strong>{{ metrics.total_orders|default(0, true)
+      }}</strong><small>Orders received</small></div>
+  <div class="adm-stat-card"><span class="adm-stat-label">Waiting for
+      Review</span><strong>{{ metrics.waiting_orders|default(0, true)
+      }}</strong><small>Pending or unverified</small></div>
+  <div class="adm-stat-card"><span class="adm-stat-label">Low-Stock
+      Items</span><strong>{{ low_stock_count|default(0) }}</strong><small>Items
+      at or below reorder level</small></div>
+</div>
+
+<div class="adm-overview-grid">
+  <section class="adm-panel" aria-labelledby="orders-heading">
+    <div class="adm-panel-heading"><div><h2 id="orders-heading">Recent
+          Orders</h2><p>Latest orders and their status.</p></div><a
+        class="adm-text-link" href="{{ url_for('admin.admin_orders') }}">All
+        Orders →</a></div>
+    <div class="adm-table-scroll"><table class="adm-table">
+        <thead><tr><th scope="col">Order</th><th scope="col">Status</th><th
+              scope="col">Total</th></tr></thead>
+        <tbody>
+          {% for order in recent_orders|default([]) %}
+          <tr><td><a
+                href="{{ url_for('admin.admin_order_detail', order_id=order.id) }}"><strong>{{
+                  order.order_number }}</strong></a></td><td>{{
+              order.status|replace('_',' ')|title }}</td><td
+              class="adm-price-cell">₱{{ '%.2f'|format(order.total_amount)
+              }}</td></tr>
+          {% else %}<tr><td colspan="3" class="adm-empty-cell">No orders have
+              been placed yet.</td></tr>{% endfor %}
+        </tbody></table></div>
+  </section>
+  <section class="adm-panel" aria-labelledby="stock-heading">
+    <div class="adm-panel-heading"><div><h2 id="stock-heading">Inventory
+          Alerts</h2><p>Items below their reorder threshold.</p></div><a
+        class="adm-text-link"
+        href="{{ url_for('admin.admin_inventory') }}">Stock Control →</a></div>
+    <div class="adm-table-scroll"><table class="adm-table">
+        <thead><tr><th scope="col">Inventory Item</th><th scope="col">On
+              Hand</th></tr></thead>
+        <tbody>
+          {% for item in low_stock|default([]) %}
+          <tr><td><strong>{{ item.item_name }}</strong></td><td><span
+                class="adm-status archived">{{ item.quantity_on_hand }} {{
+                item.unit }}</span></td></tr>
+          {% else %}<tr><td colspan="2" class="adm-empty-cell">No low-stock
+              alerts at the moment.</td></tr>{% endfor %}
+        </tbody></table></div>
+  </section>
+</div>
+<div class="adm-quick-grid" aria-label="Quick links">
+  <a class="adm-quick-card" href="{{ url_for('admin.add_product') }}"><span
+      class="adm-quick-icon">+</span><strong>Add a Product</strong><p>Add
+      images, prices, descriptions, and availability.</p></a>
+  <a class="adm-quick-card"
+    href="{{ url_for('admin.admin_delivery_areas') }}"><span
+      class="adm-quick-icon">⌖</span><strong>Delivery Coverage</strong><p>Review
+      approved service areas, delivery fees, and COD settings.</p></a>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section class="simple-page">
+    <div class="container">
+
+        <span class="eyebrow">
+            GET IN TOUCH
+        </span>
+
+        <h1>Contact Tali's</h1>
+
+        <p>
+            Have questions about our products,
+            orders, or delivery coverage?
+        </p>
+
+        <p>
+            Official bakery contact information
+            will be added here when confirmed.
+        </p>
+
+        <a
+            href="{{ url_for('products.browse') }}"
+            class="btn btn-outline"
+        >
+            Browse Our Products
+        </a>
+
+    </div>
+</section>
+
+{% endblock %}
