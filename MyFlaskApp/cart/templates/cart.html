@@ -1,0 +1,154 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section
+    class="container"
+    style="padding: 48px 0; min-height: 65vh;"
+>
+
+    <h1>Your Cart</h1>
+
+    <p>
+        Review your products and quantities
+        before checkout.
+    </p>
+
+    {% if items %}
+
+    <div style="overflow-x: auto;">
+
+        <table
+            style="width: 100%; border-collapse: collapse; text-align: left;"
+        >
+
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+
+                <tr style="border-bottom: 1px solid #eae4ee;">
+
+                    <td style="padding: 15px 5px;">
+
+                        <a href="{{ url_for('products.product_detail', slug=item.slug) }}">
+                            {{ item.name }}
+                        </a>
+
+                        {% if not item.is_active or not item.is_available %}
+
+                        <span
+                            style="color: #a33; display: block;"
+                        >
+                            Currently unavailable —
+                            remove before checkout.
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        ₱{{ "%.2f"|format(item.price) }}
+                    </td>
+
+                    <td>
+
+                        <form
+                            method="post"
+                            action="{{ url_for('cart.update_cart') }}"
+                            style="display: flex; gap: 8px; align-items: center;"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="product_id"
+                                value="{{ item.id }}"
+                            >
+
+                            <input
+                                type="number"
+                                name="quantity"
+                                min="0"
+                                max="99"
+                                value="{{ item.quantity }}"
+                                aria-label="Quantity for {{ item.name }}"
+                                style="width: 65px; padding: 7px;"
+                            >
+
+                            <button type="submit">
+                                Update
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                    <td>
+                        ₱{{ "%.2f"|format(item.line_total) }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="text-align: right; font-weight: bold; margin-top: 20px;">
+        Subtotal: ₱{{ "%.2f"|format(subtotal) }}
+    </p>
+
+    <p style="text-align: right; color: #75677c;">
+        Delivery fee is calculated from your
+        approved address during checkout.
+    </p>
+
+    <div
+        style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;"
+    >
+
+        <a href="{{ url_for('products.browse') }}">
+            Continue Shopping
+        </a>
+
+        <a
+            href="{{ url_for('cart.checkout') }}"
+            style="background: #69508d; color: white; padding: 11px 20px; border-radius: 8px;"
+        >
+            Proceed to Checkout
+        </a>
+
+    </div>
+
+    {% else %}
+
+    <p>Your cart is empty.</p>
+
+    <a href="{{ url_for('products.browse') }}">
+        Browse Products →
+    </a>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

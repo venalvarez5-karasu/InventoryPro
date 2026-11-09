@@ -113,6 +113,14 @@
                         %}aria-current="page" {% endif %}>{{
                         nav_icon('location') }}<span>Delivery Areas</span></a>
                     <span class="adm-nav-heading">INSIGHTS</span>
+
+                    <a
+                        href="{{ url_for('production.recipe_list') }}"
+                        class="{% if request.blueprint == 'production' %}active{% endif %}">
+                        <span class="adm-nav-icon">▧</span>
+                        Recipes &amp; Costs
+                    </a>
+
                     <a href="{{ url_for('admin.admin_insights') }}"
                         class="{{ 'active' if ep == 'admin.admin_insights' else '' }}"
                         {% if ep == 'admin.admin_insights' %}aria-current="page"

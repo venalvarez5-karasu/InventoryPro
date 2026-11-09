@@ -4,8 +4,8 @@
   <div><span class="adm-eyebrow">CATALOG / PRODUCT MANAGEMENT</span><h1>Manage
       Products</h1><p>Keep your bakery's online catalog accurate and up to
       date.</p></div>
-  <a href="{{ url_for('admin.add_product') }}" class="adm-primary-btn">+ Add
-    Product</a>
+  <a href="{{ url_for('admin.add_product') }}" class="adm-primary-btn"
+    data-modal-url="{{ url_for('admin.add_product') }}">+ Add Product</a>
 </div>
 
 <div class="adm-summary-row" aria-label="Product counts">
@@ -80,7 +80,8 @@
             <div class="adm-table-actions">
               {% if product.is_active %}
               <a class="adm-action-button"
-                href="{{ url_for('admin.edit_product', product_id=product.id) }}">Edit</a>
+                href="{{ url_for('admin.edit_product', product_id=product.id) }}"
+                data-modal-url="{{ url_for('admin.edit_product', product_id=product.id) }}">Edit</a>
               <form method="post"
                 action="{{ url_for('admin.toggle_availability', product_id=product.id) }}">
                 <input type="hidden" name="csrf_token"

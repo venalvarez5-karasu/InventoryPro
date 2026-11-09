@@ -21,6 +21,9 @@ from MyFlaskApp.auth.auth_bp import (
 from .admin_bp import (
     admin_bp, db_one, db_all, db_write
 )
+from MyFlaskApp.production.stock_ops import (
+    deduct_order_recipe_stock
+)
 
 
 ORDER_STATUSES = (
@@ -585,6 +588,14 @@ def admin_order_status(order_id):
                 "This order status change "
                 "is not allowed."
             )
+            
+            
+        if target == "confirmed":
+            deduct_order_recipe_stock(    
+                cur=cur,
+                order_id=order_id,
+                actor_id=actor_id(),
+            )    
 
         cur.execute(
             """

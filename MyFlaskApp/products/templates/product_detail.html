@@ -30,26 +30,25 @@
 
                 {% if product.image_path %}
 
-                    <img
-                        src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
-                        alt="{{ product.name }}"
-                    >
+                <img
+                    src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
+                    alt="{{ product.name }}">
 
                 {% else %}
 
-                    <span class="detail-placeholder" aria-hidden="true">
+                <span class="detail-placeholder" aria-hidden="true">
 
-                        {% if product.category_slug == 'cookies' %}
-                            🍪
-                        {% elif product.category_slug == 'almonds' %}
-                            🍫
-                        {% elif product.category_slug == 'savory-breads' %}
-                            🍞
-                        {% else %}
-                            🥐
-                        {% endif %}
+                    {% if product.category_slug == 'cookies' %}
+                    🍪
+                    {% elif product.category_slug == 'almonds' %}
+                    🍫
+                    {% elif product.category_slug == 'savory-breads' %}
+                    🍞
+                    {% else %}
+                    🥐
+                    {% endif %}
 
-                    </span>
+                </span>
 
                 {% endif %}
 
@@ -72,22 +71,22 @@
 
                 {% if product.is_available %}
 
-                    <span class="availability available">
-                        Available to order
-                    </span>
+                <span class="availability available">
+                    Available to order
+                </span>
 
                 {% else %}
 
-                    <span class="availability unavailable">
-                        Currently unavailable
-                    </span>
+                <span class="availability unavailable">
+                    Currently unavailable
+                </span>
 
                 {% endif %}
 
                 {% if product.is_made_to_order %}
-                    <p class="detail-note">
-                        Made-to-order product
-                    </p>
+                <p class="detail-note">
+                    Made-to-order product
+                </p>
                 {% endif %}
 
                 <hr>
@@ -96,19 +95,54 @@
 
                 <p class="detail-description">
                     {% if product.description %}
-                        {{ product.description }}
+                    {{ product.description }}
                     {% else %}
-                        More product details will be added soon.
+                    More product details will be added soon.
                     {% endif %}
                 </p>
 
-                <button
-                    type="button"
-                    class="btn disabled-button"
-                    disabled
-                >
-                    Add to Cart — Coming Soon
+                {% if product.is_active and product.is_available %}
+
+                <form
+                    action="{{ url_for('cart.add_to_cart') }}"
+                    method="post">
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
+
+                    <input
+                        type="hidden"
+                        name="product_id"
+                        value="{{ product.id }}">
+
+                    <label for="cart-quantity">
+                        Quantity
+                    </label>
+
+                    <input
+                        type="number"
+                        id="cart-quantity"
+                        name="quantity"
+                        min="1"
+                        max="99"
+                        value="1"
+                        required>
+
+                    <button type="submit">
+                        Add to Cart
+                    </button>
+
+                </form>
+
+                {% else %}
+
+                <button type="button" disabled>
+                    Currently Unavailable
                 </button>
+
+                {% endif %}
 
                 <p class="detail-note">
                     Online ordering will be enabled
@@ -117,8 +151,7 @@
 
                 <a
                     href="{{ url_for('products.browse') }}"
-                    class="text-arrow"
-                >
+                    class="text-arrow">
                     ← Back to Products
                 </a>
 

@@ -1,4 +1,4 @@
-{% extends "admin_base.html" %}
+{% extends "admin_modal_base.html" if modal else "admin_base.html" %}
 {% block content %}
 {% set editing = product is not none %}
 {% set selected_category = request.form.get('category_id', product.category_id
@@ -12,6 +12,7 @@ if product else '') %}
 {% set available_checked = product.is_available if product else false %}
 {% set mto_checked = product.is_made_to_order if product else false %}
 {% endif %}
+{% if not modal %}
 <div class="adm-page-heading">
   <div><a class="adm-back-link" href="{{ url_for('admin.manage_products') }}">←
       Back to Products</a><span class="adm-eyebrow"
@@ -20,8 +21,9 @@ if product else '') %}
       'Update details shown on the customer site.' if editing else
       'Fill in the information for a new bakery product.' }}</p></div>
 </div>
+{% endif %}
 <form method="post" action="{{ form_action }}" enctype="multipart/form-data"
-  class="adm-product-form">
+  class="adm-product-form" {% if modal %}data-modal-form{% endif %}>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div class="adm-form-grid">
     <section class="adm-panel adm-form-panel"
@@ -114,9 +116,17 @@ if product else '') %}
       </section>
     </div>
   </div>
-  <div class="adm-form-actions"><a class="adm-secondary-btn"
-      href="{{ url_for('admin.manage_products') }}">Cancel</a><button
+  <div class="adm-form-actions">{% if modal %}<button class="adm-secondary-btn"
+      type="button"
+      data-modal-close>Cancel</button>{% else %}<a class="adm-secondary-btn"
+      href="{{ url_for('admin.manage_products') }}">Cancel</a>{% endif %}<button
       class="adm-primary-btn" type="submit">{{ 'Save Changes' if editing else
       'Add Product' }}</button></div>
 </form>
 {% endblock %}
+{% block modal_eyebrow %}CATALOG / PRODUCT DETAILS{% endblock %}
+{% block modal_title %}{{ 'Edit Product' if product else 'Add New Product' }}{%
+endblock %}
+{% block modal_subtitle %}{{ 'Update details shown on the customer site.' if
+product else 'Fill in the information for a new bakery product.' }}{% endblock
+%}

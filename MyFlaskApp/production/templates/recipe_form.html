@@ -1,0 +1,221 @@
+
+{% extends "_admin_base.html" %}
+
+{% block content %}
+
+<div class="adm-page-heading">
+    <div>
+        <a
+            class="adm-back-link"
+            href="{{ url_for('production.recipe_list') }}"
+        >
+            ← Back to Recipes
+        </a>
+
+        <h1>{{ product.name }}</h1>
+
+        <p>
+            Enter the full batch yield and the
+            ingredients used to produce that batch.
+        </p>
+    </div>
+</div>
+
+<section class="adm-panel adm-console-panel">
+
+    <form method="post" id="recipe-form">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <div class="adm-flex-form">
+            <label>
+                Pieces Produced per Batch
+
+                <input
+                    type="number"
+                    name="yield_pieces"
+                    min="1"
+                    max="100000"
+                    required
+                    value="{{ request.form.get('yield_pieces', recipe.yield_pieces if recipe else 1) }}"
+                >
+            </label>
+        </div>
+
+        <h2 style="margin-top: 24px;">
+            Ingredients per Batch
+        </h2>
+
+        <div id="recipe-lines">
+
+            {% for line in ingredients %}
+
+            <div class="adm-flex-form recipe-line">
+
+                <label>
+                    Inventory Item
+
+                    <select name="item_id" required>
+                        {% for item in stock %}
+                        <option
+                            value="{{ item.id }}"
+                            {% if item.id == line.inventory_item_id %}selected{% endif %}
+                        >
+                            {{ item.item_name }} ({{ item.unit }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Quantity per Batch
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        min="0.001"
+                        step="0.001"
+                        required
+                        value="{{ line.quantity_per_batch }}"
+                    >
+                </label>
+
+                <button
+                    type="button"
+                    class="adm-secondary-btn remove-line"
+                >
+                    Remove
+                </button>
+
+            </div>
+
+            {% endfor %}
+        </div>
+
+        <button
+            type="button"
+            id="add-line"
+            class="adm-secondary-btn"
+            {% if not stock %}disabled{% endif %}
+        >
+            + Add Ingredient
+        </button>
+
+        <p class="adm-console-muted">
+            Use the inventory item's stored unit.
+            If the item is recorded in grams, enter grams.
+            Use actual recipe quantities supplied by the bakery.
+        </p>
+
+        <div
+            class="adm-field"
+            style="margin-top: 20px;"
+        >
+
+            <label for="instructions">
+                Preparation Notes (Optional)
+            </label>
+
+            <textarea
+                id="instructions"
+                name="instructions"
+                maxlength="4000"
+            >{{ request.form.get('instructions', recipe.instructions if recipe and recipe.instructions else '') }}</textarea>
+
+        </div>
+
+        <div class="adm-form-actions">
+
+            <a
+                href="{{ url_for('production.recipe_list') }}"
+                class="adm-secondary-btn"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="adm-primary-btn"
+                {% if not stock %}disabled{% endif %}
+            >
+                Save Recipe
+            </button>
+
+        </div>
+    </form>
+
+</section>
+
+<template id="ingredient-template">
+
+    <div class="adm-flex-form recipe-line">
+
+        <label>
+            Inventory Item
+
+            <select name="item_id" required>
+
+                {% for item in stock %}
+                <option value="{{ item.id }}">
+                    {{ item.item_name }} ({{ item.unit }})
+                </option>
+                {% endfor %}
+
+            </select>
+        </label>
+
+        <label>
+            Quantity per Batch
+
+            <input
+                type="number"
+                name="quantity"
+                min="0.001"
+                step="0.001"
+                required
+            >
+        </label>
+
+        <button
+            type="button"
+            class="adm-secondary-btn remove-line"
+        >
+            Remove
+        </button>
+
+    </div>
+
+</template>
+
+<script>
+(() => {
+
+    const lines = document.querySelector("#recipe-lines");
+    const template = document.querySelector("#ingredient-template");
+
+    document.querySelector("#add-line").addEventListener(
+        "click",
+        () => {
+            if (lines.children.length >= 50) return;
+
+            lines.append(
+                template.content.cloneNode(true)
+            );
+        }
+    );
+
+    lines.addEventListener("click", (event) => {
+
+        if (event.target.closest(".remove-line")) {
+            event.target.closest(".recipe-line").remove();
+        }
+    });
+
+})();
+</script>
+
+{% endblock %}

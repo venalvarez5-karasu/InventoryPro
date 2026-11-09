@@ -1,0 +1,107 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section
+    class="container"
+    style="padding: 45px 0; max-width: 900px; min-height: 65vh;"
+>
+
+    <a href="{{ url_for('orders.order_list') }}">
+        ← My Orders
+    </a>
+
+    <h1>
+        Order {{ order.order_number }}
+    </h1>
+
+    <p>
+        <strong>Status:</strong>
+        {{ order.status|replace('_', ' ')|title }}
+    </p>
+
+    <p>
+        Placed: {{ order.created_at }}
+    </p>
+
+    <p>
+        <strong>Delivery:</strong>
+        {{ order.delivery_address_snapshot or 'Pickup' }}
+    </p>
+
+    <p>
+        <strong>Payment:</strong>
+        {{ order.payment_method|replace('_', ' ')|upper }}
+    </p>
+
+    <h2>Items</h2>
+
+    <div style="overflow-x: auto;">
+
+        <table
+            style="width: 100%; border-collapse: collapse; text-align: left;"
+        >
+
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in items %}
+
+                <tr
+                    style="border-bottom: 1px solid #ece6f0;"
+                >
+
+                    <td style="padding: 12px 5px;">
+                        {{ item.product_name_snapshot }}
+                    </td>
+
+                    <td>{{ item.quantity }}</td>
+
+                    <td>
+                        ₱{{ "%.2f"|format(item.unit_price) }}
+                    </td>
+
+                    <td>
+                        ₱{{ "%.2f"|format(item.line_total) }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p>
+        Subtotal:
+        ₱{{ "%.2f"|format(order.subtotal) }}
+    </p>
+
+    <p>
+        Delivery Fee:
+        ₱{{ "%.2f"|format(order.delivery_fee) }}
+    </p>
+
+    <h3>
+        Total:
+        ₱{{ "%.2f"|format(order.total_amount) }}
+    </h3>
+
+    <p>
+        The bakery will update your order status
+        after reviewing your order.
+    </p>
+
+</section>
+
+{% endblock %}

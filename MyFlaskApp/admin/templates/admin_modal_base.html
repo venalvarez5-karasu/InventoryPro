@@ -1,0 +1,22 @@
+{# Slim layout for pages shown inside the pop-up (<dialog id="adm-modal"> in admin_base.html).
+   No <html>/<head>: style.css and main.js are already loaded by the page behind it. #}
+<div class="adm-modal-header">
+  <div>
+    <span class="adm-eyebrow">{% block modal_eyebrow %}{% endblock %}</span>
+    <h2 id="adm-modal-title">{% block modal_title %}{{ title|default('') }}{% endblock %}</h2>
+    <p>{% block modal_subtitle %}{% endblock %}</p>
+  </div>
+  <button type="button" class="adm-modal-x" data-modal-close
+    aria-label="Close">&times;</button>
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="adm-modal-flash" role="alert">
+  {% for category, message in messages %}<div
+    class="adm-alert adm-alert-{{ category|e }}">{{ message }}</div>{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+<div class="adm-modal-body">
+  {% block content %}{% endblock %}
+</div>

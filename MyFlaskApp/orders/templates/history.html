@@ -1,0 +1,86 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section
+    class="container"
+    style="padding: 45px 0; min-height: 65vh;"
+>
+
+    <h1>My Orders</h1>
+
+    <p>
+        View your order details and latest status.
+    </p>
+
+    <div style="overflow-x: auto;">
+
+        <table
+            style="width: 100%; border-collapse: collapse; text-align: left;"
+        >
+
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for order in orders %}
+
+                <tr
+                    style="border-bottom: 1px solid #eae1ee;"
+                >
+
+                    <td style="padding: 15px 6px;">
+                        {{ order.order_number }}
+                    </td>
+
+                    <td>
+                        {{ order.created_at }}
+                    </td>
+
+                    <td>
+                        {{ order.status|replace('_', ' ')|title }}
+                    </td>
+
+                    <td>
+                        ₱{{ "%.2f"|format(order.total_amount) }}
+                    </td>
+
+                    <td>
+                        <a
+                            href="{{ url_for('orders.order_detail', order_id=order.id) }}"
+                        >
+                            View →
+                        </a>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td
+                        colspan="5"
+                        style="padding: 25px;"
+                    >
+                        No orders placed yet.
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}

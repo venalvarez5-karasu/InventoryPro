@@ -1,0 +1,528 @@
+
+{% extends "store_base.html" %}
+
+{% block content %}
+
+<section
+    class="container"
+    style="padding: 45px 0; max-width: 900px; min-height: 65vh;"
+>
+
+    <!-- =====================================
+         CHECKOUT HEADING
+         ===================================== -->
+
+    <h1>Checkout</h1>
+
+    <p>
+        Cash on Delivery · Orders are reviewed
+        before confirmation.
+    </p>
+
+    <div
+        style="
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: 24px;
+            align-items: start;
+        "
+    >
+
+        <!-- =====================================
+             DELIVERY ADDRESS
+             ===================================== -->
+
+        <div
+            style="
+                border: 1px solid #e8dfee;
+                border-radius: 14px;
+                padding: 22px;
+                background: white;
+            "
+        >
+
+            <h2 style="font-size: 20px;">
+                Delivery Address
+            </h2>
+
+            {% if not addresses %}
+
+                <p>
+                    No saved address yet.
+
+                    <a href="{{ url_for('auth.complete_profile') }}">
+                        Complete Your Address
+                    </a>
+                </p>
+
+            {% elif not eligible %}
+
+                <p>
+                    None of your saved addresses is
+                    within an enabled COD delivery area.
+                </p>
+
+                <p>
+                    Please contact the bakery to confirm
+                    delivery coverage or update your address.
+                </p>
+
+            {% else %}
+
+                <!-- CHECKOUT FORM -->
+
+                <form
+                    id="checkout-form"
+                    method="post"
+                    action="{{ url_for('cart.checkout') }}"
+                >
+
+                    <!-- CSRF PROTECTION -->
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <!-- DUPLICATE ORDER PROTECTION -->
+
+                    <input
+                        type="hidden"
+                        name="checkout_token"
+                        value="{{ checkout_token }}"
+                    >
+
+                    <!-- AVAILABLE DELIVERY ADDRESSES -->
+
+                    {% for address in eligible %}
+
+                        <label
+                            style="
+                                display: block;
+                                padding: 12px;
+                                margin-bottom: 10px;
+                                border: 1px solid #e9e0ef;
+                                border-radius: 10px;
+                                cursor: pointer;
+                            "
+                        >
+
+                            <input
+                                type="radio"
+                                name="address_id"
+                                value="{{ address.id }}"
+                                data-fee="{{ address.delivery_fee }}"
+                                {% if loop.first %}checked{% endif %}
+                                required
+                            >
+
+                            <strong>
+                                {{ address.recipient_name }}
+                            </strong>
+
+                            <span
+                                style="
+                                    display: block;
+                                    margin-left: 24px;
+                                    color: #71667d;
+                                "
+                            >
+                                {{ address.street_address }},
+                                {{ address.barangay }},
+                                {{ address.city_municipality }},
+                                {{ address.province }}
+                            </span>
+
+                            <span
+                                style="
+                                    display: block;
+                                    margin-left: 24px;
+                                    color: #69508d;
+                                "
+                            >
+                                Delivery fee:
+                                ₱{{ "%.2f"|format(address.delivery_fee) }}
+                            </span>
+
+                        </label>
+
+                    {% endfor %}
+
+                    <!-- ORDER NOTES -->
+
+                    <label
+                        for="customer_note"
+                        style="
+                            display: block;
+                            margin-top: 18px;
+                        "
+                    >
+                        Order Notes (Optional)
+                    </label>
+
+                    <textarea
+                        id="customer_note"
+                        name="customer_note"
+                        maxlength="500"
+                        rows="3"
+                        placeholder="Add special instructions for your order..."
+                        style="
+                            width: 100%;
+                            padding: 12px;
+                            border: 1px solid #ded3e8;
+                            border-radius: 9px;
+                            resize: vertical;
+                        "
+                    ></textarea>
+
+                    <!-- PLACE ORDER -->
+
+                    <button
+                        id="place-order"
+                        type="submit"
+                        style="
+                            padding: 13px 18px;
+                            background: #69508d;
+                            color: white;
+                            border: 0;
+                            border-radius: 9px;
+                            margin-top: 14px;
+                            cursor: pointer;
+                            font-weight: 600;
+                        "
+                    >
+                        Place COD Order
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =====================================
+             ORDER SUMMARY
+             ===================================== -->
+
+        <aside
+            style="
+                border: 1px solid #e8dfee;
+                border-radius: 14px;
+                padding: 22px;
+                background: #faf7fc;
+            "
+        >
+
+            <h2 style="font-size: 20px;">
+                Order Summary
+            </h2>
+
+            <!-- ORDER ITEMS -->
+
+            {% for item in items %}
+
+                <p
+                    style="
+                        display: flex;
+                        justify-content: space-between;
+                        gap: 10px;
+                    "
+                >
+
+                    <span>
+                        {{ item.quantity }} × {{ item.name }}
+                    </span>
+
+                    <strong>
+                        ₱{{ "%.2f"|format(item.line_total) }}
+                    </strong>
+
+                </p>
+
+            {% endfor %}
+
+            <hr>
+
+            <!-- SUBTOTAL -->
+
+            <p>
+                Subtotal
+
+                <strong style="float: right;">
+                    ₱{{ "%.2f"|format(subtotal) }}
+                </strong>
+            </p>
+
+            <!-- DELIVERY FEE -->
+
+            <p>
+                Delivery
+
+                <strong
+                    id="fee-preview"
+                    style="float: right;"
+                >
+                    {% if eligible %}
+                        ₱{{ "%.2f"|format(eligible[0].delivery_fee) }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+            </p>
+
+            <hr>
+
+            <!-- GRAND TOTAL -->
+
+            <p>
+                <strong>
+                    Total Estimate
+                </strong>
+
+                <strong
+                    id="total-preview"
+                    style="
+                        float: right;
+                        color: #69508d;
+                        font-size: 18px;
+                    "
+                >
+                    {% if eligible %}
+                        ₱{{ "%.2f"|format(
+                            subtotal + eligible[0].delivery_fee
+                        ) }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+            </p>
+
+            <small
+                style="
+                    display: block;
+                    margin-top: 15px;
+                    color: #81758d;
+                    line-height: 1.6;
+                "
+            >
+                The server verifies current product prices
+                and delivery fees when the order is submitted.
+            </small>
+
+        </aside>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================
+     PASS FLASK SUBTOTAL TO JAVASCRIPT
+     This avoids Jinja syntax inside JS.
+     ===================================== -->
+
+<input
+    type="hidden"
+    id="checkout-subtotal"
+    value="{{ '%.2f'|format(subtotal) }}"
+>
+
+
+<!-- =====================================
+     CHECKOUT JAVASCRIPT
+     ===================================== -->
+
+<script>
+"use strict";
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    // =====================================
+    // GET HTML ELEMENTS
+    // =====================================
+
+    const subtotalInput = document.getElementById(
+        "checkout-subtotal"
+    );
+
+    const feePreview = document.getElementById(
+        "fee-preview"
+    );
+
+    const totalPreview = document.getElementById(
+        "total-preview"
+    );
+
+    const addressRadios = document.querySelectorAll(
+        'input[name="address_id"]'
+    );
+
+    const checkoutForm = document.getElementById(
+        "checkout-form"
+    );
+
+    const placeOrderButton = document.getElementById(
+        "place-order"
+    );
+
+
+    // =====================================
+    // GET SUBTOTAL FROM HTML
+    // =====================================
+
+    const subtotal = subtotalInput
+        ? Number(subtotalInput.value)
+        : 0;
+
+
+    // =====================================
+    // PHILIPPINE PESO FORMATTER
+    // =====================================
+
+    function formatMoney(amount) {
+
+        const numericAmount = Number(amount);
+
+        if (!Number.isFinite(numericAmount)) {
+            return "—";
+        }
+
+        return "₱" + numericAmount.toLocaleString(
+            "en-PH",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+
+    // =====================================
+    // UPDATE DELIVERY FEE AND TOTAL
+    // =====================================
+
+    function updateCheckoutTotal() {
+
+        const selectedAddress = document.querySelector(
+            'input[name="address_id"]:checked'
+        );
+
+        // No selected address
+        if (!selectedAddress) {
+
+            if (feePreview) {
+                feePreview.textContent = "—";
+            }
+
+            if (totalPreview) {
+                totalPreview.textContent = "—";
+            }
+
+            return;
+        }
+
+        // Get delivery fee from the selected address
+        const deliveryFee = Number(
+            selectedAddress.dataset.fee
+        );
+
+        if (
+            !Number.isFinite(deliveryFee) ||
+            deliveryFee < 0
+        ) {
+
+            if (feePreview) {
+                feePreview.textContent = "—";
+            }
+
+            if (totalPreview) {
+                totalPreview.textContent = "—";
+            }
+
+            return;
+        }
+
+        // Calculate estimated total
+        const estimatedTotal = subtotal + deliveryFee;
+
+        // Update displayed delivery fee
+        if (feePreview) {
+
+            feePreview.textContent = formatMoney(
+                deliveryFee
+            );
+        }
+
+        // Update displayed grand total
+        if (totalPreview) {
+
+            totalPreview.textContent = formatMoney(
+                estimatedTotal
+            );
+        }
+    }
+
+
+    // =====================================
+    // LISTEN FOR ADDRESS CHANGES
+    // =====================================
+
+    addressRadios.forEach((radio) => {
+
+        radio.addEventListener(
+            "change",
+            updateCheckoutTotal
+        );
+
+    });
+
+
+    // =====================================
+    // INITIAL CALCULATION
+    // =====================================
+
+    updateCheckoutTotal();
+
+
+    // =====================================
+    // PREVENT DUPLICATE SUBMISSIONS
+    // =====================================
+
+    if (checkoutForm && placeOrderButton) {
+
+        let isSubmitting = false;
+
+        checkoutForm.addEventListener(
+            "submit",
+            (event) => {
+
+                if (isSubmitting) {
+
+                    event.preventDefault();
+                    return;
+                }
+
+                // Browser validates required inputs
+                // before firing the submit event.
+                isSubmitting = true;
+
+                placeOrderButton.disabled = true;
+
+                placeOrderButton.textContent =
+                    "Submitting Order...";
+
+                placeOrderButton.style.opacity = "0.7";
+
+                placeOrderButton.style.cursor =
+                    "not-allowed";
+            }
+        );
+    }
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,184 @@
+
+{% extends "admin_base.html" %}
+
+{% block content %}
+
+<div class="adm-page-heading">
+    <div>
+        <span class="adm-eyebrow">
+            PRODUCTION MANAGEMENT
+        </span>
+
+        <h1>Recipes &amp; Costs</h1>
+
+        <p>
+            Manage actual bakery recipes,
+            ingredient costs, and estimated profit margins.
+        </p>
+    </div>
+</div>
+
+<section class="adm-panel adm-console-panel">
+
+    <h2>Product Recipes</h2>
+
+    <div class="adm-table-scroll">
+        <table class="adm-table">
+
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Yield / Batch</th>
+                    <th>Cost / Piece</th>
+                    <th>Selling Price</th>
+                    <th>Gross Margin</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for p in products %}
+
+                <tr>
+                    <td>
+                        <strong>{{ p.name }}</strong>
+                    </td>
+
+                    <td>
+                        {{ p.yield_pieces or "Not set" }}
+                    </td>
+
+                    <td>
+                        {% if p.cost_each is not none %}
+                            ₱{{ "%.2f"|format(p.cost_each) }}
+                        {% else %}
+                            Incomplete
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        ₱{{ "%.2f"|format(p.price) }}
+                    </td>
+
+                    <td>
+                        {% if p.margin is not none %}
+                            {{ "%.1f"|format(p.margin) }}%
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a
+                            class="adm-action-button"
+                            href="{{ url_for('production.recipe_edit', product_id=p.id) }}"
+                        >
+                            {{ "Edit Recipe" if p.recipe_id else "Set Up Recipe" }}
+                        </a>
+                    </td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="6" class="adm-empty-cell">
+                        No active products.
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section
+    class="adm-panel adm-console-panel"
+    style="margin-top: 18px;"
+>
+
+    <h2>Ingredient &amp; Packaging Unit Costs</h2>
+
+    <p class="adm-console-muted">
+        Enter the purchase cost per stored unit.
+        For example, an ingredient measured in grams
+        needs its cost per gram, not per kilogram.
+    </p>
+
+    <div class="adm-table-scroll">
+
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Inventory Item</th>
+                    <th>Unit</th>
+                    <th>Current Unit Cost</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in cost_items %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ item.item_name }}</strong>
+                    </td>
+
+                    <td>{{ item.unit }}</td>
+
+                    <td>
+                        {% if item.unit_cost is not none %}
+                            ₱{{ "%.4f"|format(item.unit_cost) }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <form
+                            method="post"
+                            class="adm-search-form"
+                            action="{{ url_for('production.save_unit_cost', item_id=item.id) }}"
+                        >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <input
+                                type="number"
+                                name="unit_cost"
+                                min="0"
+                                max="99999999.9999"
+                                step="0.0001"
+                                placeholder="Cost / {{ item.unit }}"
+                                value="{{ item.unit_cost if item.unit_cost is not none else '' }}"
+                            >
+
+                            <button type="submit">
+                                Save
+                            </button>
+
+                        </form>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="4" class="adm-empty-cell">
+                        Register inventory ingredients first.
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}
