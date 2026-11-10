@@ -58,7 +58,7 @@
                     </td>
 
                     <td>
-                        â‚±{{ "%.2f"|format(item.price) }}
+                        &#8369;{{ "%.2f"|format(item.price) }}
                     </td>
 
                     <td>
@@ -100,7 +100,7 @@
                     </td>
 
                     <td>
-                        â‚±{{ "%.2f"|format(item.line_total) }}
+                        &#8369;{{ "%.2f"|format(item.line_total) }}
                     </td>
 
                 </tr>
@@ -114,7 +114,7 @@
     </div>
 
     <p style="text-align: right; font-weight: bold; margin-top: 20px;">
-        Subtotal: â‚±{{ "%.2f"|format(subtotal) }}
+        Subtotal: &#8369;{{ "%.2f"|format(subtotal) }}
     </p>
 
     <p style="text-align: right; color: #75677c;">
@@ -144,7 +144,7 @@
     <p>Your cart is empty.</p>
 
     <a href="{{ url_for('products.browse') }}">
-        Browse Products â†’
+        Browse Products &rarr;
     </a>
 
     {% endif %}

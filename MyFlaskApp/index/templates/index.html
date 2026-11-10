@@ -45,15 +45,15 @@
                     class="tl-secondary-link"
                 >
                     Discover Our Story
-                    <span aria-hidden="true">â†’</span>
+                    <span aria-hidden="true">&rarr;</span>
                 </a>
             </div>
 
             <div class="tl-hero-categories">
                 <span>Ensaimadas</span>
-                <span class="tl-separator">Â·</span>
+                <span class="tl-separator">&middot;</span>
                 <span>Cookies</span>
-                <span class="tl-separator">Â·</span>
+                <span class="tl-separator">&middot;</span>
                 <span>Savory Breads</span>
             </div>
 
@@ -265,7 +265,7 @@
                     <div class="tl-product-details">
 
                         <span class="tl-price">
-                            â‚±{{ '%.2f'|format(product.price) }}
+                            &#8369;{{ '%.2f'|format(product.price) }}
                         </span>
 
                         {% if product.is_available %}
@@ -285,7 +285,7 @@
                         href="{{ url_for('products.product_detail', slug=product.slug) }}"
                     >
                         View Product
-                        <span aria-hidden="true">â†’</span>
+                        <span aria-hidden="true">&rarr;</span>
                     </a>
 
                 </div>
@@ -352,7 +352,7 @@
                 class="tl-secondary-link"
             >
                 More About Tali's
-                <span aria-hidden="true">â†’</span>
+                <span aria-hidden="true">&rarr;</span>
             </a>
 
         </div>

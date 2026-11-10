@@ -6,24 +6,24 @@
 <div class="adm-page-heading">
     <div>
         <a class="adm-back-link"
-           href="{{ url_for('admin.admin_orders') }}">
+            href="{{ url_for('admin.admin_orders') }}">
             ← Back to Orders
         </a>
 
         <h1>Order {{ order.order_number }}</h1>
 
         <p>
-            Placed {{ order.created_at }} Â·
-            {{ order.order_type|title }} Â·
+            Placed {{ order.created_at }} &middot;
+            {{ order.order_type|title }} &middot;
             {{ order.payment_method|replace('_', ' ')|upper }}
         </p>
     </div>
 
-    <span class="adm-status {{ 'available' if order.status == 'completed' else 'unavailable' }}">
+    <span
+        class="adm-status {{ 'available' if order.status == 'completed' else 'unavailable' }}">
         {{ order.status|replace('_', ' ')|title }}
     </span>
 </div>
-
 
 <div class="adm-console-detail-grid">
 
@@ -54,13 +54,13 @@
                         </td>
 
                         <td>
-                            â‚±{{ '%.2f'|format(item.unit_price) }}
+                            &#8369;{{ '%.2f'|format(item.unit_price) }}
                         </td>
 
                         <td>{{ item.quantity }}</td>
 
                         <td class="adm-price-cell">
-                            â‚±{{ '%.2f'|format(item.line_total) }}
+                            &#8369;{{ '%.2f'|format(item.line_total) }}
                         </td>
                     </tr>
 
@@ -79,27 +79,26 @@
             <p>
                 Subtotal
                 <strong>
-                    â‚±{{ '%.2f'|format(order.subtotal) }}
+                    &#8369;{{ '%.2f'|format(order.subtotal) }}
                 </strong>
             </p>
 
             <p>
                 Delivery fee
                 <strong>
-                    â‚±{{ '%.2f'|format(order.delivery_fee) }}
+                    &#8369;{{ '%.2f'|format(order.delivery_fee) }}
                 </strong>
             </p>
 
             <p class="adm-console-grand">
                 Total
                 <strong>
-                    â‚±{{ '%.2f'|format(order.total_amount) }}
+                    &#8369;{{ '%.2f'|format(order.total_amount) }}
                 </strong>
             </p>
         </div>
 
     </section>
-
 
     <div class="adm-console-stack">
 
@@ -149,7 +148,6 @@
 
         </section>
 
-
         <!-- STATUS -->
         <section class="adm-panel adm-console-panel">
 
@@ -158,13 +156,13 @@
             {% if allowed %}
 
             <form class="adm-mini-form"
-                  method="post"
-                  action="{{ url_for('admin.admin_order_status', order_id=order.id) }}"
-                  data-confirm="Change the order status? Confirm the fulfillment step has actually happened.">
+                method="post"
+                action="{{ url_for('admin.admin_order_status', order_id=order.id) }}"
+                data-confirm="Change the order status? Confirm the fulfillment step has actually happened.">
 
                 <input type="hidden"
-                       name="csrf_token"
-                       value="{{ csrf_token() }}">
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
 
                 <label>
                     Next status
@@ -179,7 +177,7 @@
                 </label>
 
                 <button type="submit"
-                        class="adm-primary-btn">
+                    class="adm-primary-btn">
                     Update Status
                 </button>
 
@@ -194,13 +192,14 @@
             {% endif %}
 
             <p class="adm-console-muted">
-                Changing order status does not
-                automatically deduct stock or confirm
-                that a COD payment has been collected.
+                Confirming an order automatically deducts the
+                required ingredients based on its active recipes.
+                Sufficient stock and valid recipes are required.
+
+                Payment collection is recorded separately.
             </p>
 
         </section>
-
 
         <!-- PAYMENT -->
         <section class="adm-panel adm-console-panel">
@@ -212,8 +211,8 @@
                 <strong>
                     {{ payment.status|replace('_', ' ')|title }}
                 </strong>
-                Â· â‚±{{ '%.2f'|format(payment.amount) }}
-                Â· {{ payment.payment_method|replace('_', ' ')|upper }}
+                &middot; &#8369;{{ '%.2f'|format(payment.amount) }}
+                &middot; {{ payment.payment_method|replace('_', ' ')|upper }}
             </p>
 
             {% else %}
@@ -229,15 +228,15 @@
             {% if order.status == 'completed' and not paid %}
 
             <form method="post"
-                  action="{{ url_for('admin.admin_payment_received', order_id=order.id) }}"
-                  data-confirm="Only confirm if payment was actually received. Mark this order as paid?">
+                action="{{ url_for('admin.admin_payment_received', order_id=order.id) }}"
+                data-confirm="Only confirm if payment was actually received. Mark this order as paid?">
 
                 <input type="hidden"
-                       name="csrf_token"
-                       value="{{ csrf_token() }}">
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
 
                 <button type="submit"
-                        class="adm-primary-btn">
+                    class="adm-primary-btn">
                     Confirm Payment Received
                 </button>
 

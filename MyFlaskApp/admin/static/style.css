@@ -2642,3 +2642,1086 @@ a.adm-pagination-link:hover {
     height: 18px;
     color: #8c75a8;
 }
+
+/* ==========================================
+   INVENTORYPRO - FINAL ADMIN REFINEMENTS
+   ========================================== */
+
+/* Centered modal */
+.adm-edit-dialog {
+    border: 0 !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.adm-edit-dialog[data-modal-kind="inventory"] {
+    width: min(650px, calc(100vw - 30px));
+}
+
+/* Balanced inventory forms */
+.adm-edit-dialog[data-modal-kind="inventory"]
+.adm-mini-form,
+
+.adm-edit-dialog[data-modal-kind="inventory"]
+.adm-flex-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px 14px;
+    align-items: start;
+}
+
+/* Two-column inventory fields */
+.adm-edit-dialog[data-modal-kind="inventory"]
+.adm-mini-form > label,
+
+.adm-edit-dialog[data-modal-kind="inventory"]
+.adm-flex-form > label {
+    grid-column: auto;
+    min-width: 0;
+    min-height: 0;
+    flex: none;
+    margin: 0;
+}
+
+/* Full-width inventory note */
+.adm-edit-dialog[data-modal-kind="inventory"]
+.ip-inventory-note {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+/* Footer */
+.adm-edit-dialog .adm-modal-bottom-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px solid #eae2f1;
+}
+
+.adm-edit-dialog .adm-modal-actions-end {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-left: auto;
+}
+
+.adm-edit-dialog .adm-modal-actions-end button {
+    min-width: 105px;
+    min-height: 39px;
+    margin: 0;
+    padding: 9px 14px;
+    border-radius: 9px;
+}
+
+/* Hide redundant top X, use Cancel instead */
+.adm-edit-dialog .adm-edit-close {
+    display: none !important;
+}
+
+/* Report SVG icons */
+.adm-quick-icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+/* Form notes */
+.adm-modal-note {
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+/* Pagination alignment */
+.ip-pagination {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.ip-pagination-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Mobile */
+@media (max-width: 550px) {
+    .adm-edit-dialog[data-modal-kind="inventory"]
+    .adm-mini-form,
+
+    .adm-edit-dialog[data-modal-kind="inventory"]
+    .adm-flex-form {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-edit-dialog[data-modal-kind="inventory"]
+    .adm-mini-form > label,
+
+    .adm-edit-dialog[data-modal-kind="inventory"]
+    .adm-flex-form > label {
+        grid-column: 1 / -1;
+    }
+
+    .adm-edit-dialog .adm-modal-actions-end {
+        width: 100%;
+    }
+
+    .adm-edit-dialog .adm-modal-actions-end button {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* ==========================================
+   INVENTORYPRO ADMIN
+   SIMPLIFIED HEADER + NOTIFICATIONS
+   ========================================== */
+
+:root {
+    --ip-purple: #765b9d;
+    --ip-purple-dark: #604681;
+    --ip-ink: #3d304a;
+    --ip-muted: #82768e;
+    --ip-line: #e8e0ef;
+    --ip-soft: #f5f0fa;
+}
+
+/* ------------------------------------------
+   TOP BAR
+   ------------------------------------------ */
+
+.adm-topbar {
+    min-height: 60px;
+    padding: 9px clamp(16px, 2.5vw, 30px);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.adm-topbar-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.adm-topbar-dropdown {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.adm-topbar-dropdown > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.adm-topbar-dropdown > summary::-webkit-details-marker {
+    display: none;
+}
+
+.adm-topbar-dropdown > summary::marker {
+    content: "";
+}
+
+/* ------------------------------------------
+   NOTIFICATION BELL
+   ------------------------------------------ */
+
+.adm-notification-summary {
+    position: relative;
+
+    width: 39px;
+    height: 39px;
+
+    border: 1px solid transparent;
+    border-radius: 11px;
+
+    color: #755b95;
+    background: transparent;
+
+    transition:
+        background 0.16s,
+        border-color 0.16s;
+}
+
+.adm-notification-summary:hover,
+.adm-notification-menu[open]
+.adm-notification-summary {
+    background: #f1eaf8;
+    border-color: #e8dbf1;
+}
+
+.adm-notification-count {
+    position: absolute;
+    top: -4px;
+    right: -5px;
+
+    display: grid;
+    place-items: center;
+
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+
+    border: 2px solid #fff;
+    border-radius: 999px;
+
+    background: #b35b63;
+    color: #fff;
+
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.adm-notification-count[hidden] {
+    display: none !important;
+}
+
+/* ------------------------------------------
+   PROFILE BUTTON
+   ------------------------------------------ */
+
+.adm-profile-summary {
+    min-height: 40px;
+    padding: 4px 8px 4px 4px;
+
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+}
+
+.adm-profile-summary:hover,
+.adm-profile-menu[open]
+.adm-profile-summary {
+    background: #f4eef9;
+    border-color: #e9dff1;
+}
+
+.adm-profile-summary .adm-user-avatar {
+    width: 33px;
+    height: 33px;
+    background: #ebe1f6;
+    color: #664988;
+}
+
+.adm-profile-summary .adm-admin-user {
+    color: #564664;
+    font-size: 12px;
+}
+
+.adm-profile-summary > svg {
+    color: #917ca5;
+}
+
+.adm-profile-menu[open]
+.adm-profile-summary > svg {
+    transform: rotate(180deg);
+}
+
+/* ------------------------------------------
+   SHARED DROPDOWN PANEL
+   ------------------------------------------ */
+
+.adm-menu-popover {
+    position: absolute;
+    top: calc(100% + 11px);
+    right: 0;
+    z-index: 100;
+
+    min-width: 220px;
+
+    border: 1px solid #e8e0ef;
+    border-radius: 15px;
+
+    background: rgba(255, 255, 255, 0.99);
+
+    box-shadow:
+        0 18px 45px rgba(45, 30, 66, 0.15),
+        0 3px 12px rgba(45, 30, 66, 0.04);
+
+    overflow: hidden;
+}
+
+/* ------------------------------------------
+   PROFILE DROPDOWN
+   ------------------------------------------ */
+
+.adm-profile-popover {
+    width: 240px;
+    padding: 8px;
+}
+
+.adm-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    padding: 13px 12px 14px;
+    border-bottom: 1px solid var(--ip-line);
+}
+
+.adm-profile-info strong {
+    color: var(--ip-ink);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.adm-profile-info small {
+    color: var(--ip-muted);
+    font-size: 11px;
+}
+
+.adm-profile-popover form {
+    margin: 8px 0 0;
+}
+
+.adm-profile-logout {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+
+    width: 100%;
+    min-height: 41px;
+    padding: 10px 12px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: transparent;
+    color: #7b4e74;
+
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.adm-profile-logout:hover {
+    background: #f8eff4;
+}
+
+.adm-profile-logout svg {
+    width: 17px;
+    height: 17px;
+}
+
+/* ------------------------------------------
+   NOTIFICATION DROPDOWN
+   ------------------------------------------ */
+
+.adm-notification-popover {
+    width: 395px;
+    max-width: calc(100vw - 24px);
+}
+
+.adm-notification-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 17px 18px 15px;
+    border-bottom: 1px solid var(--ip-line);
+}
+
+.adm-notification-heading strong {
+    display: block;
+
+    color: var(--ip-ink);
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.adm-notification-heading small {
+    display: block;
+    margin-top: 3px;
+
+    color: var(--ip-muted);
+    font-size: 11px;
+}
+
+.adm-notification-content {
+    max-height: min(470px, 60vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #d6c6e5 transparent;
+}
+
+.adm-notification-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 11px 17px;
+
+    background: #faf8fc;
+    border-bottom: 1px solid #eee7f3;
+}
+
+.adm-notification-section-title strong {
+    color: #775f90;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.adm-notification-section-title span {
+    color: #9987a8;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.adm-notification-item {
+    display: block;
+
+    padding: 13px 17px;
+    border-bottom: 1px solid #f1ecf5;
+
+    background: #fff;
+    color: inherit;
+    text-decoration: none;
+
+    transition: background 0.15s;
+}
+
+.adm-notification-item:hover {
+    background: #faf7fd;
+}
+
+.adm-notification-item.is-important {
+    box-shadow: inset 3px 0 #b69bcd;
+}
+
+.adm-notification-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 6px;
+}
+
+.adm-notification-label {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 3px 7px;
+    border-radius: 6px;
+
+    background: #f2ecf8;
+    color: #74538f;
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.adm-notification-item.is-important
+.adm-notification-label {
+    background: #fbefed;
+    color: #9c5b57;
+}
+
+.adm-notification-time {
+    color: #9b8fa5;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.adm-notification-item-title {
+    display: block;
+    margin-bottom: 4px;
+
+    color: #44334f;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+.adm-notification-item-description {
+    margin: 0;
+
+    color: #83788c;
+    font-size: 11px;
+    line-height: 1.55;
+
+    overflow-wrap: anywhere;
+}
+
+.adm-notification-empty {
+    padding: 18px;
+    margin: 0;
+
+    color: #93869f;
+    font-size: 11px;
+    text-align: center;
+}
+
+.adm-notification-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 17px;
+    border-top: 1px solid var(--ip-line);
+
+    background: #fbf9fd;
+}
+
+.adm-notification-footer a {
+    color: #765996;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.adm-notification-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ------------------------------------------
+   RESPONSIVE
+   ------------------------------------------ */
+
+@media (max-width: 550px) {
+    .adm-topbar {
+        min-height: 57px;
+        padding: 8px 13px;
+    }
+
+    .adm-topbar-tools {
+        gap: 6px;
+    }
+
+    .adm-profile-summary {
+        padding: 3px;
+    }
+
+    .adm-profile-summary .adm-admin-user {
+        display: none;
+    }
+
+    .adm-notification-popover {
+        width: min(365px, calc(100vw - 24px));
+    }
+
+    .adm-notification-item-top {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adm-notification-summary,
+    .adm-profile-summary,
+    .adm-notification-item {
+        transition: none;
+    }
+}
+.adm-content > .adm-page-heading:first-child {
+    margin-top: -4px;
+}
+/* ==========================================
+   REMOVE WHITE SPLIT ON TOP
+   MAKE TOP AREA ONE LIGHT-VIOLET SECTION
+   ========================================== */
+
+:root {
+    --adm-page-bg: #f6f1fb;
+    --adm-panel-bg: #ffffff;
+    --adm-border: #e8ddf2;
+    --adm-text: #2f2340;
+    --adm-muted: #7d6f90;
+    --adm-accent: #7a5aa6;
+}
+
+/* Whole admin main area */
+.adm-main-shell {
+    background: var(--adm-page-bg) !important;
+    min-height: 100vh;
+}
+
+/* Top bar */
+.adm-topbar {
+    background: var(--adm-page-bg) !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    min-height: 72px;
+    padding: 14px 28px 10px;
+}
+
+/* Main content */
+.adm-content {
+    background: var(--adm-page-bg) !important;
+    padding-top: 10px !important;
+}
+
+/* Remove any white wrapper/header strip */
+.adm-page-header,
+.adm-content-header,
+.adm-shell-header,
+.adm-inner-header {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Page heading area */
+.adm-page-heading {
+    margin-top: 0 !important;
+    padding-top: 8px !important;
+    padding-bottom: 18px !important;
+}
+
+/* If you want Dashboard Overview closer to top */
+.adm-page-heading h1 {
+    margin-top: 0 !important;
+}
+
+/* Make topbar tools blend with background */
+.adm-topbar-tools,
+.adm-topbar-right,
+.adm-topbar-left {
+    background: transparent !important;
+}
+
+/* Notification + profile buttons */
+.adm-notification-summary,
+.adm-profile-summary {
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+}
+
+.adm-notification-summary:hover,
+.adm-profile-summary:hover,
+.adm-notification-menu[open] .adm-notification-summary,
+.adm-profile-menu[open] .adm-profile-summary {
+    background: #efe6f7 !important;
+    border-color: #e2d4f0 !important;
+}
+
+/* Optional: make page sections cleaner */
+.adm-panel,
+.adm-stat-card,
+.adm-quick-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--adm-border);
+    box-shadow: none;
+}
+
+/* Make sure no white strip remains from containers */
+.adm-layout,
+.adm-main-shell,
+.adm-content,
+body {
+    background: var(--adm-page-bg) !important;
+}
+
+
+/* ==========================================
+   FINAL ADMIN COLOR SEPARATION
+   Light sidebar + soft lavender workspace
+   ========================================== */
+
+:root {
+    --ip-sidebar-bg: #fdfcff;
+    --ip-workspace-bg: #f5f1fa;
+    --ip-sidebar-divider: #e5dced;
+}
+
+/* The navigation has a lighter background */
+.adm-sidebar {
+    background: var(--ip-sidebar-bg) !important;
+    border-right: 1px solid var(--ip-sidebar-divider) !important;
+    box-shadow: 3px 0 16px rgba(63, 43, 89, 0.035);
+}
+
+/* Keep every sidebar section consistent */
+.adm-sidebar-brand,
+.adm-sidebar-nav,
+.adm-sidebar-footer {
+    background: var(--ip-sidebar-bg) !important;
+}
+
+/* Main area uses a different shade */
+.adm-main-shell,
+.adm-layout,
+.adm-content {
+    background: var(--ip-workspace-bg) !important;
+}
+
+/* Make the top bar part of the workspace */
+.adm-topbar {
+    background: var(--ip-workspace-bg) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* No extra colored block behind the profile */
+.adm-topbar-left,
+.adm-topbar-right {
+    background: transparent;
+}
+
+/* Navigation remains clearly highlighted */
+.adm-sidebar-nav a.active,
+.adm-sidebar-nav a[aria-current="page"] {
+    background: #ede4f6;
+    border-color: #decfeb;
+    color: #604682;
+}
+
+/* Keep cards visually separate from the workspace */
+.adm-content .adm-panel,
+.adm-content .adm-stat-card,
+.adm-content .adm-quick-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: #e7ddf0;
+}
+
+/* Preserve the separation on smaller screens */
+@media (max-width: 780px) {
+    .adm-sidebar {
+        background: #fdfcff !important;
+    }
+
+    .adm-main-shell,
+    .adm-content,
+    .adm-topbar {
+        background: var(--ip-workspace-bg) !important;
+    }
+}
+
+/* ==========================================
+   DELIVERY PRICING DESIGN
+   ========================================== */
+
+.adm-delivery-pricing-panel {
+    margin-bottom: 20px;
+}
+
+.adm-fee-rule-form {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        auto;
+    gap: 12px;
+    align-items: end;
+    margin-top: 15px;
+}
+
+.adm-fee-rule-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+
+    color: #514260;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.adm-fee-rule-form input {
+    width: 100%;
+    min-height: 41px;
+    padding: 9px 11px;
+
+    border: 1px solid #e3d9eb;
+    border-radius: 9px;
+    background: #fff;
+    color: #352a43;
+}
+
+.adm-fee-rule-form input:focus {
+    outline: none;
+    border-color: #a68dc1;
+    box-shadow: 0 0 0 3px rgba(118, 91, 157, 0.10);
+}
+
+.adm-fee-rule-note {
+    margin: 13px 0 0;
+    color: #84788e;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* Add/Edit delivery area forms */
+
+.adm-content .adm-delivery-area-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+
+.adm-delivery-area-form > label {
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+}
+
+.adm-delivery-area-form > label.adm-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.adm-delivery-fee-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    grid-column: 1 / -1;
+    padding: 12px 14px;
+
+    border: 1px solid #e7dcf0;
+    border-radius: 10px;
+
+    background: #f7f3fb;
+}
+
+.adm-delivery-fee-preview > span {
+    color: #7d6a90;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.adm-delivery-fee-preview > strong {
+    color: #674a89;
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.adm-delivery-fee-preview > small {
+    color: #90849c;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+/* Make preview full-width inside centered modals */
+
+.adm-edit-dialog .adm-delivery-fee-preview {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+/* Form submit buttons stay aligned */
+
+.adm-delivery-area-form > .adm-primary-btn {
+    justify-self: end;
+}
+
+@media (max-width: 760px) {
+    .adm-fee-rule-form {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-fee-rule-form > button {
+        width: 100%;
+    }
+
+    .adm-content .adm-delivery-area-form {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-delivery-fee-preview {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ==========================================
+   DELIVERY AREA - FINAL COMPACT LAYOUT
+   ========================================== */
+
+.adm-content .adm-distance-form,
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-distance-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+    align-items: start;
+    width: 100%;
+    max-width: none;
+}
+
+.adm-distance-form > .adm-delivery-origin,
+.adm-distance-form > .adm-delivery-section-label,
+.adm-distance-form > .adm-delivery-fee-preview,
+.adm-distance-form > .adm-modal-actions {
+    grid-column: 1 / -1;
+}
+
+.adm-distance-form > label,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-distance-form > label:not(.adm-checkbox-label) {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    grid-column: auto !important;
+    gap: 6px;
+    width: 100%;
+    min-height: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.adm-distance-form > label.adm-checkbox-label {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    grid-column: auto;
+    min-height: 35px;
+}
+
+.adm-distance-form input:not([type="checkbox"]),
+.adm-distance-form select {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 1px solid #e1d7eb;
+    border-radius: 9px;
+    background: #fff;
+    color: #382b47;
+}
+
+.adm-delivery-origin {
+    padding: 13px 15px;
+    border: 1px solid #e9e1ef;
+    border-radius: 11px;
+    background: #fbf9fd;
+}
+
+.adm-delivery-section-label {
+    display: block;
+    color: #755b93;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .3px;
+}
+
+.adm-delivery-origin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 9px;
+}
+
+.adm-delivery-origin-grid div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.adm-delivery-origin-grid small {
+    color: #8b7d98;
+    font-size: 10px;
+}
+
+.adm-delivery-origin-grid strong,
+.adm-delivery-origin p {
+    margin: 0;
+    color: #42334f;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.adm-delivery-fee-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 13px 15px;
+    border: 1px solid #e5d9ef;
+    border-radius: 11px;
+    background: #f6f1fa;
+}
+
+.adm-delivery-fee-preview span {
+    color: #806d93;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.adm-delivery-fee-preview strong {
+    color: #684b8e;
+    font-size: 21px;
+    font-weight: 750;
+}
+
+.adm-delivery-fee-preview small {
+    color: #84758f;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.adm-delivery-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 13px 0;
+}
+
+.adm-delivery-tier-grid > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid #eae1f1;
+    border-radius: 9px;
+    background: #fbf9fd;
+}
+
+.adm-delivery-tier-grid span {
+    color: #786988;
+    font-size: 11px;
+}
+
+.adm-delivery-tier-grid strong {
+    color: #684b8e;
+    font-size: 14px;
+}
+
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-distance-form > .adm-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+@media (max-width: 650px) {
+    .adm-content .adm-distance-form,
+    .adm-edit-dialog[data-modal-kind="delivery"] .adm-distance-form,
+    .adm-delivery-tier-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-distance-form > label {
+        grid-column: 1 / -1 !important;
+    }
+
+    .adm-delivery-origin-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

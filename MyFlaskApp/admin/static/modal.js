@@ -173,13 +173,13 @@ document.addEventListener("DOMContentLoaded", () => {
             kind = "product";
         } else if (
             original.matches(".adm-mini-form") &&
-            /delivery-areas/.test(original.action)
+            /delivery-areas/.test(original.getAttribute("action") || location.href)
         ) {
             kind = "delivery";
         } else if (original.matches(".adm-mini-form")) {
             kind = "compact";
         } else if (
-            /delivery-areas/.test(original.action) ||
+            /delivery-areas/.test(original.getAttribute("action") || location.href) ||
             original.id === "delivery-area-form"
         ) {
             kind = "delivery";
@@ -403,9 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const original = input.closest("form");
         if (!original) return;
 
-        const isCategory = new URL(
-            original.action, location.href
-        ).pathname.endsWith("/categories");
+        const isCategory = new URL(original.getAttribute("action") || location.href).pathname.endsWith("/categories");
 
         const name = isCategory
             ? "Add Category"
@@ -436,9 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll("form[action]").forEach((original) => {
 
-        const path = new URL(
-            original.action, location.href
-        ).pathname;
+        const path = new URL(original.getAttribute("action") || location.href).pathname;
 
         if (!actionPattern.test(path)) return;
 
@@ -523,7 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (!form.getAttribute("action")) {
-                form.action = url.href;
+                form.setAttribute("action", url.href);
             }
 
             const pageTitle = page.querySelector(
@@ -670,7 +666,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const form = event.target;
         const button = event.submitter;
 
-        const url = new URL(form.action, location.href);
+        const url = new URL(
+            form.getAttribute("action") || location.href,
+            location.href
+        );
+
 
         if (url.origin !== location.origin) {
             showError("Invalid form destination.");

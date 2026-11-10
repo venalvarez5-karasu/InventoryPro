@@ -69,7 +69,7 @@
                   product.id }}</small></span>
             </div></td>
           <td>{{ product.category_name }}</td>
-          <td class="adm-price-cell">â‚±{{ '%.2f'|format(product.price) }}</td>
+          <td class="adm-price-cell">&#8369;{{ '%.2f'|format(product.price) }}</td>
           <td><span
               class="adm-status {{ 'archived' if not product.is_active else ('available' if product.is_available else 'unavailable') }}">{{
               'Archived' if not product.is_active else ('Available' if

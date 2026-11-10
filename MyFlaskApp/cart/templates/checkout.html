@@ -13,7 +13,7 @@
     <h1>Checkout</h1>
 
     <p>
-        Cash on Delivery Â· Orders are reviewed
+        Cash on Delivery &middot; Orders are reviewed
         before confirmation.
     </p>
 
@@ -139,7 +139,7 @@
                                 "
                             >
                                 Delivery fee:
-                                â‚±{{ "%.2f"|format(address.delivery_fee) }}
+                                &#8369;{{ "%.2f"|format(address.delivery_fee) }}
                             </span>
 
                         </label>
@@ -230,7 +230,7 @@
                     </span>
 
                     <strong>
-                        â‚±{{ "%.2f"|format(item.line_total) }}
+                        &#8369;{{ "%.2f"|format(item.line_total) }}
                     </strong>
 
                 </p>
@@ -245,7 +245,7 @@
                 Subtotal
 
                 <strong style="float: right;">
-                    â‚±{{ "%.2f"|format(subtotal) }}
+                    &#8369;{{ "%.2f"|format(subtotal) }}
                 </strong>
             </p>
 
@@ -259,7 +259,7 @@
                     style="float: right;"
                 >
                     {% if eligible %}
-                        â‚±{{ "%.2f"|format(eligible[0].delivery_fee) }}
+                        &#8369;{{ "%.2f"|format(eligible[0].delivery_fee) }}
                     {% else %}
                     {% endif %}
                 </strong>
@@ -283,7 +283,7 @@
                     "
                 >
                     {% if eligible %}
-                        â‚±{{ "%.2f"|format(
+                        &#8369;{{ "%.2f"|format(
                             subtotal + eligible[0].delivery_fee
                         ) }}
                     {% else %}
@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return ;
         }
 
-        return "â‚±" + numericAmount.toLocaleString(
+        return "&#8369;" + numericAmount.toLocaleString(
             "en-PH",
             {
                 minimumFractionDigits: 2,
@@ -410,11 +410,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
 
             if (feePreview) {
-                feePreview.textContent = ;
+                feePreview.textContent = "”";
             }
 
             if (totalPreview) {
-                totalPreview.textContent = ;
+                totalPreview.textContent = "”";
             }
 
             return;

@@ -4,7 +4,8 @@ import re
 import unicodedata
 
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from flask import jsonify
 
 from flask import (
     Response, abort, current_app, flash,
@@ -38,7 +39,7 @@ TRANSITIONS = {
     "pending": (
         "confirmed", "rejected", "cancelled"
     ),
-    "confirmed": ("preparing", "cancelled"),
+    "confirmed": ("preparing"),
     "preparing": ("ready",),
     "ready": ("out_for_delivery", "completed"),
     "out_for_delivery": ("completed",),
@@ -477,7 +478,7 @@ def admin_orders():
 
 @admin_bp.route("/orders/<int:order_id>")
 @role_required("admin")
-def admin_order_detail(order_id):
+def admin_orderdetail(order_id):
 
     order = db_one(
         """
@@ -534,7 +535,7 @@ def admin_order_detail(order_id):
         allowed.remove("completed")
 
     return render_template(
-        "admin_order_detail.html",
+        "admin_orderdetail.html",
         title="Order Details",
         user=current_user(),
         order=order,
@@ -558,7 +559,7 @@ def admin_order_status(order_id):
 
         return redirect(
             url_for(
-                "admin.admin_order_detail",
+                "admin.admin_orderdetail",
                 order_id=order_id
             )
         )
@@ -665,7 +666,7 @@ def admin_order_status(order_id):
 
     return redirect(
         url_for(
-            "admin.admin_order_detail",
+            "admin.admin_orderdetail",
             order_id=order_id
         )
     )
@@ -811,7 +812,7 @@ def admin_payment_received(order_id):
 
     return redirect(
         url_for(
-            "admin.admin_order_detail",
+            "admin.admin_orderdetail",
             order_id=order_id
         )
     )
@@ -934,7 +935,317 @@ def admin_customer_status(user_id):
         url_for("admin.admin_customers")
     )
 
-# DELIVERY AREA MANAGEMENT
+
+# ==========================================
+# AUTOMATIC DELIVERY PRICING
+# ==========================================
+
+def delivery_distance(value):
+    """
+    Parse an admin-supplied estimated road distance.
+    This is not a live map calculation.
+    """
+    if value is None or not str(value).strip():
+        return None
+
+    try:
+        distance = Decimal(str(value).strip())
+
+        if (
+            not distance.is_finite()
+            or distance < 0
+            or distance > Decimal("99999.99")
+            or distance.quantize(Decimal("0.01")) != distance
+        ):
+            raise ValueError
+
+        return distance
+
+    except (InvalidOperation, ValueError, TypeError):
+        raise ValueError(
+            "Enter a valid estimated distance "
+            "in kilometers with up to 2 decimals."
+        )
+
+
+def calculate_delivery_fee(distance, settings):
+    """
+    Delivery fee = base fee + (distance x rate per km).
+
+    The value is calculated on the server.
+    Client-side fee previews are informational only.
+    """
+    if distance is None:
+        return None
+
+    if not settings:
+        raise ValueError(
+            "Configure the delivery pricing rule first."
+        )
+
+    base_fee = Decimal(str(settings["base_fee"]))
+    per_km = Decimal(str(settings["rate_per_km"]))
+
+    fee = (
+        base_fee + distance * per_km
+    ).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )
+
+    if fee < 0 or fee > Decimal("99999999.99"):
+        raise ValueError(
+            "Calculated delivery fee is outside "
+            "the allowed range."
+        )
+
+    return fee
+
+
+# ==========================================
+# SAVE GLOBAL DELIVERY PRICING
+# ==========================================
+
+# ==========================================
+# DELIVERY AREAS - DISTANCE TIER PRICING
+# Fixed origin: Los Banos, Laguna
+# ==========================================
+
+DELIVERY_FEE_TIERS = (
+    (Decimal("5"), Decimal("15.00")),
+    (Decimal("15"), Decimal("20.00")),
+    (Decimal("25"), Decimal("30.00")),
+    (Decimal("50"), Decimal("40.00")),
+    (Decimal("75"), Decimal("50.00")),
+    (Decimal("100"), Decimal("65.00")),
+)
+
+NCR_CITY_NAMES = {
+    "manila",
+    "city of manila",
+    "quezon city",
+    "makati",
+    "pasig",
+    "pasay",
+    "taguig",
+    "mandaluyong",
+    "marikina",
+    "muntinlupa",
+    "paranaque",
+    "parañaque",
+    "las pinas",
+    "las piñas",
+    "caloocan",
+    "malabon",
+    "navotas",
+    "valenzuela",
+    "san juan",
+    "pateros",
+}
+
+
+def delivery_distance(value):
+    """Validate an Admin-supplied road-distance estimate."""
+
+    if value is None or not str(value).strip():
+        return None
+
+    try:
+        distance = Decimal(str(value).strip())
+
+        if (
+            not distance.is_finite()
+            or distance < 0
+            or distance > Decimal("99999.99")
+            or distance.quantize(Decimal("0.01")) != distance
+        ):
+            raise ValueError
+
+        return distance
+
+    except (InvalidOperation, ValueError, TypeError):
+        raise ValueError(
+            "Enter a valid distance in kilometers "
+            "with up to two decimal places."
+        )
+
+
+def get_delivery_fee(distance):
+    """
+    Return the approved customer delivery fee.
+
+    Beyond 100 km, return None:
+    quotation required, not automatic checkout.
+    """
+
+    if distance is None:
+        return None
+
+    for maximum_km, fee in DELIVERY_FEE_TIERS:
+        if distance <= maximum_km:
+            return fee
+
+    return None
+
+
+def lookup_delivery_distance(region_id, city):
+    """Look up a previously saved local route estimate."""
+
+    if not region_id or not city:
+        return None
+
+    result = db_one(
+        """
+        SELECT distance_km
+        FROM delivery_route_distances
+        WHERE region_id = %s
+          AND LOWER(TRIM(city_municipality))
+              = LOWER(TRIM(%s))
+        LIMIT 1
+        """,
+        (region_id, city)
+    )
+
+    if result:
+        return Decimal(str(result["distance_km"]))
+
+    # Fall back to distances already saved on
+    # existing delivery areas.
+    result = db_one(
+        """
+        SELECT estimated_distance_km
+        FROM service_areas
+        WHERE region_id = %s
+          AND LOWER(TRIM(city_municipality))
+              = LOWER(TRIM(%s))
+          AND estimated_distance_km IS NOT NULL
+        LIMIT 1
+        """,
+        (region_id, city)
+    )
+
+    if result:
+        return Decimal(
+            str(result["estimated_distance_km"])
+        )
+
+    return None
+
+
+def validate_delivery_city_region(city, region_name):
+    """
+    Prevent a common mistake:
+    NCR cities being assigned to another province.
+    """
+
+    normalized_city = " ".join(
+        city.strip().casefold().split()
+    )
+
+    if normalized_city not in NCR_CITY_NAMES:
+        return
+
+    normalized_region = region_name.casefold()
+
+    is_ncr = (
+        "metro manila" in normalized_region
+        or "ncr" in normalized_region
+        or normalized_region.strip() == "national capital region"
+    )
+
+    if not is_ncr:
+        raise ValueError(
+            f"{city} is in Metro Manila (NCR). "
+            "Please select the correct region."
+        )
+
+
+# ==========================================
+# AUTOMATIC DISTANCE LOOKUP ENDPOINT
+# ==========================================
+
+@admin_bp.route(
+    "/delivery-distance-lookup",
+    methods=["GET"]
+)
+@role_required("admin")
+def admin_delivery_distance_lookup():
+
+    region_id = request.args.get(
+        "region_id", type=int
+    )
+
+    city = request.args.get(
+        "city", ""
+    ).strip()
+
+    if (
+        not region_id
+        or len(city) < 2
+        or len(city) > 100
+    ):
+        return jsonify({
+            "found": False,
+            "distance_km": None,
+        })
+
+    region = db_one(
+        """
+        SELECT name
+        FROM service_regions
+        WHERE id = %s
+          AND is_active = 1
+        """,
+        (region_id,)
+    )
+
+    if not region:
+        return jsonify({
+            "found": False,
+            "message": "Select a valid region."
+        }), 400
+
+    try:
+        validate_delivery_city_region(
+            city,
+            region["name"]
+        )
+
+        distance = lookup_delivery_distance(
+            region_id,
+            city
+        )
+
+    except ValueError as exc:
+        return jsonify({
+            "found": False,
+            "message": str(exc)
+        }), 400
+
+    if distance is None:
+        return jsonify({
+            "found": False,
+            "distance_km": None,
+            "message": (
+                "No locally saved distance for this city. "
+                "Enter a checked road-distance estimate once."
+            ),
+        })
+
+    fee = get_delivery_fee(distance)
+
+    return jsonify({
+        "found": True,
+        "distance_km": str(distance),
+        "fee": str(fee) if fee is not None else None,
+        "quotation_required": fee is None,
+        "message": "Saved local distance found."
+    })
+
+
+# ==========================================
+# ADD / EDIT DELIVERY AREA
+# ==========================================
 
 @admin_bp.route(
     "/delivery-areas",
@@ -945,150 +1256,324 @@ def admin_delivery_areas():
 
     if request.method == "POST":
 
-        action = request.form.get("action", "")
+        action = request.form.get(
+            "action", ""
+        ).strip()
+
         area_id = request.form.get(
             "area_id", type=int
         )
 
         try:
             if action not in ("add", "update"):
-                raise ValueError("Invalid action.")
+                raise ValueError(
+                    "Invalid delivery area action."
+                )
 
             region_id = request.form.get(
                 "region_id", type=int
             )
 
-            city = request.form.get(
-                "city_municipality", ""
-            ).strip()
+            city = " ".join(
+                request.form.get(
+                    "city_municipality", ""
+                ).strip().split()
+            )
+
+            if not region_id:
+                raise ValueError(
+                    "Please select a province or region."
+                )
 
             region = db_one(
                 """
-                SELECT id
+                SELECT id, name
                 FROM service_regions
                 WHERE id = %s
                   AND is_active = 1
                 """,
-                (region_id,),
-            ) if region_id else None
+                (region_id,)
+            )
 
             if not region:
                 raise ValueError(
-                    "Choose a valid region."
+                    "The selected region is not available."
                 )
 
             if not 2 <= len(city) <= 100:
                 raise ValueError(
-                    "City or municipality must "
-                    "contain 2 to 100 characters."
+                    "City or municipality must be "
+                    "2 to 100 characters long."
                 )
 
-            fee_raw = request.form.get(
-                "delivery_fee", ""
-            ).strip()
-
-            fee = (
-                money(fee_raw)
-                if fee_raw else None
+            validate_delivery_city_region(
+                city,
+                region["name"]
             )
+
+            # Check for an existing service area.
+            existing = None
+
+            if action == "update":
+                if not area_id:
+                    raise ValueError(
+                        "Delivery area ID is missing."
+                    )
+
+                existing = db_one(
+                    """
+                    SELECT
+                        id,
+                        region_id,
+                        city_municipality,
+                        estimated_distance_km,
+                        delivery_fee
+                    FROM service_areas
+                    WHERE id = %s
+                    """,
+                    (area_id,)
+                )
+
+                if not existing:
+                    raise ValueError(
+                        "The delivery area was not found."
+                    )
+
+            # Prevent duplicate region + city.
+            duplicate = db_one(
+                """
+                SELECT id
+                FROM service_areas
+                WHERE region_id = %s
+                  AND LOWER(TRIM(city_municipality))
+                      = LOWER(TRIM(%s))
+                LIMIT 1
+                """,
+                (region_id, city)
+            )
+
+            if duplicate and (
+                action == "add"
+                or int(duplicate["id"]) != area_id
+            ):
+                raise ValueError(
+                    "This city is already configured. "
+                    "Use Edit instead of Add Area."
+                )
+
+            # A manually supplied km value takes
+            # priority over locally saved data.
+            distance = delivery_distance(
+                request.form.get(
+                    "estimated_distance_km", ""
+                )
+            )
+
+            if distance is None:
+                distance = lookup_delivery_distance(
+                    region_id,
+                    city
+                )
+
+            same_existing_location = (
+                existing is not None
+                and int(existing["region_id"]) == region_id
+                and existing["city_municipality"].strip().casefold()
+                    == city.casefold()
+            )
+
+            # Legacy manually priced area:
+            # keep the existing fee until distance
+            # is explicitly configured.
+            preserve_legacy = (
+                distance is None
+                and same_existing_location
+                and existing["estimated_distance_km"] is None
+            )
+
+            if distance is None and not preserve_legacy:
+                raise ValueError(
+                    "No saved distance for this destination. "
+                    "Enter its checked road-distance estimate "
+                    "before saving."
+                )
+
+            if preserve_legacy:
+                fee = existing["delivery_fee"]
+            else:
+                fee = get_delivery_fee(distance)
 
             enabled = int(
                 request.form.get("is_enabled") == "1"
             )
 
             cod = int(
-                enabled and
-                request.form.get("cod_enabled") == "1"
+                enabled
+                and request.form.get("cod_enabled") == "1"
             )
 
-            if enabled and fee is None:
-                raise ValueError(
-                    "Enter a confirmed delivery fee "
-                    "before enabling this area."
-                )
-
-            if action == "add":
-
-                area_id = db_write(
-                    """
-                    INSERT INTO service_areas
-                    (
-                        region_id,
-                        city_municipality,
-                        delivery_fee,
-                        is_enabled,
-                        cod_enabled
+            if distance is not None and distance > 100:
+                if enabled:
+                    raise ValueError(
+                        "Destinations beyond 100 km "
+                        "require a manual quotation. "
+                        "Uncheck Enable Delivery before saving."
                     )
-                    VALUES (%s, %s, %s, %s, %s)
-                    """,
-                    (
-                        region_id, city,
-                        fee, enabled, cod
-                    ),
+
+                # Quotation-only areas must not
+                # enter automatic checkout.
+                fee = None
+                cod = 0
+
+            elif enabled and fee is None:
+                raise ValueError(
+                    "A confirmed delivery fee is required "
+                    "before enabling delivery."
                 )
 
+            # Save the service area and its distance
+            # reference in one database transaction.
+            connection = mysql.connection
+            cursor = connection.cursor()
+
+            try:
+                if action == "add":
+                    cursor.execute(
+                        """
+                        INSERT INTO service_areas (
+                            region_id,
+                            city_municipality,
+                            estimated_distance_km,
+                            delivery_fee,
+                            is_enabled,
+                            cod_enabled
+                        )
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        """,
+                        (
+                            region_id,
+                            city,
+                            distance,
+                            fee,
+                            enabled,
+                            cod
+                        )
+                    )
+
+                    area_id = cursor.lastrowid
+
+                else:
+                    cursor.execute(
+                        """
+                        UPDATE service_areas
+                        SET
+                            region_id = %s,
+                            city_municipality = %s,
+                            estimated_distance_km = %s,
+                            delivery_fee = %s,
+                            is_enabled = %s,
+                            cod_enabled = %s
+                        WHERE id = %s
+                        """,
+                        (
+                            region_id,
+                            city,
+                            distance,
+                            fee,
+                            enabled,
+                            cod,
+                            area_id
+                        )
+                    )
+
+                if distance is not None:
+                    cursor.execute(
+                        """
+                        INSERT INTO delivery_route_distances (
+                            region_id,
+                            city_municipality,
+                            distance_km
+                        )
+                        VALUES (%s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                            distance_km = VALUES(distance_km)
+                        """,
+                        (
+                            region_id,
+                            city,
+                            distance
+                        )
+                    )
+
+                connection.commit()
+
+            except Exception:
+                connection.rollback()
+                raise
+
+            finally:
+                cursor.close()
+
+            try:
+                audit(
+                    "delivery_area_saved",
+                    "service_areas",
+                    area_id,
+                    (
+                        f"{city}, {region['name']}; "
+                        f"km={distance}; fee={fee}; "
+                        f"enabled={enabled}; cod={cod}"
+                    )
+                )
+
+            except Exception:
+                current_app.logger.exception(
+                    "Delivery area saved, but audit logging failed."
+                )
+
+            if fee is None:
+                message = (
+                    "Delivery area saved as quotation-only. "
+                    "Automatic delivery is disabled."
+                )
             else:
-                if not area_id:
-                    abort(404)
-
-                existing = db_one(
-                    """
-                    SELECT id
-                    FROM service_areas
-                    WHERE id = %s
-                    """,
-                    (area_id,),
+                message = (
+                    "Delivery area saved successfully. "
+                    f"Fee: PHP {Decimal(str(fee)):.2f}"
                 )
 
-                if not existing:
-                    abort(404)
+            flash(message, "success")
 
-                db_write(
-                    """
-                    UPDATE service_areas
-                    SET
-                        region_id = %s,
-                        city_municipality = %s,
-                        delivery_fee = %s,
-                        is_enabled = %s,
-                        cod_enabled = %s
-                    WHERE id = %s
-                    """,
-                    (
-                        region_id, city,
-                        fee, enabled,
-                        cod, area_id
-                    ),
-                )
+        except ValueError as exc:
+            flash(str(exc), "danger")
 
-            audit(
-                "delivery_area_saved",
-                "service_areas",
-                area_id,
-                f"{city}, enabled={enabled}, cod={cod}"
+        except IntegrityError:
+            flash(
+                "Could not save this area because "
+                "a matching record already exists.",
+                "danger"
+            )
+
+        except Exception:
+            current_app.logger.exception(
+                "Delivery area save failed."
             )
 
             flash(
-                "Delivery area saved.",
-                "success"
+                "Database error while saving the area. "
+                "Verify that the Delivery Area SQL "
+                "migration was executed.",
+                "danger"
             )
-
-        except (ValueError, IntegrityError) as exc:
-
-            if isinstance(exc, IntegrityError):
-                flash(
-                    "This city is already registered "
-                    "in that region.",
-                    "danger"
-                )
-            else:
-                flash(str(exc), "danger")
 
         return redirect(
             url_for("admin.admin_delivery_areas")
         )
 
-    # Keep the region dropdown complete; paginate the coverage table.
+    # ======================================
+    # GET - LIST AREAS
+    # ======================================
+
     regions = db_all(
         """
         SELECT id, name
@@ -1099,21 +1584,29 @@ def admin_delivery_areas():
     )
 
     total = db_one(
-        "SELECT COUNT(*) AS n FROM service_areas"
+        """
+        SELECT COUNT(*) AS n
+        FROM service_areas
+        """
     )["n"]
 
     page, pages, offset = get_page_info(total)
 
     rows = db_all(
         """
-        SELECT a.*, r.name AS region_name
+        SELECT
+            a.*,
+            r.name AS region_name
         FROM service_areas a
         JOIN service_regions r
             ON r.id = a.region_id
-        ORDER BY r.name, a.city_municipality, a.id
+        ORDER BY
+            r.name,
+            a.city_municipality,
+            a.id
         LIMIT %s OFFSET %s
         """,
-        (ADMIN_PAGE_SIZE, offset),
+        (ADMIN_PAGE_SIZE, offset)
     )
 
     return console(
@@ -1123,10 +1616,8 @@ def admin_delivery_areas():
         regions=regions,
         page=page,
         pages=pages,
-        total=total,
+        total=total
     )
-
-# INVENTORY OVERVIEW
 
 # INVENTORY OVERVIEW + MOVEMENT HISTORY
 

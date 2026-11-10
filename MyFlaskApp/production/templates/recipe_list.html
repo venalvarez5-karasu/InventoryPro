@@ -50,21 +50,20 @@
 
                     <td>
                         {% if p.cost_each is not none %}
-                        â‚±{{ "%.2f"|format(p.cost_each) }}
+                        &#8369;{{ "%.2f"|format(p.cost_each) }}
                         {% else %}
                         Incomplete
                         {% endif %}
                     </td>
 
                     <td>
-                        â‚±{{ "%.2f"|format(p.price) }}
+                        &#8369;{{ "%.2f"|format(p.price) }}
                     </td>
 
                     <td>
                         {% if p.margin is not none %}
                         {{ "%.1f"|format(p.margin) }}%
                         {% else %}
-
                         {% endif %}
                     </td>
 
@@ -133,7 +132,7 @@
 
                     <td>
                         {% if item.unit_cost is not none %}
-                        â‚±{{ "%.4f"|format(item.unit_cost) }}
+                        &#8369;{{ "%.4f"|format(item.unit_cost) }}
                         {% else %}
                         Not set
                         {% endif %}

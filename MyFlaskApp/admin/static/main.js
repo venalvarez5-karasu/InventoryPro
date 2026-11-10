@@ -3,60 +3,36 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-       RESPONSIVE ADMIN SIDEBAR
+    // RESPONSIVE ADMIN SIDEBAR
 
-    const sidebar = document.getElementById(
-        "admin-sidebar"
-    );
-
-    const menuButton = document.querySelector(
+    const sidebar = document.getElementById("admin-sidebar");
+    const toggle = document.querySelector(
         "[data-sidebar-toggle]"
     );
+    const backdrop = document.querySelector(
+        "[data-sidebar-backdrop]"
+    );
 
-    if (sidebar && menuButton) {
-
-        const backdrop = document.createElement("div");
-
-        backdrop.className = "adm-sidebar-backdrop";
-        backdrop.setAttribute("aria-hidden", "true");
-
-        document.body.appendChild(backdrop);
-
+    if (sidebar && toggle && backdrop) {
         function setSidebar(open) {
-
-            sidebar.classList.toggle(
-                "is-open",
-                open
-            );
-
-            backdrop.classList.toggle(
-                "is-visible",
-                open
-            );
+            sidebar.classList.toggle("is-open", open);
+            backdrop.hidden = !open;
 
             document.body.classList.toggle(
                 "adm-menu-open",
                 open
             );
 
-            menuButton.setAttribute(
+            toggle.setAttribute(
                 "aria-expanded",
                 String(open)
             );
-
-            menuButton.setAttribute(
-                "aria-label",
-                open ? "Close menu" : "Open menu"
-            );
         }
 
-        menuButton.addEventListener("click", () => {
-
-            const isOpen = sidebar.classList.contains(
-                "is-open"
+        toggle.addEventListener("click", () => {
+            setSidebar(
+                !sidebar.classList.contains("is-open")
             );
-
-            setSidebar(!isOpen);
         });
 
         backdrop.addEventListener("click", () => {
@@ -64,102 +40,80 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         document.addEventListener("keydown", (event) => {
-
             if (event.key === "Escape") {
                 setSidebar(false);
             }
         });
 
         sidebar.querySelectorAll("a").forEach((link) => {
-
             link.addEventListener("click", () => {
                 setSidebar(false);
             });
         });
 
         window.addEventListener("resize", () => {
-
-            if (window.innerWidth > 760) {
+            if (window.innerWidth > 780) {
                 setSidebar(false);
             }
         });
+
+        setSidebar(false);
     }
 
-       PRODUCT IMAGE PREVIEW
+    // PRODUCT IMAGE PREVIEW
 
     const imageInput = document.getElementById("image");
-
     const preview = document.querySelector(
         "[data-image-preview]"
     );
 
-    let previewURL = null;
+    let photoURL = null;
 
     if (imageInput && preview) {
-
         imageInput.addEventListener("change", () => {
-
-            const file = imageInput.files[0];
-
+            const file = imageInput.files?.[0];
             if (!file) return;
 
-            const allowedTypes = [
-                "image/jpeg",
-                "image/png",
-                "image/webp"
-            ];
-
-            if (!allowedTypes.includes(file.type)) {
-
-                alert(
-                    "Only JPG, PNG, and WEBP images are allowed."
-                );
-
+            if (
+                !["image/jpeg", "image/png", "image/webp"].includes(file.type)
+                || file.size > 5 * 1024 * 1024
+            ) {
                 imageInput.value = "";
+                alert("Choose JPG, PNG, or WEBP up to 5 MB.");
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) {
-
-                alert(
-                    "Image must not exceed 5 MB."
-                );
-
-                imageInput.value = "";
-                return;
+            if (photoURL) {
+                URL.revokeObjectURL(photoURL);
             }
 
-            if (previewURL) {
-                URL.revokeObjectURL(previewURL);
+            photoURL = URL.createObjectURL(file);
+
+            const img = document.createElement("img");
+            img.src = photoURL;
+            img.alt = "Selected product photograph";
+
+            preview.replaceChildren(img);
+        });
+
+        window.addEventListener("pagehide", () => {
+            if (photoURL) {
+                URL.revokeObjectURL(photoURL);
             }
-
-            previewURL = URL.createObjectURL(file);
-
-            const image = document.createElement("img");
-
-            image.src = previewURL;
-            image.alt = "Selected product photograph";
-
-            preview.replaceChildren(image);
         });
     }
 
-       ARCHIVE CONFIRMATION
+    // CONFIRM NON-MODAL ACTIONS
 
-    const confirmForms = document.querySelectorAll(
+    document.querySelectorAll(
         "form[data-confirm]"
-    );
-
-    confirmForms.forEach((form) => {
-
+    ).forEach((form) => {
         form.addEventListener("submit", (event) => {
-
             const message = form.dataset.confirm;
 
-            if (!window.confirm(message)) {
+            if (message && !window.confirm(message)) {
                 event.preventDefault();
             }
         });
     });
-
 });

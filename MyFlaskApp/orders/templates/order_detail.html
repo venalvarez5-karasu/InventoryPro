@@ -66,11 +66,11 @@
                     <td>{{ item.quantity }}</td>
 
                     <td>
-                        â‚±{{ "%.2f"|format(item.unit_price) }}
+                        &#8369;{{ "%.2f"|format(item.unit_price) }}
                     </td>
 
                     <td>
-                        â‚±{{ "%.2f"|format(item.line_total) }}
+                        &#8369;{{ "%.2f"|format(item.line_total) }}
                     </td>
 
                 </tr>
@@ -84,17 +84,17 @@
 
     <p>
         Subtotal:
-        â‚±{{ "%.2f"|format(order.subtotal) }}
+        &#8369;{{ "%.2f"|format(order.subtotal) }}
     </p>
 
     <p>
         Delivery Fee:
-        â‚±{{ "%.2f"|format(order.delivery_fee) }}
+        &#8369;{{ "%.2f"|format(order.delivery_fee) }}
     </p>
 
     <h3>
         Total:
-        â‚±{{ "%.2f"|format(order.total_amount) }}
+        &#8369;{{ "%.2f"|format(order.total_amount) }}
     </h3>
 
     <p>

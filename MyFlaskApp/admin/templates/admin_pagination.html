@@ -2,121 +2,78 @@
 {% if pages is defined and pages > 1 %}
 
 {% set pager_param = pager_param|default('page') %}
-{% set start = [1, page - 2]|max %}
-{% set finish = [pages, page + 2]|min %}
+{% set first = [1, page - 2]|max %}
+{% set last = [pages, page + 2]|min %}
 
-{% macro pagination_link(number, label, extra_class='') %}
-
-    {% set params = request.args.to_dict(flat=True) %}
-    {% set _ = params.update({pager_param: number}) %}
+{% macro page_link(number, arrow='') %}
+    {% set args = request.args.to_dict(flat=True) %}
+    {% set _ = args.update({pager_param: number}) %}
 
     <a
-        href="{{ url_for(request.endpoint, **params) }}"
-        class="ip-page-btn {{ extra_class }}"
-        aria-label="{{ label }}"
+        class="ip-page-btn {{ 'ip-page-arrow' if arrow else '' }}"
+        href="{{ url_for(request.endpoint, **args) }}"
+        aria-label="Page {{ number }}"
     >
-        {{ label }}
+        {% if arrow == 'previous' %}
+            &#8249;
+        {% elif arrow == 'next' %}
+            &#8250;
+        {% else %}
+            {{ number }}
+        {% endif %}
     </a>
-
 {% endmacro %}
 
 <nav class="ip-pagination" aria-label="Pagination">
 
-    <!-- RECORD COUNT -->
-
-    <!-- CENTERED PAGE BUTTONS -->
-
     <div class="ip-pagination-buttons">
 
-        <!-- PREVIOUS -->
-
         {% if page > 1 %}
-
-            {{ pagination_link(page - 1, '‹', 'ip-page-arrow') }}
-
+            {{ page_link(page - 1, 'previous') }}
         {% else %}
-
-            <span
-                class="ip-page-btn ip-page-arrow is-disabled"
-                aria-disabled="true"
-            >
-                ‹
+            <span class="ip-page-btn ip-page-arrow is-disabled"
+                  aria-disabled="true">
+                &#8249;
             </span>
-
         {% endif %}
 
+        {% if first > 1 %}
+            {{ page_link(1) }}
 
-        <!-- FIRST PAGE -->
-
-        {% if start > 1 %}
-
-            {{ pagination_link(1, '1') }}
-
-            {% if start > 2 %}
-
-                <span class="ip-page-dots">…</span>
-
+            {% if first > 2 %}
+                <span class="ip-page-dots">&hellip;</span>
             {% endif %}
-
         {% endif %}
 
-
-        <!-- NUMBERED PAGES -->
-
-        {% for number in range(start, finish + 1) %}
-
+        {% for number in range(first, last + 1) %}
             {% if number == page %}
-
-                <span
-                    class="ip-page-btn is-active"
-                    aria-current="page"
-                >
+                <span class="ip-page-btn is-active"
+                      aria-current="page">
                     {{ number }}
                 </span>
-
             {% else %}
-
-                {{ pagination_link(number, number) }}
-
+                {{ page_link(number) }}
             {% endif %}
-
         {% endfor %}
 
-
-        <!-- LAST PAGE -->
-
-        {% if finish < pages %}
-
-            {% if finish < pages - 1 %}
-
-                <span class="ip-page-dots">…</span>
-
+        {% if last < pages %}
+            {% if last < pages - 1 %}
+                <span class="ip-page-dots">&hellip;</span>
             {% endif %}
 
-            {{ pagination_link(pages, pages) }}
-
+            {{ page_link(pages) }}
         {% endif %}
 
-
-        <!-- NEXT -->
-
         {% if page < pages %}
-
-            {{ pagination_link(page + 1, '›', 'ip-page-arrow') }}
-
+            {{ page_link(page + 1, 'next') }}
         {% else %}
-
-            <span
-                class="ip-page-btn ip-page-arrow is-disabled"
-                aria-disabled="true"
-            >
-                ›
+            <span class="ip-page-btn ip-page-arrow is-disabled"
+                  aria-disabled="true">
+                &#8250;
             </span>
-
         {% endif %}
 
     </div>
-
 </nav>
 
 {% endif %}

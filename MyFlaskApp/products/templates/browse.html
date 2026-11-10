@@ -161,7 +161,7 @@
                         {% endif %}
 
                         <p class="price">
-                            â‚±{{ '%.2f'|format(product.price) }}
+                            &#8369;{{ '%.2f'|format(product.price) }}
                         </p>
 
                         {% if product.is_available %}
@@ -182,7 +182,7 @@
                             class="card-link"
                             href="{{ url_for('products.product_detail', slug=product.slug) }}"
                         >
-                            View Details â†’
+                            View Details &rarr;
                         </a>
 
                     </div>
@@ -245,7 +245,7 @@
                     <a
                         href="{{ url_for('products.browse', page=page+1, q=search, category=selected_category) }}"
                     >
-                        Next â†’
+                        Next &rarr;
                     </a>
 
                 {% endif %}
