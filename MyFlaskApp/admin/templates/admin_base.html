@@ -9,6 +9,7 @@
             href="{{ url_for('admin.static', filename='style.css') }}">
         <script defer
             src="{{ url_for('admin.static', filename='main.js') }}"></script>
+        >
     </head>
     <body>
         {% macro nav_icon(name) -%}
@@ -117,7 +118,17 @@
                     <a
                         href="{{ url_for('production.recipe_list') }}"
                         class="{% if request.blueprint == 'production' %}active{% endif %}">
-                        <span class="adm-nav-icon">▧</span>
+
+                        <span class="adm-nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="3" width="16" height="18"
+                                    rx="2" />
+                                <path d="M8 8h8M8 12h8M8 16h5" />
+                            </svg>
+                        </span>
+
                         Recipes &amp; Costs
                     </a>
 
@@ -188,5 +199,60 @@
                 </main>
             </div>
         </div>
+
+        REUSABLE ADMIN EDIT MODAL
+
+        <dialog
+            id="adm-edit-dialog"
+            class="adm-edit-dialog"
+            aria-labelledby="adm-edit-title"
+            aria-describedby="adm-edit-subtitle">
+            <div class="adm-edit-shell">
+
+                <header class="adm-edit-header">
+
+                    <div class="adm-edit-heading">
+                        <span class="adm-eyebrow">
+                            INVENTORYPRO / MANAGEMENT
+                        </span>
+
+                        <h2 id="adm-edit-title">
+                            Edit Details
+                        </h2>
+
+                        <p id="adm-edit-subtitle">
+                            Update the information below.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="adm-edit-close"
+                        data-adm-edit-close
+                        aria-label="Close editor"
+                        title="Close">
+                        &times;
+                    </button>
+
+                </header>
+
+                <div
+                    class="adm-edit-error"
+                    id="adm-edit-error"
+                    role="alert"
+                    hidden></div>
+
+                <div
+                    class="adm-edit-content"
+                    id="adm-edit-content"></div>
+
+            </div>
+        </dialog>
+
+        <!-- Modal-specific JavaScript -->
+        <script
+            defer
+            src="{{ url_for('admin.static', filename='modal.js') }}"></script>
+
     </body>
 </html>

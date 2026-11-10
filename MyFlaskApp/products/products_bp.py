@@ -1,4 +1,3 @@
-
 from flask import (
     Blueprint,
     abort,
@@ -15,7 +14,7 @@ products_bp = Blueprint(
     __name__,
     template_folder="templates",
     static_folder="static",
-    static_url_path="/index/static",
+    static_url_path="/products/static",
 )
 
 PRODUCTS_PER_PAGE = 9
@@ -156,9 +155,11 @@ def browse():
         total=total,
     )
 
+# PRODUCT DETAILS
 
 @products_bp.route("/<string:slug>")
 def product_detail(slug):
+
     cursor = mysql.connection.cursor(DictCursor)
 
     try:
@@ -171,16 +172,21 @@ def product_detail(slug):
                 p.description,
                 p.price,
                 p.image_path,
+                p.is_active,
                 p.is_available,
                 p.is_made_to_order,
                 c.name AS category_name,
                 c.slug AS category_slug
+
             FROM products p
+
             INNER JOIN product_categories c
                 ON p.category_id = c.id
+
             WHERE p.slug = %s
               AND p.is_active = 1
               AND c.is_active = 1
+
             LIMIT 1
             """,
             (slug,),

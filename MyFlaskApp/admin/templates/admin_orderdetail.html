@@ -13,8 +13,8 @@
         <h1>Order {{ order.order_number }}</h1>
 
         <p>
-            Placed {{ order.created_at }} ·
-            {{ order.order_type|title }} ·
+            Placed {{ order.created_at }} Â·
+            {{ order.order_type|title }} Â·
             {{ order.payment_method|replace('_', ' ')|upper }}
         </p>
     </div>
@@ -54,13 +54,13 @@
                         </td>
 
                         <td>
-                            ₱{{ '%.2f'|format(item.unit_price) }}
+                            â‚±{{ '%.2f'|format(item.unit_price) }}
                         </td>
 
                         <td>{{ item.quantity }}</td>
 
                         <td class="adm-price-cell">
-                            ₱{{ '%.2f'|format(item.line_total) }}
+                            â‚±{{ '%.2f'|format(item.line_total) }}
                         </td>
                     </tr>
 
@@ -79,21 +79,21 @@
             <p>
                 Subtotal
                 <strong>
-                    ₱{{ '%.2f'|format(order.subtotal) }}
+                    â‚±{{ '%.2f'|format(order.subtotal) }}
                 </strong>
             </p>
 
             <p>
                 Delivery fee
                 <strong>
-                    ₱{{ '%.2f'|format(order.delivery_fee) }}
+                    â‚±{{ '%.2f'|format(order.delivery_fee) }}
                 </strong>
             </p>
 
             <p class="adm-console-grand">
                 Total
                 <strong>
-                    ₱{{ '%.2f'|format(order.total_amount) }}
+                    â‚±{{ '%.2f'|format(order.total_amount) }}
                 </strong>
             </p>
         </div>
@@ -212,8 +212,8 @@
                 <strong>
                     {{ payment.status|replace('_', ' ')|title }}
                 </strong>
-                · ₱{{ '%.2f'|format(payment.amount) }}
-                · {{ payment.payment_method|replace('_', ' ')|upper }}
+                Â· â‚±{{ '%.2f'|format(payment.amount) }}
+                Â· {{ payment.payment_method|replace('_', ' ')|upper }}
             </p>
 
             {% else %}

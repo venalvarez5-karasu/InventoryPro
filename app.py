@@ -1,4 +1,3 @@
-
 from MyFlaskApp import reg_app
 
 app = reg_app()

@@ -50,31 +50,35 @@
 
                     <td>
                         {% if p.cost_each is not none %}
-                            ₱{{ "%.2f"|format(p.cost_each) }}
+                        â‚±{{ "%.2f"|format(p.cost_each) }}
                         {% else %}
-                            Incomplete
+                        Incomplete
                         {% endif %}
                     </td>
 
                     <td>
-                        ₱{{ "%.2f"|format(p.price) }}
+                        â‚±{{ "%.2f"|format(p.price) }}
                     </td>
 
                     <td>
                         {% if p.margin is not none %}
-                            {{ "%.1f"|format(p.margin) }}%
+                        {{ "%.1f"|format(p.margin) }}%
                         {% else %}
-                            —
+
                         {% endif %}
                     </td>
 
                     <td>
+
                         <a
                             class="adm-action-button"
                             href="{{ url_for('production.recipe_edit', product_id=p.id) }}"
-                        >
-                            {{ "Edit Recipe" if p.recipe_id else "Set Up Recipe" }}
+                            data-modal-url="{{ url_for('production.recipe_edit', product_id=p.id) }}"
+                            data-modal-title="Edit Recipe">
+                            {{ "Edit Recipe" if p.recipe_id else "Set Up Recipe"
+                            }}
                         </a>
+
                     </td>
                 </tr>
 
@@ -91,11 +95,10 @@
         </table>
     </div>
 </section>
-
+{% include "admin_pagination.html" %}
 <section
     class="adm-panel adm-console-panel"
-    style="margin-top: 18px;"
->
+    style="margin-top: 18px;">
 
     <h2>Ingredient &amp; Packaging Unit Costs</h2>
 
@@ -130,9 +133,9 @@
 
                     <td>
                         {% if item.unit_cost is not none %}
-                            ₱{{ "%.4f"|format(item.unit_cost) }}
+                        â‚±{{ "%.4f"|format(item.unit_cost) }}
                         {% else %}
-                            Not set
+                        Not set
                         {% endif %}
                     </td>
 
@@ -140,13 +143,11 @@
                         <form
                             method="post"
                             class="adm-search-form"
-                            action="{{ url_for('production.save_unit_cost', item_id=item.id) }}"
-                        >
+                            action="{{ url_for('production.save_unit_cost', item_id=item.id) }}">
                             <input
                                 type="hidden"
                                 name="csrf_token"
-                                value="{{ csrf_token() }}"
-                            >
+                                value="{{ csrf_token() }}">
 
                             <input
                                 type="number"
@@ -155,8 +156,7 @@
                                 max="99999999.9999"
                                 step="0.0001"
                                 placeholder="Cost / {{ item.unit }}"
-                                value="{{ item.unit_cost if item.unit_cost is not none else '' }}"
-                            >
+                                value="{{ item.unit_cost if item.unit_cost is not none else '' }}">
 
                             <button type="submit">
                                 Save
@@ -180,5 +180,12 @@
         </table>
     </div>
 </section>
+
+{% set page = cost_page %}
+{% set pages = cost_pages %}
+{% set total = cost_total %}
+{% set pager_param = 'cost_page' %}
+
+{% include "admin_pagination.html" %}
 
 {% endblock %}

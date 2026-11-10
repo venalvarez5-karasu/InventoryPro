@@ -66,11 +66,11 @@
                     <td>{{ item.quantity }}</td>
 
                     <td>
-                        ₱{{ "%.2f"|format(item.unit_price) }}
+                        â‚±{{ "%.2f"|format(item.unit_price) }}
                     </td>
 
                     <td>
-                        ₱{{ "%.2f"|format(item.line_total) }}
+                        â‚±{{ "%.2f"|format(item.line_total) }}
                     </td>
 
                 </tr>
@@ -84,17 +84,17 @@
 
     <p>
         Subtotal:
-        ₱{{ "%.2f"|format(order.subtotal) }}
+        â‚±{{ "%.2f"|format(order.subtotal) }}
     </p>
 
     <p>
         Delivery Fee:
-        ₱{{ "%.2f"|format(order.delivery_fee) }}
+        â‚±{{ "%.2f"|format(order.delivery_fee) }}
     </p>
 
     <h3>
         Total:
-        ₱{{ "%.2f"|format(order.total_amount) }}
+        â‚±{{ "%.2f"|format(order.total_amount) }}
     </h3>
 
     <p>

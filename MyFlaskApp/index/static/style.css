@@ -1,9 +1,6 @@
 
-/* ========================================
-   TALI'S BREAD & PASTRIES
-   CUSTOMER WEBSITE DESIGN
-   ======================================== */
-
+   /* TALI'S BREAD & PASTRIES */
+   /* CUSTOMER WEBSITE DESIGN */
 :root {
     --background: #faf9fc;
     --white: #ffffff;
@@ -59,10 +56,7 @@ img {
     margin-inline: auto;
 }
 
-/* ========================================
-   SHARED BUTTONS
-   ======================================== */
-
+   /* SHARED BUTTONS */
 .btn {
     display: inline-flex;
     justify-content: center;
@@ -121,10 +115,7 @@ img {
     text-transform: uppercase;
 }
 
-/* ========================================
-   HEADER
-   ======================================== */
-
+   /* HEADER */
 .site-header {
     position: sticky;
     top: 0;
@@ -213,10 +204,7 @@ img {
     background: var(--lavender);
 }
 
-/* ========================================
-   FLASH MESSAGES
-   ======================================== */
-
+   /* FLASH MESSAGES */
 .flash-area {
     padding-top: 12px;
 }
@@ -248,10 +236,7 @@ img {
     color: #876020;
 }
 
-/* ========================================
-   HOMEPAGE HERO
-   ======================================== */
-
+   /* HOMEPAGE HERO */
 .hero-section {
     padding: 82px 0;
     background:
@@ -390,10 +375,7 @@ img {
     margin-bottom: 25px;
 }
 
-/* ========================================
-   GENERAL SECTIONS
-   ======================================== */
-
+   /* GENERAL SECTIONS */
 .section-space {
     padding: 75px 0;
 }
@@ -420,10 +402,7 @@ img {
     margin: 0;
 }
 
-/* ========================================
-   CATEGORIES
-   ======================================== */
-
+   /* CATEGORIES */
 .category-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -470,10 +449,7 @@ img {
     color: var(--purple);
 }
 
-/* ========================================
-   PRODUCTS
-   ======================================== */
-
+   /* PRODUCTS */
 .featured-section {
     background: #f5f2f8;
 }
@@ -588,10 +564,7 @@ img {
     font-weight: 800;
 }
 
-/* ========================================
-   BOTTOM CTA
-   ======================================== */
-
+   /* BOTTOM CTA */
 .cta-section {
     padding: 55px 0;
 }
@@ -612,10 +585,7 @@ img {
     color: var(--muted);
 }
 
-/* ========================================
-   CATALOG PAGE
-   ======================================== */
-
+   /* CATALOG PAGE */
 .catalog-header {
     background: var(--lavender);
     padding: 55px 0 45px;
@@ -736,10 +706,7 @@ img {
     color: var(--text);
 }
 
-/* ========================================
-   PAGINATION
-   ======================================== */
-
+   /* PAGINATION */
 .pagination {
     display: flex;
     justify-content: center;
@@ -767,10 +734,7 @@ img {
     border-color: var(--purple);
 }
 
-/* ========================================
-   PRODUCT DETAILS
-   ======================================== */
-
+   /* PRODUCT DETAILS */
 .breadcrumbs {
     display: flex;
     gap: 10px;
@@ -863,10 +827,7 @@ img {
     margin-top: 22px;
 }
 
-/* ========================================
-   ABOUT / CONTACT
-   ======================================== */
-
+   /* ABOUT / CONTACT */
 .simple-page {
     padding: 105px 0 130px;
     min-height: 65vh;
@@ -896,10 +857,7 @@ img {
     margin-top: 12px;
 }
 
-/* ========================================
-   FOOTER
-   ======================================== */
-
+   /* FOOTER */
 .site-footer {
     background: var(--white);
     border-top: 1px solid var(--border);
@@ -945,10 +903,7 @@ img {
     font-size: 11px;
 }
 
-/* ========================================
-   RESPONSIVE TABLET
-   ======================================== */
-
+   /* RESPONSIVE TABLET */
 @media (max-width: 950px) {
 
     .header-inner {
@@ -986,10 +941,7 @@ img {
     }
 }
 
-/* ========================================
-   RESPONSIVE MOBILE
-   ======================================== */
-
+   /* RESPONSIVE MOBILE */
 @media (max-width: 640px) {
 
     .container {
@@ -1152,10 +1104,7 @@ img {
     }
 }
 
-/* ==========================================
-   TALI'S PREMIUM HOMEPAGE DESIGN
-   ========================================== */
-
+   /* TALI'S PREMIUM HOMEPAGE DESIGN */
 .home-hero {
     position: relative;
     padding: 88px 0 100px;
@@ -1457,10 +1406,7 @@ img {
     line-height: 1.2;
 }
 
-/* ==========================================
-   INTRO STRIP
-   ========================================== */
-
+   /* INTRO STRIP */
 .home-intro-strip {
     background: #69508f;
     color: white;
@@ -1487,10 +1433,7 @@ img {
     font-size: 20px;
 }
 
-/* ==========================================
-   SECTION HEADINGS
-   ========================================== */
-
+   /* SECTION HEADINGS */
 .home-section-heading {
     display: flex;
     align-items: flex-end;
@@ -1536,10 +1479,7 @@ img {
     text-decoration: underline;
 }
 
-/* ==========================================
-   CATEGORY CARDS
-   ========================================== */
-
+   /* CATEGORY CARDS */
 .home-categories {
     padding: 95px 0;
     background: #ffffff;
@@ -1643,10 +1583,7 @@ img {
     color: white !important;
 }
 
-/* ==========================================
-   FEATURED PRODUCTS
-   ========================================== */
-
+   /* FEATURED PRODUCTS */
 .home-featured {
     padding: 90px 0;
     background: #f8f5fb;
@@ -1783,10 +1720,7 @@ img {
     text-align: center;
 }
 
-/* ==========================================
-   BRAND STORY
-   ========================================== */
-
+   /* BRAND STORY */
 .home-story {
     padding: 100px 0;
     background: #ffffff;
@@ -1880,10 +1814,7 @@ img {
     margin-top: 18px;
 }
 
-/* ==========================================
-   FINAL CTA
-   ========================================== */
-
+   /* FINAL CTA */
 .home-final-section {
     padding: 20px 0 100px;
     background: #ffffff;
@@ -1948,10 +1879,7 @@ img {
     font-size: 100px;
 }
 
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
-
+   /* RESPONSIVE */
 @media (max-width: 1000px) {
 
     .home-hero-grid {
@@ -2142,10 +2070,7 @@ img {
     }
 }
 
-/* ==========================================
-   FINAL FIX - HERO WITHOUT OVERLAPPING
-   ========================================== */
-
+   /* FINAL FIX - HERO WITHOUT OVERLAPPING */
 /* Main right-side layout */
 .home-visual {
     position: relative;
@@ -2282,11 +2207,8 @@ img {
     }
 }
 
-/* ==========================================
-   RESPONSIVE LAYOUT & MARGIN FIX
-   TALI'S BREAD & PASTRIES
-   ========================================== */
-
+   /* RESPONSIVE LAYOUT & MARGIN FIX */
+   /* TALI'S BREAD & PASTRIES */
 /* General spacing */
 html {
     width: 100%;
@@ -2341,10 +2263,7 @@ img {
     padding: 30px 0 75px;
 }
 
-/* ==========================================
-   TABLET / SMALL LAPTOP
-   ========================================== */
-
+   /* TABLET / SMALL LAPTOP */
 @media (max-width: 1024px) {
 
     .container {
@@ -2391,10 +2310,7 @@ img {
     }
 }
 
-/* ==========================================
-   TABLET / SMALL SCREEN
-   ========================================== */
-
+   /* TABLET / SMALL SCREEN */
 @media (max-width: 768px) {
 
     .container {
@@ -2518,10 +2434,7 @@ img {
     }
 }
 
-/* ==========================================
-   MOBILE DEVICES
-   ========================================== */
-
+   /* MOBILE DEVICES */
 @media (max-width: 480px) {
 
     .container {
@@ -2724,10 +2637,7 @@ img {
     }
 }
 
-/* ==========================================
-   VERY SMALL PHONES
-   ========================================== */
-
+   /* VERY SMALL PHONES */
 @media (max-width: 360px) {
 
     .home-category-grid {
@@ -2747,10 +2657,7 @@ img {
     }
 }
 
-/* =========================================
-   TALI'S ELEGANT HOMEPAGE
-   ========================================= */
-
+   /* TALI'S ELEGANT HOMEPAGE */
 /* General homepage layout */
 
 .tl-hero,
@@ -2767,10 +2674,7 @@ img {
     box-sizing: border-box;
 }
 
-/* =========================================
-   HERO
-   ========================================= */
-
+   /* HERO */
 .tl-hero {
     background: linear-gradient(
         115deg,
@@ -2903,10 +2807,7 @@ img {
     color: #977eaf;
 }
 
-/* =========================================
-   HERO LOGO CARD
-   ========================================= */
-
+   /* HERO LOGO CARD */
 .tl-hero-visual {
     width: 100%;
     max-width: 455px;
@@ -3001,10 +2902,7 @@ img {
     letter-spacing: 1.7px;
 }
 
-/* =========================================
-   INTRO STRIP
-   ========================================= */
-
+   /* INTRO STRIP */
 .tl-intro-strip {
     background: #ffffff;
     border-bottom: 1px solid #eee8f2;
@@ -3032,10 +2930,7 @@ img {
     font-size: 13px;
 }
 
-/* =========================================
-   SHARED SECTIONS
-   ========================================= */
-
+   /* SHARED SECTIONS */
 .tl-section {
     padding: 70px 0;
 }
@@ -3090,10 +2985,7 @@ img {
     text-decoration: underline;
 }
 
-/* =========================================
-   CATEGORY SECTION
-   ========================================= */
-
+   /* CATEGORY SECTION */
 .tl-categories-section {
     background: #ffffff;
 }
@@ -3191,10 +3083,7 @@ img {
     font-size: 16px;
 }
 
-/* =========================================
-   FEATURED PRODUCT SECTION
-   ========================================= */
-
+   /* FEATURED PRODUCT SECTION */
 .tl-featured-section {
     background: #f8f5fb;
 }
@@ -3351,10 +3240,7 @@ img {
     margin-top: 35px;
 }
 
-/* =========================================
-   ABOUT SECTION
-   ========================================= */
-
+   /* ABOUT SECTION */
 .tl-about-section {
     background: white;
     padding: 75px 0;
@@ -3423,10 +3309,7 @@ img {
     margin-bottom: 23px;
 }
 
-/* =========================================
-   FINAL SECTION
-   ========================================= */
-
+   /* FINAL SECTION */
 .tl-final-section {
     background: #ffffff;
     padding: 0 0 75px;
@@ -3486,10 +3369,7 @@ img {
     background: #f5eff9;
 }
 
-/* =========================================
-   EMPTY STATE
-   ========================================= */
-
+   /* EMPTY STATE */
 .tl-empty {
     grid-column: 1 / -1;
     padding: 32px;
@@ -3499,10 +3379,7 @@ img {
     text-align: center;
 }
 
-/* =========================================
-   TABLET RESPONSIVE
-   ========================================= */
-
+   /* TABLET RESPONSIVE */
 @media (max-width: 900px) {
 
     .tl-hero {
@@ -3541,10 +3418,7 @@ img {
     }
 }
 
-/* =========================================
-   MOBILE RESPONSIVE
-   ========================================= */
-
+   /* MOBILE RESPONSIVE */
 @media (max-width: 680px) {
 
     .tl-hero {
@@ -3696,5 +3570,467 @@ img {
 
     .tl-final-card h2 {
         font-size: 29px;
+    }
+}
+
+   /* TALI'S - PRODUCT DETAILS */
+   Clean, minimal and responsive
+
+.pdp-page {
+    padding: 34px 0 78px;
+    min-height: 75vh;
+}
+
+/* BREADCRUMBS */
+
+.pdp-breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-bottom: 22px;
+
+    color: #84768d;
+    font-size: 12px;
+}
+
+.pdp-breadcrumbs a {
+    color: #67527e;
+    transition: color 0.2s;
+}
+
+.pdp-breadcrumbs a:hover {
+    color: #49356f;
+    text-decoration: underline;
+}
+
+.pdp-breadcrumbs [aria-current="page"] {
+    color: #30253c;
+    font-weight: 600;
+}
+
+/* MAIN PRODUCT CARD */
+
+.pdp-card {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    align-items: stretch;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #eae3ef;
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 32px rgba(44, 28, 62, 0.045);
+}
+
+/* PRODUCT IMAGE */
+
+.pdp-gallery {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+    padding: 25px;
+
+    background: #f6f2f9;
+}
+
+.pdp-image-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+    border-radius: 14px;
+
+    background: #efe8f4;
+}
+
+.pdp-image {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+/* EMPTY IMAGE STATE */
+
+.pdp-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+
+    width: 100%;
+    height: 100%;
+
+    font-size: 90px;
+    text-align: center;
+}
+
+.pdp-placeholder span {
+    max-width: 230px;
+
+    color: #84748f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* PRODUCT CONTENT */
+
+.pdp-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    min-width: 0;
+    padding: clamp(28px, 4vw, 48px);
+}
+
+.pdp-category {
+    display: inline-block;
+    align-self: flex-start;
+
+    color: #8a6aa5;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.pdp-title {
+    margin: 13px 0 15px;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: #2f223f;
+
+    font-size: clamp(32px, 3.5vw, 46px);
+    font-weight: 500;
+    line-height: 1.15;
+
+    letter-spacing: -0.8px;
+    overflow-wrap: break-word;
+}
+
+/* PRICE */
+
+.pdp-price {
+    margin: 0 0 18px;
+
+    color: #674989;
+
+    font-size: clamp(27px, 3vw, 33px);
+    font-weight: 800;
+    line-height: 1.2;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* AVAILABILITY */
+
+.pdp-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+
+    margin-bottom: 26px;
+}
+
+.pdp-status,
+.pdp-made-to-order {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 11px;
+
+    border-radius: 30px;
+
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.pdp-available {
+    background: #eaf6ee;
+    color: #257447;
+}
+
+.pdp-unavailable {
+    background: #f7edeb;
+    color: #9c574f;
+}
+
+.pdp-status-dot {
+    width: 7px;
+    height: 7px;
+    flex: none;
+
+    border-radius: 50%;
+    background: #3e9460;
+}
+
+.pdp-made-to-order {
+    background: #f2edf7;
+    color: #695281;
+}
+
+/* DESCRIPTION */
+
+.pdp-description-section {
+    padding: 23px 0;
+
+    border-top: 1px solid #eee8f2;
+    border-bottom: 1px solid #eee8f2;
+}
+
+.pdp-description-section h2 {
+    margin: 0 0 10px;
+
+    color: #352943;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.pdp-description-section p {
+    margin: 0;
+
+    color: #776b82;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* ADD TO CART */
+
+.pdp-order-section {
+    padding: 24px 0 0;
+}
+
+.pdp-cart-form {
+    width: 100%;
+    margin: 0;
+}
+
+.pdp-cart-controls {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pdp-quantity {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pdp-quantity label {
+    color: #4c3c5c;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pdp-quantity input {
+    width: 92px;
+    height: 47px;
+
+    padding: 10px 12px;
+
+    color: #30253d;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+
+    background: #fff;
+
+    border: 1px solid #ded3e9;
+    border-radius: 9px;
+
+    outline: none;
+}
+
+.pdp-quantity input:focus {
+    border-color: #9679b2;
+
+    box-shadow:
+        0 0 0 3px rgba(102, 80, 143, 0.10);
+}
+
+.pdp-add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    flex: 1 1 180px;
+
+    min-height: 47px;
+    padding: 12px 23px;
+
+    background: #70528f;
+    border: 1px solid #70528f;
+    border-radius: 9px;
+
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.2s,
+        transform 0.2s;
+}
+
+.pdp-add-button:hover:not(:disabled) {
+    background: #523874;
+    border-color: #523874;
+    transform: translateY(-1px);
+}
+
+.pdp-add-button:disabled {
+    background: #ece7f0;
+    border-color: #ece7f0;
+
+    color: #978b9e;
+    cursor: not-allowed;
+}
+
+.pdp-order-note {
+    margin: 13px 0 0;
+
+    color: #8c8195;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* RETURN TO CATALOG */
+
+.pdp-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+
+    margin-top: 26px;
+
+    color: #634980;
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: color 0.2s;
+}
+
+.pdp-back-link:hover {
+    color: #3e2a5a;
+    text-decoration: underline;
+}
+
+   /* TABLET */
+@media (max-width: 900px) {
+
+    .pdp-card {
+        grid-template-columns:
+            minmax(0, 0.9fr)
+            minmax(0, 1.1fr);
+    }
+
+    .pdp-gallery {
+        padding: 17px;
+    }
+
+    .pdp-info {
+        padding: 25px;
+    }
+
+    .pdp-title {
+        font-size: 34px;
+    }
+}
+
+   /* MOBILE */
+@media (max-width: 700px) {
+
+    .pdp-page {
+        padding: 24px 0 55px;
+    }
+
+    .pdp-breadcrumbs {
+        margin-bottom: 16px;
+    }
+
+    .pdp-card {
+        grid-template-columns: 1fr;
+        border-radius: 15px;
+    }
+
+    .pdp-gallery {
+        padding: 15px;
+    }
+
+    .pdp-image-frame {
+        aspect-ratio: 4 / 3;
+    }
+
+    .pdp-info {
+        padding: 26px 22px 30px;
+    }
+
+    .pdp-title {
+        font-size: clamp(30px, 7vw, 38px);
+        margin-top: 10px;
+    }
+
+    .pdp-badges {
+        margin-bottom: 22px;
+    }
+}
+
+@media (max-width: 430px) {
+
+    .pdp-info {
+        padding: 23px 18px 27px;
+    }
+
+    .pdp-cart-controls {
+        gap: 14px;
+    }
+
+    .pdp-add-button {
+        flex-basis: 100%;
+    }
+
+    .pdp-description-section {
+        padding: 19px 0;
+    }
+
+    .pdp-back-link {
+        margin-top: 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .pdp-add-button {
+        transition: none;
     }
 }

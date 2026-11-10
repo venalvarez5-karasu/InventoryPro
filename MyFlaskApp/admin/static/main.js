@@ -3,9 +3,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ======================================
        RESPONSIVE ADMIN SIDEBAR
-       ====================================== */
 
     const sidebar = document.getElementById(
         "admin-sidebar"
@@ -87,10 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
-    /* ======================================
        PRODUCT IMAGE PREVIEW
-       ====================================== */
 
     const imageInput = document.getElementById("image");
 
@@ -149,10 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
-    /* ======================================
        ARCHIVE CONFIRMATION
-       ====================================== */
 
     const confirmForms = document.querySelectorAll(
         "form[data-confirm]"

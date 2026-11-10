@@ -23,7 +23,7 @@
         'archived' else
         'Edit details, manage availability, or archive products.' }}</p></div>
     <a class="adm-text-link"
-      href="{{ url_for('admin.categories_page') }}">Manage Categories →</a>
+      href="{{ url_for('admin.categories_page') }}">Manage Categories</a>
   </div>
   <div class="adm-product-toolbar">
     <div class="adm-tabs" aria-label="Product status filter">
@@ -69,7 +69,7 @@
                   product.id }}</small></span>
             </div></td>
           <td>{{ product.category_name }}</td>
-          <td class="adm-price-cell">₱{{ '%.2f'|format(product.price) }}</td>
+          <td class="adm-price-cell">â‚±{{ '%.2f'|format(product.price) }}</td>
           <td><span
               class="adm-status {{ 'archived' if not product.is_active else ('available' if product.is_available else 'unavailable') }}">{{
               'Archived' if not product.is_active else ('Available' if
@@ -123,15 +123,8 @@
     </table>
   </div>
 </section>
-{% if pages is defined and pages > 1 %}
-<nav class="adm-console-pagination" aria-label="Product pages">
-  {% if page > 1 %}<a
-    href="{{ url_for('admin.manage_products', page=page-1, q=search, status=status) }}">←
-    Previous</a>{% endif %}
-  <span>Page {{ page }} of {{ pages }} · {{ total }} products</span>
-  {% if page < pages %}<a
-    href="{{ url_for('admin.manage_products', page=page+1, q=search, status=status) }}">Next
-    →</a>{% endif %}
-</nav>
-{% endif %}
+
+{% include "admin_pagination.html" %}
+
 {% endblock %}
+

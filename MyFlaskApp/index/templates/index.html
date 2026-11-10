@@ -3,9 +3,7 @@
 
 {% block content %}
 
-<!-- ==============================
      HERO SECTION
-     ============================== -->
 
 <section class="tl-hero">
     <div class="container tl-hero-grid">
@@ -29,7 +27,7 @@
             <p class="tl-hero-description">
                 Discover our selection of soft ensaimadas,
                 delightful cookies, chocolatey almond treats,
-                and savory breads — something special for
+                and savory breads something special for
                 every craving.
             </p>
 
@@ -47,15 +45,15 @@
                     class="tl-secondary-link"
                 >
                     Discover Our Story
-                    <span aria-hidden="true">→</span>
+                    <span aria-hidden="true">â†’</span>
                 </a>
             </div>
 
             <div class="tl-hero-categories">
                 <span>Ensaimadas</span>
-                <span class="tl-separator">·</span>
+                <span class="tl-separator">Â·</span>
                 <span>Cookies</span>
-                <span class="tl-separator">·</span>
+                <span class="tl-separator">Â·</span>
                 <span>Savory Breads</span>
             </div>
 
@@ -97,10 +95,7 @@
     </div>
 </section>
 
-
-<!-- ==============================
      SMALL BAKERY STRIP
-     ============================== -->
 
 <section class="tl-intro-strip">
     <div class="container tl-intro-content">
@@ -112,10 +107,7 @@
     </div>
 </section>
 
-
-<!-- ==============================
      PRODUCT CATEGORIES
-     ============================== -->
 
 <section class="tl-section tl-categories-section">
     <div class="container">
@@ -190,10 +182,7 @@
     </div>
 </section>
 
-
-<!-- ==============================
      FEATURED PRODUCTS
-     ============================== -->
 
 <section class="tl-section tl-featured-section">
     <div class="container">
@@ -276,7 +265,7 @@
                     <div class="tl-product-details">
 
                         <span class="tl-price">
-                            ₱{{ '%.2f'|format(product.price) }}
+                            â‚±{{ '%.2f'|format(product.price) }}
                         </span>
 
                         {% if product.is_available %}
@@ -296,7 +285,7 @@
                         href="{{ url_for('products.product_detail', slug=product.slug) }}"
                     >
                         View Product
-                        <span aria-hidden="true">→</span>
+                        <span aria-hidden="true">â†’</span>
                     </a>
 
                 </div>
@@ -326,10 +315,7 @@
     </div>
 </section>
 
-
-<!-- ==============================
      ABOUT / BRAND SECTION
-     ============================== -->
 
 <section class="tl-about-section">
     <div class="container tl-about-grid">
@@ -366,7 +352,7 @@
                 class="tl-secondary-link"
             >
                 More About Tali's
-                <span aria-hidden="true">→</span>
+                <span aria-hidden="true">â†’</span>
             </a>
 
         </div>
@@ -374,10 +360,7 @@
     </div>
 </section>
 
-
-<!-- ==============================
      FINAL CTA
-     ============================== -->
 
 <section class="tl-final-section">
     <div class="container">

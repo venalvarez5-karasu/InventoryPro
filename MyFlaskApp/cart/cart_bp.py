@@ -1,6 +1,3 @@
-
-"""Customer cart and COD checkout without external APIs."""
-
 from datetime import datetime
 from decimal import Decimal
 from secrets import token_hex, token_urlsafe
@@ -32,10 +29,7 @@ cart_bp = Blueprint(
 MAX_DISTINCT = 25
 MAX_QUANTITY = 99
 
-
-# ==========================================
 # HELPERS
-# ==========================================
 
 def get_user_id():
 
@@ -82,10 +76,7 @@ def same_province(address, region_name):
 
     return province == region
 
-
-# ==========================================
 # CART ITEMS
-# ==========================================
 
 def get_lines():
 
@@ -155,10 +146,7 @@ def get_lines():
 
     return items, subtotal
 
-
-# ==========================================
 # APPROVED COD ADDRESSES
-# ==========================================
 
 def approved_addresses(user_id):
 
@@ -231,10 +219,7 @@ def approved_addresses(user_id):
 
     return addresses, eligible
 
-
-# ==========================================
 # VIEW CART
-# ==========================================
 
 @cart_bp.route("/")
 def view_cart():
@@ -248,10 +233,7 @@ def view_cart():
         title="Your Cart",
     )
 
-
-# ==========================================
 # ADD TO CART
-# ==========================================
 
 @cart_bp.route("/add", methods=["POST"])
 def add_to_cart():
@@ -328,10 +310,7 @@ def add_to_cart():
         url_for("cart.view_cart")
     )
 
-
-# ==========================================
 # UPDATE OR REMOVE CART ITEM
-# ==========================================
 
 @cart_bp.route("/update", methods=["POST"])
 def update_cart():
@@ -368,10 +347,7 @@ def update_cart():
         url_for("cart.view_cart")
     )
 
-
-# ==========================================
 # CHECKOUT
-# ==========================================
 
 @cart_bp.route(
     "/checkout",
@@ -412,9 +388,7 @@ def checkout():
         user_id
     )
 
-    # ======================================
     # SUBMIT ORDER
-    # ======================================
 
     if request.method == "POST":
 
@@ -812,9 +786,7 @@ def checkout():
             )
         )
 
-    # ======================================
     # DISPLAY CHECKOUT
-    # ======================================
 
     if "checkout_token" not in session:
 

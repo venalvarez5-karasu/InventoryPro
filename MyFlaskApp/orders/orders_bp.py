@@ -1,6 +1,3 @@
-
-"""Customer order history and tracking."""
-
 from flask import (
     Blueprint,
     redirect,

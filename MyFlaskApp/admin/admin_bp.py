@@ -1,4 +1,3 @@
-
 import re
 import unicodedata
 from decimal import Decimal, InvalidOperation
@@ -33,10 +32,7 @@ admin_bp = Blueprint(
     static_url_path="/admin/static",
 )
 
-
-# ==========================================
 # CONFIGURATION
-# ==========================================
 
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
 
@@ -47,10 +43,7 @@ IMAGE_FOLDER = (
     / "images"
 )
 
-
-# ==========================================
 # DATABASE HELPERS
-# ==========================================
 
 def db_one(query, params=()):
     cursor = mysql.connection.cursor(DictCursor)
@@ -92,10 +85,7 @@ def db_write(query, params=()):
     finally:
         cursor.close()
 
-
-# ==========================================
 # DASHBOARD DATA
-# ==========================================
 
 def product_statistics():
     return db_one(
@@ -155,10 +145,7 @@ def get_product(product_id):
         (product_id,),
     )
 
-
-# ==========================================
 # PRODUCT SLUG
-# ==========================================
 
 def slugify(value):
     value = unicodedata.normalize(
@@ -205,10 +192,7 @@ def unique_product_slug(name):
 
     return slug
 
-
-# ==========================================
 # PRODUCT FORM VALIDATION
-# ==========================================
 
 def validate_product_form():
 
@@ -301,10 +285,7 @@ def validate_product_form():
         "is_made_to_order": is_made_to_order,
     }, None
 
-
-# ==========================================
 # IMAGE UPLOAD HELPER
-# ==========================================
 
 def save_product_image(upload):
 
@@ -414,10 +395,7 @@ def remove_product_image(filename):
             "Unable to remove product image"
         )
 
-
-# ==========================================
 # ADMIN DASHBOARD
-# ==========================================
 
 @admin_bp.route("/")
 @role_required("admin")
@@ -475,10 +453,7 @@ def dashboard():
         recent_orders=recent_orders,
     )
 
-
-# ==========================================
 # MANAGE PRODUCTS
-# ==========================================
 
 @admin_bp.route("/products")
 @role_required("admin")
@@ -503,7 +478,7 @@ def manage_products():
 
     page = max(1, min(page or 1, 100000))
 
-    per_page = 15
+    per_page = 10
 
     where_clause = "p.is_active = %s"
     params = [is_active]
@@ -575,10 +550,7 @@ def manage_products():
         total=total,
     )
 
-
-# ==========================================
 # ADD PRODUCT
-# ==========================================
 
 @admin_bp.route(
     "/products/add",
@@ -701,10 +673,7 @@ def add_product():
         ),
     )
 
-
-# ==========================================
 # EDIT PRODUCT
-# ==========================================
 
 @admin_bp.route(
     "/products/<int:product_id>/edit",
@@ -848,10 +817,7 @@ def edit_product(product_id):
         ),
     )
 
-
-# ==========================================
 # TOGGLE PRODUCT AVAILABILITY
-# ==========================================
 
 @admin_bp.route(
     "/products/<int:product_id>/availability",
@@ -895,10 +861,7 @@ def toggle_availability(product_id):
         url_for("admin.manage_products")
     )
 
-
-# ==========================================
 # ARCHIVE PRODUCT
-# ==========================================
 
 @admin_bp.route(
     "/products/<int:product_id>/archive",
@@ -932,10 +895,7 @@ def archive_product(product_id):
         url_for("admin.manage_products")
     )
 
-
-# ==========================================
 # RESTORE ARCHIVED PRODUCT
-# ==========================================
 
 @admin_bp.route(
     "/products/<int:product_id>/restore",

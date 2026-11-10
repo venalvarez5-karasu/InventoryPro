@@ -1,8 +1,4 @@
-
-"""Recipe management and per-product estimated costs."""
-
 from decimal import Decimal, InvalidOperation
-
 from flask import (
     Blueprint, flash, redirect,
     render_template, request, url_for, abort
@@ -67,14 +63,74 @@ def positive_decimal(value, precision="0.001"):
             "with up to three decimal places."
         )
 
-
-# ==========================================
 # RECIPE LIST + PRODUCT COSTING
-# ==========================================
 
 @production_bp.route("/")
 @role_required("admin")
 def recipe_list():
+
+    # INDEPENDENT RECIPE / COST PAGINATION
+
+    per_page = 10
+
+    product_total = int(one(
+        """
+        SELECT COUNT(*) AS n
+        FROM products
+        WHERE is_active = 1
+        """
+    )["n"])
+
+    product_pages = max(
+        1,
+        (product_total + 9) // 10
+    )
+
+    product_page = min(
+        max(
+            1,
+            request.args.get(
+                "page", 1, type=int
+            ) or 1
+        ),
+        product_pages
+    )
+
+    product_offset = (
+        product_page - 1
+    ) * per_page
+
+    cost_total = int(one(
+        """
+        SELECT COUNT(*) AS n
+        FROM inventory_items
+        WHERE is_active = 1
+          AND item_type IN (
+              'ingredient',
+              'packaging'
+          )
+        """
+    )["n"])
+
+    cost_pages = max(
+        1,
+        (cost_total + 9) // 10
+    )
+
+    cost_page = min(
+        max(
+            1,
+            request.args.get(
+                "cost_page", 1, type=int
+            ) or 1
+        ),
+        cost_pages
+    )
+
+    cost_offset = (
+        cost_page - 1
+    ) * per_page
+
 
     products = rows(
         """
@@ -127,8 +183,10 @@ def recipe_list():
             r.id,
             r.yield_pieces
 
-        ORDER BY c.display_order, p.name
-        """
+        ORDER BY c.display_order, p.name, p.id
+        LIMIT %s OFFSET %s
+        """,
+        (per_page, product_offset)
     )
 
     for product in products:
@@ -169,8 +227,10 @@ def recipe_list():
               'ingredient',
               'packaging'
           )
-        ORDER BY item_name
-        """
+        ORDER BY item_name, id
+        LIMIT %s OFFSET %s
+        """,
+        (per_page, cost_offset)
     )
 
     return render_template(
@@ -179,12 +239,17 @@ def recipe_list():
         user=current_user(),
         products=products,
         cost_items=cost_items,
+        page=product_page,
+        pages=product_pages,
+        total=product_total,
+
+        cost_page=cost_page,
+        cost_pages=cost_pages,
+        cost_total=cost_total,
+
     )
 
-
-# ==========================================
 # CREATE / EDIT RECIPE
-# ==========================================
 
 @production_bp.route(
     "/recipes/<int:product_id>",
@@ -423,10 +488,7 @@ def recipe_edit(product_id):
         stock=stock,
     )
 
-
-# ==========================================
 # UPDATE INGREDIENT COST
-# ==========================================
 
 @production_bp.route(
     "/costs/<int:item_id>",

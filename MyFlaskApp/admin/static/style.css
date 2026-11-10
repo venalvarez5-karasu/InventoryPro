@@ -1,9 +1,9 @@
 
-/* ==========================================
-   INVENTORYPRO ADMIN
-   LIGHT LAVENDER GLASSMORPHISM
-   TALI'S BREAD & PASTRIES
-   ========================================== */
+/* =====================================================
+   INVENTORYPRO — ADMIN DESIGN SYSTEM
+   Tali's Bread & Pastries
+   Clean • Minimal • Lavender • Responsive
+   ===================================================== */
 
 :root {
     color-scheme: light;
@@ -14,9 +14,9 @@
     --adm-line: #e9e1f0;
     --adm-purple: #765b9d;
     --adm-purple-hover: #614680;
-    --adm-glass: rgba(255, 255, 255, 0.82);
-    --adm-shadow: 0 10px 28px rgba(70, 49, 99, 0.055);
-    --adm-radius: 16px;
+    --adm-glass: rgba(255, 255, 255, 0.94);
+    --adm-shadow: 0 8px 26px rgba(54, 38, 76, 0.055);
+    --adm-radius: 14px;
 }
 
 *,
@@ -35,21 +35,7 @@ body {
     min-height: 100vh;
     color: var(--adm-ink);
     font: 13px/1.55 "Segoe UI", Arial, sans-serif;
-
-    background:
-        radial-gradient(
-            ellipse 48% 34% at 92% 7%,
-            #eae1f5 0%,
-            transparent 100%
-        ),
-        radial-gradient(
-            ellipse 44% 35% at 3% 94%,
-            #eee8f6 0%,
-            transparent 100%
-        ),
-        var(--adm-bg);
-
-    background-attachment: fixed;
+    background: #f8f7fb;
 }
 
 button,
@@ -77,8 +63,20 @@ svg {
 }
 
 :focus-visible {
-    outline: 3px solid #baa2d4;
-    outline-offset: 3px;
+    outline: 2px solid #a78bc3;
+    outline-offset: 2px;
+}
+
+.adm-visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .adm-skip-link {
@@ -87,8 +85,8 @@ svg {
     left: 12px;
     top: -100px;
     padding: 10px 18px;
-    border-radius: 10px;
-    background: #fff;
+    border-radius: 9px;
+    background: white;
     color: #533874;
 }
 
@@ -96,27 +94,27 @@ svg {
     top: 10px;
 }
 
-/* ==========================================
-   MAIN LAYOUT
-   ========================================== */
+/* =====================================================
+   APPLICATION LAYOUT
+   ===================================================== */
 
 .adm-layout {
     display: flex;
-    min-height: 100vh;
     width: 100%;
+    min-height: 100vh;
     isolation: isolate;
 }
 
 .adm-main-shell {
-    flex: 1;
     display: flex;
+    flex: 1;
     flex-direction: column;
     min-width: 0;
 }
 
-/* ==========================================
-   GLASS SIDEBAR
-   ========================================== */
+/* =====================================================
+   SIDEBAR
+   ===================================================== */
 
 .adm-sidebar {
     position: sticky;
@@ -124,37 +122,34 @@ svg {
     z-index: 90;
 
     display: flex;
+    flex: 0 0 244px;
     flex-direction: column;
-    flex: 0 0 252px;
 
-    width: 252px;
+    width: 244px;
     height: 100vh;
     overflow: hidden;
 
     background: linear-gradient(
         160deg,
-        rgba(250, 247, 254, 0.96),
-        rgba(236, 228, 246, 0.89)
+        rgba(250, 247, 254, 0.98),
+        rgba(239, 232, 248, 0.95)
     );
 
-    border-right: 1px solid rgba(180, 159, 203, 0.27);
+    border-right: 1px solid #e3d9ec;
 
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-
-    box-shadow: 4px 0 25px rgba(72, 51, 94, 0.04);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 }
 
 .adm-sidebar-brand {
     flex: none;
-    padding: 24px 17px 14px;
+    padding: 20px 15px 12px;
 }
 
 .adm-brand {
     display: flex;
     align-items: center;
     gap: 11px;
-
     min-height: 52px;
     padding: 5px 6px;
     color: #352743;
@@ -163,27 +158,24 @@ svg {
 .adm-brand img {
     width: 42px;
     height: 42px;
-
     object-fit: contain;
+    border: 2px solid white;
     border-radius: 50%;
-    background: #fff;
-
-    border: 2px solid #fff;
-
-    box-shadow: 0 3px 12px rgba(72, 50, 100, 0.10);
+    background: white;
+    box-shadow: 0 3px 12px rgba(72, 50, 100, 0.09);
 }
 
 .adm-brand span {
-    min-width: 0;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .adm-brand strong {
     font-size: 16px;
     font-weight: 750;
-    letter-spacing: -0.4px;
     line-height: 1.25;
+    letter-spacing: -0.4px;
 }
 
 .adm-brand small {
@@ -193,58 +185,53 @@ svg {
     line-height: 1.3;
 }
 
-/* Sidebar Navigation */
-
 .adm-sidebar-nav {
-    min-height: 0;
-    flex: 1;
-
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 3px;
 
-    padding: 0 13px 18px;
+    min-height: 0;
+    padding: 0 12px 16px;
     overflow-y: auto;
-    overscroll-behavior: contain;
 
+    overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #d4c4e5 transparent;
 }
 
 .adm-nav-heading {
     flex: none;
-    padding: 0 11px;
     margin: 16px 0 6px;
+    padding: 0 11px;
 
     color: #9984af;
     font-size: 10px;
     line-height: 1.4;
     font-weight: 800;
-    letter-spacing: 1.35px;
+    letter-spacing: 1.25px;
 }
 
 .adm-sidebar-nav > a {
-    position: relative;
-
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 11px;
     flex: none;
 
     min-height: 40px;
     padding: 9px 12px;
 
-    border-radius: 10px;
     border: 1px solid transparent;
+    border-radius: 9px;
 
     color: #685977;
     font-size: 12px;
     font-weight: 600;
 
     transition:
-        background 0.18s,
-        color 0.18s,
-        border-color 0.18s;
+        background 0.16s,
+        color 0.16s,
+        border-color 0.16s;
 }
 
 .adm-sidebar-nav > a svg {
@@ -254,18 +241,16 @@ svg {
 }
 
 .adm-sidebar-nav > a:hover {
+    background: #eee6f6;
     color: #583f77;
-    background: rgba(222, 211, 235, 0.52);
 }
 
 .adm-sidebar-nav > a.active,
 .adm-sidebar-nav > a[aria-current="page"] {
-    background: #e6ddf1;
-    border-color: #d8c9e8;
+    background: #e7def2;
+    border-color: #d8cae8;
     color: #513870;
-
     font-weight: 750;
-
     box-shadow: inset 3px 0 0 #8a70ad;
 }
 
@@ -273,14 +258,11 @@ svg {
     color: #604582;
 }
 
-/* Sidebar Footer */
-
 .adm-sidebar-footer {
     flex: none;
-    padding: 12px 15px 17px;
-
+    padding: 12px 14px 16px;
     border-top: 1px solid #e4dbec;
-    background: rgba(249, 246, 252, 0.67);
+    background: rgba(249, 246, 252, 0.76);
 }
 
 .adm-view-store {
@@ -290,38 +272,36 @@ svg {
     gap: 9px;
 
     min-height: 38px;
-
-    background: rgba(255, 255, 255, 0.68);
     border: 1px solid #e2d7ed;
-    border-radius: 10px;
+    border-radius: 9px;
 
+    background: #fff;
     color: #624981;
     font-size: 11px;
     font-weight: 700;
 }
 
 .adm-view-store:hover {
-    background: #fff;
+    background: #f7f3fb;
 }
 
 .adm-sidebar-caption {
     display: block;
     margin-top: 10px;
-
     color: #a193ae;
     text-align: center;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.4px;
 }
 
 .adm-sidebar-backdrop {
     display: none;
 }
 
-/* ==========================================
-   TOPBAR
-   ========================================== */
+/* =====================================================
+   TOP BAR
+   ===================================================== */
 
 .adm-topbar {
     position: sticky;
@@ -333,22 +313,21 @@ svg {
     justify-content: space-between;
     gap: 16px;
 
-    min-height: 70px;
-    padding: 12px clamp(18px, 2.5vw, 34px);
+    min-height: 66px;
+    padding: 11px clamp(18px, 2.5vw, 34px);
 
-    background: rgba(255, 255, 255, 0.77);
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid #e7e0ed;
 
-    backdrop-filter: blur(17px);
-    -webkit-backdrop-filter: blur(17px);
-
-    border-bottom: 1px solid rgba(226, 216, 235, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .adm-topbar-left,
 .adm-topbar-right {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 12px;
     min-width: 0;
 }
 
@@ -362,35 +341,32 @@ svg {
     color: #9b89ad;
     font-size: 9px;
     font-weight: 800;
-    letter-spacing: 1.45px;
+    letter-spacing: 1.35px;
 }
 
 .adm-topbar-title strong {
     color: #3c304a;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     line-height: 1.35;
 }
 
 .adm-user-avatar {
-    width: 32px;
-    height: 32px;
-
     display: grid;
     place-items: center;
-
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: #ece4f5;
-
     color: #684c89;
     font-size: 13px;
     font-weight: 800;
 }
 
 .adm-admin-user {
+    color: #5e506c;
     font-size: 12px;
     font-weight: 650;
-    color: #5e506c;
 }
 
 .adm-topbar-right form {
@@ -398,17 +374,14 @@ svg {
 }
 
 .adm-logout-button {
-    min-height: 36px;
-
     display: inline-flex;
     align-items: center;
     gap: 7px;
-
+    min-height: 36px;
     padding: 7px 12px;
 
     color: #70518d;
     background: #fff;
-
     border: 1px solid #e2d7ed;
     border-radius: 9px;
 
@@ -424,77 +397,74 @@ svg {
     display: none;
     align-items: center;
     justify-content: center;
-
     width: 38px;
     height: 38px;
 
     border: 1px solid #e2d7ed;
     border-radius: 9px;
-
     background: #fff;
     color: #6d518c;
 }
 
-/* ==========================================
-   CONTENT & HEADINGS
-   ========================================== */
+/* =====================================================
+   CONTENT AND PAGE HEADINGS
+   ===================================================== */
 
 .adm-content {
     width: 100%;
-    max-width: 1440px;
-
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 28px clamp(18px, 2.5vw, 34px) 55px;
+    padding: 26px clamp(18px, 2.6vw, 34px) 58px;
 }
 
 .adm-page-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
-
-    margin-bottom: 23px;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
 }
 
 .adm-page-heading h1 {
-    font-family: inherit;
-    font-size: clamp(25px, 2.5vw, 30px);
+    margin: 5px 0 7px;
+    color: #342742;
+    font-size: clamp(24px, 2.5vw, 30px);
     font-weight: 750;
     line-height: 1.2;
-    letter-spacing: -0.8px;
-
-    margin: 5px 0 8px;
-    color: #342742;
+    letter-spacing: -0.7px;
 }
 
 .adm-page-heading p {
+    max-width: 650px;
     margin: 0;
     color: var(--adm-muted);
     font-size: 12px;
+    line-height: 1.6;
 }
 
 .adm-eyebrow {
     color: #8a70a7;
     font-size: 9px;
     font-weight: 800;
-    letter-spacing: 1.6px;
+    letter-spacing: 1.5px;
 }
 
 .adm-back-link {
     display: inline-block;
+    margin-bottom: 12px;
     color: #684b8a;
     font-size: 12px;
     font-weight: 700;
-    margin-bottom: 12px;
 }
 
 .adm-back-link:hover {
     text-decoration: underline;
 }
 
-/* ==========================================
+/* =====================================================
    BUTTONS
-   ========================================== */
+   ===================================================== */
 
 .adm-primary-btn,
 .adm-secondary-btn,
@@ -503,7 +473,6 @@ svg {
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     border-radius: 9px;
     white-space: nowrap;
     font-weight: 700;
@@ -511,35 +480,28 @@ svg {
     transition:
         background 0.16s,
         border-color 0.16s,
-        transform 0.16s;
+        color 0.16s;
 }
 
 .adm-primary-btn {
-    min-height: 41px;
-    padding: 10px 17px;
-
+    min-height: 40px;
+    padding: 9px 16px;
     background: var(--adm-purple);
     border: 1px solid var(--adm-purple);
     color: #fff;
-
     font-size: 12px;
-
-    box-shadow: 0 4px 11px rgba(105, 75, 150, 0.12);
 }
 
 .adm-primary-btn:hover {
     background: var(--adm-purple-hover);
     border-color: var(--adm-purple-hover);
-    transform: translateY(-1px);
 }
 
 .adm-secondary-btn {
-    min-height: 41px;
-    padding: 10px 17px;
-
+    min-height: 40px;
+    padding: 9px 16px;
     background: #fff;
     border: 1px solid #e3d8ed;
-
     color: #634b81;
     font-size: 12px;
 }
@@ -548,362 +510,13 @@ svg {
     background: #f3edf9;
 }
 
-.adm-text-link {
-    color: #6a4d8d;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.adm-text-link:hover {
-    text-decoration: underline;
-}
-
-/* ==========================================
-   GLASS PANELS
-   ========================================== */
-
-.adm-panel,
-.adm-stat-card,
-.adm-quick-card,
-.adm-summary-row > div {
-    background: var(--adm-glass);
-
-    border: 1px solid rgba(255, 255, 255, 0.96);
-
-    box-shadow:
-        var(--adm-shadow),
-        0 0 0 1px rgba(170, 147, 193, 0.12);
-
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-
-    border-radius: var(--adm-radius);
-}
-
-.adm-panel {
-    min-width: 0;
-    overflow: hidden;
-}
-
-.adm-panel-heading {
-    padding: 20px 22px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-
-    border-bottom: 1px solid var(--adm-line);
-}
-
-.adm-panel-heading h2,
-.adm-form-panel h2,
-.adm-console-panel h2 {
-    color: #392b49;
-    font-size: 15px;
-    font-weight: 750;
-    margin: 0 0 4px;
-}
-
-.adm-panel-heading p,
-.adm-form-intro {
-    font-size: 12px;
-    color: var(--adm-muted);
-    margin: 0;
-}
-
-.adm-panel-heading .adm-text-link {
-    flex: none;
-}
-
-/* ==========================================
-   STATISTIC CARDS
-   ========================================== */
-
-.adm-stats-grid {
-    display: grid;
-
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-
-    gap: 15px;
-    margin-bottom: 22px;
-}
-
-.adm-stat-card {
-    position: relative;
-    min-width: 0;
-
-    padding: 19px 19px 17px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 7px;
-
-    min-height: 126px;
-}
-
-.adm-stat-label {
-    font-size: 12px;
-    font-weight: 650;
-    color: #746880;
-}
-
-.adm-stat-card strong {
-    font-size: 30px;
-    line-height: 1.1;
-    font-weight: 750;
-    color: #674c8a;
-
-    letter-spacing: -0.8px;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-}
-
-.adm-stat-card small {
-    font-size: 11px;
-    color: #8f849a;
-}
-
-.adm-stat-card::before {
-    content: "";
-
-    position: absolute;
-    top: 18px;
-    right: 18px;
-
-    width: 8px;
-    height: 8px;
-
-    border-radius: 50%;
-    background: #c7b5db;
-}
-
-.adm-stat-card:hover,
-.adm-quick-card:hover {
-    box-shadow:
-        0 13px 28px rgba(72, 49, 104, 0.085),
-        0 0 0 1px rgba(166, 141, 195, 0.15);
-}
-
-/* ==========================================
-   PRODUCT SUMMARY
-   ========================================== */
-
-.adm-summary-row {
-    display: grid;
-
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-
-    gap: 12px;
-    margin-bottom: 19px;
-}
-
-.adm-summary-row > div {
-    min-width: 0;
-    padding: 13px 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.adm-summary-row span {
-    font-size: 12px;
-    color: #81758d;
-}
-
-.adm-summary-row strong {
-    color: #664987;
-    font-size: 18px;
-    font-weight: 750;
-    font-variant-numeric: tabular-nums;
-}
-
-/* ==========================================
-   TABLES
-   ========================================== */
-
-.adm-table-scroll {
-    max-width: 100%;
-    overflow-x: auto;
-
-    scrollbar-width: thin;
-    scrollbar-color: #d8cbe5 transparent;
-}
-
-.adm-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    white-space: nowrap;
-}
-
-.adm-table th {
-    background: rgba(243, 238, 249, 0.65);
-
-    color: #8a7799;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.7px;
-    text-transform: uppercase;
-
-    padding: 13px 16px;
-
-    border-bottom: 1px solid #e9e0f0;
-}
-
-.adm-table td {
-    font-size: 12px;
-    color: #655a70;
-
-    padding: 13px 16px;
-
-    border-bottom: 1px solid #eee8f3;
-    vertical-align: middle;
-}
-
-.adm-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.adm-table tbody tr:hover {
-    background: rgba(246, 241, 251, 0.55);
-}
-
-.adm-table td strong {
-    color: #3d304b;
-    font-weight: 700;
-}
-
-.adm-table td a:not(.adm-action-button):hover {
-    color: #76549a;
-    text-decoration: underline;
-}
-
-.adm-table .adm-empty-cell {
-    text-align: center;
-
-    padding: 30px 16px !important;
-
-    color: #8b8097;
-    white-space: normal;
-
-    background: rgba(250, 248, 252, 0.45);
-}
-
-.adm-price-cell {
-    color: #5b417e !important;
-    font-weight: 750;
-    font-variant-numeric: tabular-nums;
-}
-
-/* Product Cells */
-
-.adm-product-cell {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-
-    min-width: 220px;
-}
-
-.adm-product-cell strong {
-    max-width: 240px;
-    display: block;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.adm-product-cell small {
-    display: block;
-
-    font-size: 10px;
-    color: #9990a4;
-    margin-top: 3px;
-}
-
-.adm-thumbnail {
-    width: 43px;
-    height: 43px;
-    flex: none;
-
-    display: grid;
-    place-items: center;
-
-    border-radius: 10px;
-
-    background: #f2ecf8;
-    border: 1px solid #e8dff0;
-
-    color: #8d77a7;
-    overflow: hidden;
-}
-
-.adm-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.adm-thumbnail svg {
-    width: 19px;
-    height: 19px;
-}
-
-/* Status Badges */
-
-.adm-status {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 99px;
-    padding: 5px 10px;
-
-    font-size: 10px;
-    font-weight: 750;
-    line-height: 1.4;
-}
-
-.adm-status.available {
-    background: #edf7f0;
-    color: #2d744a;
-}
-
-.adm-status.unavailable {
-    background: #f1eef4;
-    color: #786c86;
-}
-
-.adm-status.archived {
-    background: #fbefed;
-    color: #9a5a55;
-}
-
-/* Table Actions */
-
-.adm-table-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.adm-table-actions form {
-    margin: 0;
-}
-
 .adm-action-button {
+    min-height: 33px;
     padding: 7px 11px;
-
-    border: 1px solid #e5dced;
     background: #fff;
+    border: 1px solid #e5dced;
     color: #6d508b;
-
     font-size: 11px;
-    min-height: 32px;
 }
 
 .adm-action-button:hover {
@@ -928,39 +541,373 @@ svg {
     background: #edf8f0;
 }
 
-/* ==========================================
-   PRODUCT TOOLBAR
-   ========================================== */
+.adm-text-link {
+    color: #6a4d8d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.adm-text-link:hover {
+    text-decoration: underline;
+}
+
+/* =====================================================
+   SHARED PANELS
+   ===================================================== */
+
+.adm-panel,
+.adm-stat-card,
+.adm-quick-card,
+.adm-summary-row > div {
+    background: var(--adm-glass);
+    border: 1px solid #e8e1ef;
+    border-radius: var(--adm-radius);
+    box-shadow: var(--adm-shadow);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.adm-panel {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.adm-content > section.adm-panel {
+    margin-bottom: 20px;
+}
+
+.adm-panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 19px 21px;
+    border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-panel-heading h2,
+.adm-form-panel h2,
+.adm-console-panel h2 {
+    margin: 0 0 5px;
+    color: #392b49;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.adm-panel-heading p,
+.adm-form-intro {
+    margin: 0;
+    color: var(--adm-muted);
+    font-size: 12px;
+}
+
+.adm-panel-heading .adm-text-link {
+    flex: none;
+}
+
+.adm-console-panel {
+    padding: 21px 22px;
+}
+
+.adm-console-panel > h2 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.adm-console-muted {
+    display: block;
+    margin: 6px 0 13px;
+    color: #867a91;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.adm-content > .adm-panel + .adm-panel {
+    margin-top: 0;
+}
+
+/* =====================================================
+   DASHBOARD STATISTICS
+   ===================================================== */
+
+.adm-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 21px;
+}
+
+.adm-stat-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    min-height: 130px;
+    padding: 18px;
+}
+
+.adm-stat-label {
+    color: #746880;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.adm-stat-card strong {
+    color: #674c8a;
+    font-size: 29px;
+    line-height: 1.1;
+    font-weight: 750;
+    letter-spacing: -0.7px;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.adm-stat-card small {
+    color: #8f849a;
+    font-size: 11px;
+}
+
+.adm-stat-card::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #c7b5db;
+}
+
+/* =====================================================
+   PRODUCT SUMMARY
+   ===================================================== */
+
+.adm-summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.adm-summary-row > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px 16px;
+}
+
+.adm-summary-row span {
+    color: #81758d;
+    font-size: 12px;
+}
+
+.adm-summary-row strong {
+    color: #664987;
+    font-size: 18px;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================
+   TABLES
+   ===================================================== */
+
+.adm-table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid #eee8f3;
+    border-radius: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #d8cbe5 transparent;
+}
+
+.adm-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.adm-table th {
+    padding: 13px 15px;
+    background: #f7f4fa;
+    color: #826f92;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+
+    border-bottom: 1px solid #e9e0f0;
+}
+
+.adm-table td {
+    padding: 14px 15px;
+    color: #655a70;
+    font-size: 12px;
+    line-height: 1.5;
+    vertical-align: middle;
+    border-bottom: 1px solid #eee8f3;
+}
+
+.adm-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.adm-table tbody tr:hover td {
+    background: #faf8fc;
+}
+
+.adm-table td strong {
+    color: #3d304b;
+    font-weight: 700;
+}
+
+.adm-table td a:not(.adm-action-button):hover {
+    color: #76549a;
+    text-decoration: underline;
+}
+
+.adm-table .adm-empty-cell {
+    padding: 28px 16px !important;
+    text-align: center;
+    color: #8b8097;
+    white-space: normal;
+    background: #fcfbfd;
+}
+
+.adm-price-cell {
+    color: #5b417e !important;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-console-wrap {
+    max-width: 340px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.adm-table-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.adm-table-actions form {
+    margin: 0;
+}
+
+/* =====================================================
+   PRODUCT CELLS AND STATUS
+   ===================================================== */
+
+.adm-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 220px;
+}
+
+.adm-product-cell strong {
+    display: block;
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.adm-product-cell small {
+    display: block;
+    margin-top: 3px;
+    color: #9990a4;
+    font-size: 10px;
+}
+
+.adm-thumbnail {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 43px;
+    height: 43px;
+    overflow: hidden;
+
+    border: 1px solid #e8dff0;
+    border-radius: 9px;
+    background: #f2ecf8;
+    color: #8d77a7;
+}
+
+.adm-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.adm-thumbnail svg {
+    width: 19px;
+    height: 19px;
+}
+
+.adm-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+.adm-status.available {
+    background: #edf7f0;
+    color: #2d744a;
+}
+
+.adm-status.unavailable {
+    background: #f1eef4;
+    color: #786c86;
+}
+
+.adm-status.archived {
+    background: #fbefed;
+    color: #9a5a55;
+}
+
+/* =====================================================
+   PRODUCT CATALOG FILTERS
+   ===================================================== */
 
 .adm-product-toolbar {
-    padding: 18px 21px;
-
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 14px;
+    justify-content: space-between;
     flex-wrap: wrap;
-
+    gap: 14px;
+    padding: 17px 20px;
     border-bottom: 1px solid var(--adm-line);
 }
 
 .adm-tabs {
     display: flex;
-    gap: 7px;
     flex-wrap: wrap;
+    gap: 7px;
 }
 
 .adm-tabs a {
     display: inline-flex;
     align-items: center;
-
     min-height: 36px;
-    border-radius: 8px;
     padding: 8px 12px;
-
-    background: #f5f1f8;
     border: 1px solid transparent;
-
+    border-radius: 8px;
+    background: #f5f1f8;
     color: #766882;
     font-size: 11px;
     font-weight: 700;
@@ -974,33 +921,28 @@ svg {
 
 .adm-search-form {
     display: flex;
-    gap: 8px;
     align-items: center;
+    gap: 8px;
 }
 
 .adm-search-form input {
     width: 235px;
     max-width: 100%;
-    height: 39px;
-
+    min-height: 39px;
     padding: 9px 12px;
-
     border: 1px solid #e4dbea;
     border-radius: 9px;
-
-    background: rgba(255, 255, 255, 0.9);
+    background: #fff;
     color: var(--adm-ink);
 }
 
 .adm-search-form button {
     min-height: 39px;
+    padding: 8px 14px;
     border: 1px solid var(--adm-purple);
     border-radius: 9px;
-
     background: var(--adm-purple);
     color: #fff;
-
-    padding: 8px 14px;
     font-weight: 700;
 }
 
@@ -1008,90 +950,82 @@ svg {
     background: var(--adm-purple-hover);
 }
 
-/* ==========================================
-   QUICK ACTIONS
-   ========================================== */
+/* =====================================================
+   QUICK ACTIONS / REPORTS
+   ===================================================== */
 
 .adm-quick-grid {
     display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 15px;
-    margin-top: 19px;
+    margin: 0 0 18px;
 }
 
 .adm-quick-card {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
+    min-height: 150px;
     padding: 19px;
-    display: block;
+    transition: border-color 0.16s;
+}
 
-    transition: box-shadow 0.2s;
+.adm-quick-card:hover {
+    border-color: #cbb8df;
 }
 
 .adm-quick-icon {
+    display: grid;
+    place-items: center;
     width: 37px;
     height: 37px;
     margin-bottom: 11px;
-
-    display: grid;
-    place-items: center;
-
     border-radius: 10px;
     background: #eee7f6;
-
     color: #745595;
     font-size: 21px;
 }
 
 .adm-quick-card strong {
-    display: block;
-
-    font-size: 13px;
     color: #3f304f;
+    font-size: 13px;
 }
 
 .adm-quick-card p {
     margin: 5px 0 0;
-
     color: var(--adm-muted);
     font-size: 11px;
-    line-height: 1.65;
+    line-height: 1.6;
 }
 
-/* ==========================================
+/* =====================================================
    PRODUCT FORMS
-   ========================================== */
+   ===================================================== */
 
 .adm-form-grid {
     display: grid;
-
-    grid-template-columns:
-        minmax(0, 1.15fr)
-        minmax(300px, 0.85fr);
-
-    gap: 19px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 18px;
     align-items: start;
 }
 
 .adm-form-side {
-    min-width: 0;
-
     display: flex;
     flex-direction: column;
-    gap: 19px;
+    gap: 18px;
+    min-width: 0;
 }
 
 .adm-form-panel {
-    padding: 24px;
+    padding: 22px;
 }
 
 .adm-form-intro {
-    margin: 3px 0 22px;
+    margin: 3px 0 18px;
 }
 
 .adm-field {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 .adm-field:last-child {
@@ -1100,16 +1034,19 @@ svg {
 
 .adm-field label {
     display: block;
-
+    margin-bottom: 7px;
+    color: #4c3c5b;
     font-size: 12px;
     font-weight: 700;
-    color: #4c3c5b;
-
-    margin-bottom: 7px;
 }
 
 .adm-field label .required {
     color: #a86461;
+}
+
+.adm-optional {
+    color: #90869a;
+    font-weight: 400;
 }
 
 .adm-field input:not([type="checkbox"]),
@@ -1117,46 +1054,33 @@ svg {
 .adm-field textarea {
     width: 100%;
     min-height: 42px;
-
-    padding: 11px 12px;
-
+    padding: 10px 12px;
     border: 1px solid #e3d9eb;
-    border-radius: 10px;
-
-    background: rgba(255, 255, 255, 0.93);
-
-    outline: none;
+    border-radius: 9px;
+    background: #fff;
     color: var(--adm-ink);
-
-    transition:
-        box-shadow 0.2s,
-        border-color 0.2s;
+    outline: none;
 }
 
 .adm-field input:focus,
 .adm-field select:focus,
 .adm-field textarea:focus {
     border-color: #a58abc;
-
-    box-shadow:
-        0 0 0 3px rgba(119, 87, 157, 0.10);
+    box-shadow: 0 0 0 3px rgba(119, 87, 157, 0.1);
 }
 
 .adm-field textarea {
-    min-height: 126px;
+    min-height: 116px;
     resize: vertical;
-    line-height: 1.65;
+    line-height: 1.6;
 }
 
 .adm-field small {
     display: block;
-
+    margin-top: 6px;
     color: #91869d;
     font-size: 11px;
-    margin-top: 6px;
 }
-
-/* Price Field */
 
 .adm-price-input {
     position: relative;
@@ -1164,12 +1088,9 @@ svg {
 
 .adm-price-input > span {
     position: absolute;
-
     top: 50%;
     left: 13px;
-
     transform: translateY(-50%);
-
     color: #785b94;
     font-weight: 800;
 }
@@ -1178,41 +1099,31 @@ svg {
     padding-left: 33px !important;
 }
 
-/* Form Actions */
-
 .adm-form-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
-
-    padding: 23px 0;
+    padding: 18px 0;
 }
 
-/* ==========================================
-   IMAGE PREVIEW
-   ========================================== */
+/* =====================================================
+   PRODUCT PHOTOGRAPH
+   ===================================================== */
 
 .adm-image-preview {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    min-height: 190px;
-
     display: flex;
-    justify-content: center;
     align-items: center;
-
-    background: linear-gradient(
-        140deg,
-        #f4eef9,
-        #f9f6fb
-    );
+    justify-content: center;
+    width: 100%;
+    min-height: 160px;
+    aspect-ratio: 4 / 3;
+    margin: 0 0 14px;
+    overflow: hidden;
 
     border: 1px dashed #d4c5e2;
-    border-radius: 12px;
-
-    overflow: hidden;
-    margin: 0 0 17px;
+    border-radius: 11px;
+    background: #f5f0f9;
 }
 
 .adm-image-preview > img {
@@ -1225,13 +1136,12 @@ svg {
     display: flex;
     flex-direction: column;
     align-items: center;
-
     color: #9a84af;
 }
 
 .adm-image-empty svg {
-    width: 33px;
-    height: 33px;
+    width: 31px;
+    height: 31px;
 }
 
 .adm-image-empty p {
@@ -1246,34 +1156,29 @@ svg {
 
 .adm-field input[type="file"] {
     font-size: 11px;
-    padding: 9px !important;
+    padding: 7px !important;
 }
 
 .adm-field input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    padding: 8px 10px;
     border: 0;
     border-radius: 7px;
-
     background: #ede5f6;
     color: #604581;
-
-    padding: 9px 10px;
-    margin-right: 10px;
-
     cursor: pointer;
 }
 
-/* ==========================================
+/* =====================================================
    PRODUCT SWITCHES
-   ========================================== */
+   ===================================================== */
 
 .adm-switch-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-
-    padding: 15px 0;
-
+    padding: 12px 0;
     border-bottom: 1px solid var(--adm-line);
     cursor: pointer;
 }
@@ -1284,53 +1189,43 @@ svg {
 }
 
 .adm-switch-row strong {
-    font-size: 12px;
     color: #42334f;
+    font-size: 12px;
 }
 
 .adm-switch-row small {
-    font-size: 11px;
-    color: var(--adm-muted);
-
-    margin-top: 4px;
-    line-height: 1.5;
     max-width: 250px;
+    margin-top: 4px;
+    color: var(--adm-muted);
+    font-size: 11px;
+    line-height: 1.5;
 }
 
 .adm-switch-row input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-
     position: relative;
+    flex: none;
 
     width: 40px;
     height: 23px;
-    flex: none;
-
-    border-radius: 99px;
     border: 1px solid #d1c5db;
-
+    border-radius: 99px;
     background: #dcd4e4;
     cursor: pointer;
-
-    transition: background 0.2s;
 }
 
 .adm-switch-row input[type="checkbox"]::after {
     content: "";
-
     position: absolute;
     top: 2px;
     left: 2px;
 
     width: 17px;
     height: 17px;
-
     border-radius: 50%;
     background: #fff;
-
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-
     transition: transform 0.2s;
 }
 
@@ -1344,51 +1239,25 @@ svg {
 }
 
 .adm-form-hint {
-    padding: 12px 13px;
-
+    margin: 14px 0 0;
+    padding: 11px 12px;
     border: 1px solid #e9e0f0;
-    border-radius: 10px;
-
-    color: #756a81;
+    border-radius: 9px;
     background: #f6f1fa;
-
-    font-size: 11px;
-    line-height: 1.7;
-    margin: 17px 0 0;
-}
-
-/* ==========================================
-   MANAGEMENT CONSOLE
-   Categories, Orders, Inventory, Reports
-   ========================================== */
-
-.adm-console-panel {
-    padding: 22px;
-    margin-bottom: 18px;
-}
-
-.adm-console-panel h2 {
-    margin: 0 0 12px;
-}
-
-.adm-console-muted {
-    display: block;
-
-    color: #867a91;
+    color: #756a81;
     font-size: 11px;
     line-height: 1.6;
-
-    margin: 6px 0 13px;
 }
 
-/* Flexible Forms */
+/* =====================================================
+   CONSOLE FORMS
+   ===================================================== */
 
 .adm-flex-form {
     display: flex;
     align-items: end;
     flex-wrap: wrap;
     gap: 12px;
-
     margin-top: 14px;
 }
 
@@ -1398,7 +1267,6 @@ svg {
     flex: 1 1 145px;
     flex-direction: column;
     gap: 6px;
-
     color: #58496a;
     font-size: 11px;
     font-weight: 700;
@@ -1412,16 +1280,12 @@ svg {
 .adm-console-filters select {
     width: 100%;
     min-height: 40px;
-
     padding: 9px 11px;
-
     border: 1px solid #e1d7eb;
     border-radius: 9px;
-
-    background: rgba(255, 255, 255, 0.96);
-
-    outline: none;
+    background: #fff;
     color: var(--adm-ink);
+    outline: none;
 }
 
 .adm-flex-form input:focus,
@@ -1431,12 +1295,8 @@ svg {
 .adm-console-filters input:focus,
 .adm-console-filters select:focus {
     border-color: #a58abc;
-
-    box-shadow:
-        0 0 0 3px rgba(119, 87, 157, 0.09);
+    box-shadow: 0 0 0 3px rgba(119, 87, 157, 0.09);
 }
-
-/* Checkboxes */
 
 .adm-flex-form .adm-checkbox-label,
 .adm-mini-form .adm-checkbox-label {
@@ -1445,7 +1305,6 @@ svg {
     flex-direction: row;
     flex: 0 0 auto;
     gap: 7px;
-
     padding: 8px 0;
 }
 
@@ -1453,11 +1312,8 @@ svg {
     width: 16px !important;
     height: 16px !important;
     min-height: 0 !important;
-
     accent-color: var(--adm-purple);
 }
-
-/* Expandable Forms */
 
 .adm-detail-toggle {
     min-width: 128px;
@@ -1465,28 +1321,23 @@ svg {
 }
 
 .adm-detail-toggle summary {
-    list-style-position: inside;
-
     color: #674b88;
     font-size: 12px;
     font-weight: 700;
-
     cursor: pointer;
 }
 
 .adm-detail-toggle[open] {
     padding: 11px;
-
-    background: #f8f4fb;
     border: 1px solid #e6dbee;
     border-radius: 9px;
+    background: #f8f4fb;
 }
 
 .adm-mini-form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-
     min-width: 180px;
     padding: 12px 0 0;
 }
@@ -1495,21 +1346,12 @@ svg {
     align-self: flex-start;
 }
 
-.adm-console-wrap {
-    max-width: 320px;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
-/* Filter Bar */
-
 .adm-console-filters {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 9px;
-
-    padding: 17px 20px;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--adm-line);
 }
 
@@ -1521,43 +1363,15 @@ svg {
     width: 190px;
 }
 
-/* Pagination */
-
-.adm-console-pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 19px;
-    flex-wrap: wrap;
-
-    padding: 19px;
-
-    color: #82768d;
-    font-size: 12px;
-}
-
-.adm-console-pagination a {
-    color: #644883;
-    font-weight: 700;
-}
-
-.adm-console-pagination a:hover {
-    text-decoration: underline;
-}
-
-/* ==========================================
+/* =====================================================
    ORDER DETAILS
-   ========================================== */
+   ===================================================== */
 
 .adm-console-detail-grid {
     display: grid;
-
-    grid-template-columns:
-        minmax(0, 1.15fr)
-        minmax(300px, 0.85fr);
-
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
     align-items: start;
-    gap: 19px;
+    gap: 18px;
 }
 
 .adm-console-detail-grid > * {
@@ -1577,7 +1391,6 @@ svg {
 .adm-console-totals {
     margin-top: 14px;
     padding-top: 14px;
-
     border-top: 1px solid var(--adm-line);
 }
 
@@ -1585,7 +1398,6 @@ svg {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-
     margin: 7px 0;
     color: #756b7e;
 }
@@ -1601,9 +1413,7 @@ svg {
 
 .adm-console-details {
     display: grid;
-
     grid-template-columns: 110px minmax(0, 1fr);
-
     gap: 10px;
     margin: 0;
 }
@@ -1618,44 +1428,97 @@ svg {
     overflow-wrap: anywhere;
 }
 
-/* ==========================================
-   DASHBOARD OVERVIEW
-   ========================================== */
+/* =====================================================
+   ANALYTICS AND CHARTS
+   ===================================================== */
 
 .adm-overview-heading {
-    margin-top: 33px;
+    margin-top: 28px;
 }
 
 .adm-overview-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 17px;
+    gap: 18px;
+    margin-top: 20px;
 }
 
 .adm-overview-grid > * {
     min-width: 0;
 }
 
-/* ==========================================
-   FLASH NOTIFICATIONS
-   ========================================== */
+.adm-overview-grid > .adm-panel {
+    padding: 20px 22px;
+}
+
+.adm-chart-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 15px;
+}
+
+.adm-chart-item {
+    display: grid;
+    gap: 7px;
+}
+
+.adm-chart-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #70627e;
+    font-size: 12px;
+}
+
+.adm-chart-info strong {
+    color: #4a375e;
+    font-weight: 700;
+}
+
+.adm-chart-progress {
+    display: block;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border: 0;
+    border-radius: 99px;
+    background: #eee7f5;
+    overflow: hidden;
+}
+
+.adm-chart-progress::-webkit-progress-bar {
+    background: #eee7f5;
+    border-radius: 99px;
+}
+
+.adm-chart-progress::-webkit-progress-value {
+    background: #8063a7;
+    border-radius: 99px;
+}
+
+.adm-chart-progress::-moz-progress-bar {
+    background: #8063a7;
+    border-radius: 99px;
+}
+
+/* =====================================================
+   ALERTS
+   ===================================================== */
 
 .adm-flash-area {
     display: grid;
     gap: 8px;
-
     margin-bottom: 17px;
 }
 
 .adm-alert {
     padding: 11px 14px;
-
-    border-radius: 10px;
     border: 1px solid #e5d8ef;
-
+    border-radius: 9px;
     background: #f3edf9;
     color: #614780;
-
     font-size: 12px;
     font-weight: 600;
 }
@@ -1679,12 +1542,808 @@ svg {
     color: #8d6b2d;
 }
 
-/* ==========================================
-   RESPONSIVE - SMALL LAPTOP
-   ========================================== */
+/* =====================================================
+   SHARED CENTERED MODAL
+   ===================================================== */
+
+.adm-edit-dialog {
+    position: fixed;
+    inset: 0;
+
+    width: min(650px, calc(100vw - 30px));
+    max-width: none;
+    max-height: calc(100dvh - 24px);
+
+    margin: auto;
+    padding: 0;
+
+    border: 0 !important;
+    border-radius: 16px;
+    outline: none !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #352943;
+
+    overflow: hidden;
+}
+
+.adm-edit-dialog::backdrop {
+    background: rgba(36, 27, 48, 0.43);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.adm-edit-dialog[data-modal-kind="product"] {
+    width: min(940px, calc(100vw - 24px));
+}
+
+.adm-edit-dialog[data-modal-kind="compact"] {
+    width: min(540px, calc(100vw - 30px));
+}
+
+.adm-edit-dialog[data-modal-kind="delivery"] {
+    width: min(680px, calc(100vw - 30px));
+}
+
+.adm-edit-dialog[data-modal-kind="standard"] {
+    width: min(650px, calc(100vw - 30px));
+}
+
+.adm-edit-shell {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+    min-width: 0;
+
+    overflow: hidden;
+
+    border: 1px solid #eee6f3;
+    border-radius: 16px;
+
+    background: rgba(251, 249, 253, 0.98);
+
+    box-shadow:
+        0 24px 65px rgba(37, 26, 53, 0.20),
+        0 3px 12px rgba(37, 26, 53, 0.05);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.adm-edit-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-shrink: 0;
+
+    padding: 16px 21px 14px;
+
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid #ece4f2;
+}
+
+.adm-edit-heading {
+    min-width: 0;
+}
+
+.adm-edit-heading h2 {
+    margin: 4px 0;
+    color: #382946;
+    font-size: 20px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: -0.45px;
+}
+
+.adm-edit-heading p {
+    margin: 0;
+    color: #82768e;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Cancel button replaces redundant top X */
+
+.adm-edit-dialog .adm-edit-close,
+.adm-edit-dialog .adm-edit-header [data-adm-edit-close] {
+    display: none !important;
+}
+
+.adm-edit-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 18px 21px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #d6c8e4 transparent;
+}
+
+.adm-edit-content > form {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+}
+
+.adm-modal-loading {
+    margin: 0;
+    padding: 25px 10px;
+    color: #84768f;
+    text-align: center;
+}
+
+.adm-modal-note,
+.ip-inventory-note {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid #e7dcef;
+    border-radius: 9px;
+    background: #f3edf8;
+    color: #685774;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.adm-edit-error {
+    flex: none;
+    margin: 13px 21px 0;
+    padding: 11px 13px;
+    border: 1px solid #efd2cd;
+    border-radius: 9px;
+    background: #fff0ee;
+    color: #a34743;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+.adm-edit-error[hidden] {
+    display: none !important;
+}
+
+/* =====================================================
+   MODAL INPUTS
+   ===================================================== */
+
+.adm-edit-dialog input:not([type="hidden"]):not([type="checkbox"]):not([type="file"]),
+.adm-edit-dialog select,
+.adm-edit-dialog textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #e1d7eb;
+    border-radius: 9px;
+    background: #fff;
+    color: #382b47;
+    font-size: 12px;
+    outline: none;
+}
+
+.adm-edit-dialog input:not([type="checkbox"]):not([type="file"]):not([type="hidden"]),
+.adm-edit-dialog select {
+    min-height: 39px;
+    padding: 9px 11px;
+}
+
+.adm-edit-dialog textarea {
+    min-height: 95px;
+    padding: 10px 11px;
+    resize: vertical;
+    line-height: 1.55;
+}
+
+.adm-edit-dialog input:focus,
+.adm-edit-dialog select:focus,
+.adm-edit-dialog textarea:focus {
+    border-color: #9b7eb9;
+    box-shadow: 0 0 0 3px rgba(120, 90, 156, 0.09);
+}
+
+.adm-edit-dialog .adm-checkbox-label input[type="checkbox"] {
+    appearance: auto;
+    width: 17px !important;
+    height: 17px !important;
+    min-height: 0 !important;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    accent-color: #765b9d;
+}
+
+/* =====================================================
+   CATEGORY AND INVENTORY MODALS
+   ===================================================== */
+
+.adm-edit-dialog .adm-mini-form,
+.adm-edit-dialog .adm-flex-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px 14px;
+
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    align-items: start;
+    align-content: start;
+}
+
+.adm-edit-dialog .adm-mini-form > label,
+.adm-edit-dialog .adm-flex-form > label {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    align-items: stretch;
+
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+
+    color: #554565;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.adm-edit-dialog .adm-mini-form > label {
+    grid-column: 1 / -1;
+}
+
+.adm-edit-dialog .adm-mini-form > label.adm-checkbox-label,
+.adm-edit-dialog .adm-flex-form > label.adm-checkbox-label {
+    grid-column: auto;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 8px;
+    min-height: 34px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.adm-edit-dialog .adm-mini-form > button,
+.adm-edit-dialog .adm-flex-form > button {
+    min-height: 39px;
+    padding: 9px 13px;
+    margin: 0;
+    font-size: 12px;
+}
+
+.adm-edit-dialog .ip-inventory-note {
+    grid-column: 1 / -1;
+}
+
+/* =====================================================
+   DELIVERY AREA MODALS
+   ===================================================== */
+
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-mini-form,
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-flex-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 15px;
+}
+
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-mini-form > label:not(.adm-checkbox-label),
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-flex-form > label:not(.adm-checkbox-label) {
+    grid-column: auto;
+}
+
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-mini-form > label:nth-of-type(3),
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-flex-form > label:nth-of-type(3) {
+    grid-column: 1 / -1;
+}
+
+.adm-edit-dialog[data-modal-kind="delivery"] input:not([type="checkbox"]):not([type="hidden"]),
+.adm-edit-dialog[data-modal-kind="delivery"] select {
+    min-height: 42px;
+    height: 42px;
+    margin: 0;
+}
+
+.adm-edit-dialog[data-modal-kind="delivery"] .adm-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+}
+
+/* =====================================================
+   MODAL ACTION FOOTERS
+   ===================================================== */
+
+.adm-edit-dialog .adm-form-actions,
+.adm-edit-dialog .adm-modal-actions,
+.adm-edit-dialog .adm-modal-bottom-actions {
+    grid-column: 1 / -1;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    width: 100%;
+    margin: 12px 0 0;
+    padding: 14px 0 0;
+
+    border-top: 1px solid #eae2f1;
+}
+
+.adm-modal-actions-start,
+.adm-modal-actions-end {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.adm-modal-actions-start:empty {
+    display: none;
+}
+
+.adm-modal-actions-end {
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.adm-edit-dialog .adm-modal-actions-end > button,
+.adm-edit-dialog .adm-form-actions > button,
+.adm-edit-dialog .adm-modal-actions > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    min-width: 108px;
+    min-height: 39px;
+    padding: 9px 16px;
+    margin: 0;
+
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.adm-edit-dialog .adm-primary-btn {
+    background: #765b9d;
+    border-color: #765b9d;
+    color: #fff;
+}
+
+.adm-edit-dialog .adm-primary-btn:hover {
+    background: #604681;
+    border-color: #604681;
+}
+
+.adm-edit-dialog button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+body.adm-modal-active {
+    overflow: hidden;
+}
+
+/* =====================================================
+   COMPACT PRODUCT MODAL
+   Applies to Add Product and Edit Product
+   ===================================================== */
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-edit-header {
+    padding: 12px 18px 11px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-edit-heading h2 {
+    font-size: 19px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-edit-content {
+    padding: 12px 15px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-column > .adm-form-panel {
+    display: block;
+    height: auto;
+    min-height: 0;
+    padding: 13px 15px;
+    margin: 0;
+    border: 1px solid #e8e0f0;
+    border-radius: 11px;
+    background: #fff;
+    box-shadow: none;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-form-panel h2 {
+    margin: 0 0 3px;
+    font-size: 13px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-form-intro {
+    margin: 0 0 10px;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* Name full width, Category and Price share one row */
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-column:first-child > .adm-form-panel:first-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px 11px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-column:first-child > .adm-form-panel:first-child > h2,
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-column:first-child > .adm-form-panel:first-child > .adm-form-intro,
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-column:first-child > .adm-form-panel:first-child > .adm-field:first-of-type {
+    grid-column: 1 / -1;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field {
+    min-width: 0;
+    margin: 0 0 8px;
+    flex: none;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field:last-child {
+    margin-bottom: 0;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field label {
+    margin-bottom: 4px;
+    font-size: 10px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field input:not([type="checkbox"]):not([type="file"]),
+.adm-edit-dialog[data-modal-kind="product"] .adm-field select {
+    height: 36px;
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field small {
+    margin-top: 3px;
+    font-size: 9px;
+    line-height: 1.35;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-image-preview {
+    width: 100%;
+    height: 110px;
+    min-height: 110px;
+    max-height: 110px;
+    aspect-ratio: auto;
+    margin-bottom: 8px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field input[type="file"] {
+    min-height: 36px;
+    padding: 5px 7px !important;
+    font-size: 10px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-field:has([data-description]) {
+    display: block;
+    flex: none;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] textarea[data-description] {
+    display: block;
+    width: 100%;
+    height: 76px;
+    min-height: 76px;
+    max-height: 110px;
+    padding: 8px 10px;
+    resize: vertical;
+    flex: none;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-switch-row {
+    min-height: 42px;
+    padding: 7px 0;
+    margin: 0;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-switch-row strong {
+    font-size: 11px;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-switch-row small {
+    margin-top: 2px;
+    font-size: 9px;
+    line-height: 1.35;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-form-hint {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+/* Footer outside scrolling product form */
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-fixed-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    gap: 9px;
+
+    width: 100%;
+    min-height: 56px;
+    margin: 0;
+    padding: 9px 16px;
+
+    background: #fff;
+    border-top: 1px solid #e9e1ef;
+}
+
+.adm-edit-dialog[data-modal-kind="product"] .adm-product-fixed-footer > * {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    min-height: 37px;
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* =====================================================
+   CENTERED PAGINATION
+   ===================================================== */
+
+.ip-pagination,
+.adm-pagination-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+
+    width: 100%;
+    margin: 18px auto 12px;
+    padding: 10px 12px;
+
+    text-align: center;
+}
+
+.ip-pagination-info,
+.adm-pagination-summary {
+    margin: 0;
+    color: #85768f;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.ip-pagination-buttons,
+.adm-pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    width: 100%;
+}
+
+.ip-page-btn,
+.adm-pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+
+    min-width: 36px;
+    min-height: 36px;
+    padding: 7px 10px;
+
+    border: 1px solid #e4daed;
+    border-radius: 9px;
+
+    background: #fff;
+    color: #6f5888;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+}
+
+a.ip-page-btn:hover,
+a.adm-pagination-link:hover {
+    background: #f2ecf8;
+    border-color: #cfbfe0;
+    color: #583d77;
+}
+
+.ip-page-btn.is-active,
+.adm-pagination-link.is-active {
+    background: #795c9e;
+    border-color: #795c9e;
+    color: #fff;
+}
+
+.ip-page-arrow {
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.ip-page-btn.is-disabled {
+    background: #f7f4f9;
+    border-color: #ede7f2;
+    color: #beb3c7;
+    cursor: default;
+}
+
+.ip-page-dots,
+.adm-pagination-dots {
+    padding: 0 4px;
+    color: #9586a4;
+    font-size: 12px;
+}
+
+/* =====================================================
+   INVENTORY MANAGEMENT
+   ===================================================== */
+
+.ip-inventory-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.ip-inventory-heading h2 {
+    margin: 0 0 4px;
+    color: #443450;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.ip-inventory-heading .adm-console-muted {
+    margin: 0;
+}
+
+.ip-inventory-heading > .adm-detail-toggle {
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: none;
+}
+
+.ip-inventory-heading > .adm-detail-toggle > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 39px;
+    padding: 9px 15px;
+
+    border: 1px solid #765b9d;
+    border-radius: 9px;
+    background: #765b9d;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+}
+
+.ip-inventory-heading > .adm-detail-toggle > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ip-inventory-filters {
+    margin: 0 0 14px;
+    padding: 0;
+    border: 0;
+}
+
+.ip-inventory-filters input {
+    width: min(100%, 360px);
+}
+
+.ip-inventory-row-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ip-inventory-row-actions .adm-detail-toggle {
+    min-width: 0;
+    max-width: none;
+}
+
+.ip-inventory-row-actions .adm-detail-toggle > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 33px;
+    padding: 7px 11px;
+
+    border: 1px solid #e0d6e9;
+    border-radius: 8px;
+
+    background: #fff;
+    color: #674e87;
+
+    font-size: 11px;
+    font-weight: 700;
+    list-style: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.ip-inventory-row-actions .adm-detail-toggle > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ip-inventory-row-actions .adm-detail-toggle > summary:hover {
+    background: #f2ecf8;
+    border-color: #d0c1e0;
+}
+
+.ip-stock-change {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ip-stock-change.positive {
+    color: #317655;
+}
+
+.ip-stock-change.negative {
+    color: #a55d58;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
 
 @media (max-width: 1200px) {
-
     .adm-sidebar {
         flex-basis: 232px;
         width: 232px;
@@ -1694,19 +2353,12 @@ svg {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .adm-form-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .adm-form-side {
-        display: grid;
+    .adm-quick-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-items: start;
     }
 }
 
 @media (max-width: 970px) {
-
     .adm-overview-grid,
     .adm-console-detail-grid {
         grid-template-columns: 1fr;
@@ -1717,12 +2369,7 @@ svg {
     }
 }
 
-/* ==========================================
-   RESPONSIVE - TABLET AND MOBILE
-   ========================================== */
-
 @media (max-width: 780px) {
-
     .adm-sidebar {
         position: fixed;
         top: 0;
@@ -1735,7 +2382,6 @@ svg {
 
         transform: translateX(-105%);
         transition: transform 0.22s;
-
         box-shadow: 10px 0 35px rgba(42, 28, 58, 0.13);
     }
 
@@ -1745,11 +2391,9 @@ svg {
 
     .adm-sidebar-backdrop:not([hidden]) {
         display: block;
-
         position: fixed;
         inset: 0;
         z-index: 110;
-
         background: rgba(38, 28, 51, 0.35);
     }
 
@@ -1763,34 +2407,53 @@ svg {
     }
 
     .adm-content {
-        padding: 23px 16px 45px;
+        padding: 22px 16px 45px;
     }
 
     .adm-page-heading {
         align-items: flex-start;
-        flex-wrap: wrap;
     }
 
-    .adm-form-side {
-        display: flex;
-        flex-direction: column;
+    .adm-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .adm-form-side > * {
-        width: 100%;
+    .adm-overview-grid,
+    .adm-quick-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-content .adm-form-grid {
+        grid-template-columns: 1fr;
     }
 
     body.adm-menu-open {
         overflow: hidden;
     }
+
+    .adm-edit-dialog[data-modal-kind] {
+        width: calc(100vw - 24px);
+        max-height: 92dvh;
+    }
+
+    .adm-edit-shell {
+        max-height: 92dvh;
+    }
+
+    .adm-edit-header {
+        padding: 15px 17px;
+    }
+
+    .adm-edit-content {
+        padding: 16px;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] .adm-form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* ==========================================
-   RESPONSIVE - SMALL PHONES
-   ========================================== */
-
 @media (max-width: 550px) {
-
     .adm-admin-user {
         display: none;
     }
@@ -1809,11 +2472,6 @@ svg {
         padding: 8px 10px;
     }
 
-    .adm-logout-button svg {
-        width: 15px;
-        height: 15px;
-    }
-
     .adm-topbar-title strong {
         font-size: 13px;
     }
@@ -1822,37 +2480,18 @@ svg {
         padding: 20px 13px 38px;
     }
 
-    .adm-stats-grid {
-        gap: 10px;
+    .adm-summary-row,
+    .adm-quick-grid {
+        grid-template-columns: 1fr;
     }
 
     .adm-stat-card {
-        min-height: 113px;
+        min-height: 115px;
         padding: 14px;
-    }
-
-    .adm-stat-card strong {
-        font-size: 26px;
-    }
-
-    .adm-stat-label {
-        font-size: 11px;
-    }
-
-    .adm-stat-card small {
-        font-size: 10px;
     }
 
     .adm-page-heading h1 {
         font-size: 25px;
-    }
-
-    .adm-summary-row > div {
-        padding: 11px 12px;
-    }
-
-    .adm-panel-heading {
-        padding: 17px;
     }
 
     .adm-product-toolbar {
@@ -1870,13 +2509,9 @@ svg {
         flex: 1;
     }
 
-    .adm-quick-grid {
-        grid-template-columns: 1fr;
-    }
-
     .adm-form-panel,
     .adm-console-panel {
-        padding: 18px;
+        padding: 17px;
     }
 
     .adm-console-filters {
@@ -1898,21 +2533,83 @@ svg {
         margin-bottom: 11px;
     }
 
-    .adm-flex-form label {
-        flex: 1 1 100%;
+    .adm-edit-dialog .adm-mini-form,
+    .adm-edit-dialog .adm-flex-form,
+    .adm-edit-dialog[data-modal-kind="delivery"] .adm-mini-form,
+    .adm-edit-dialog[data-modal-kind="delivery"] .adm-flex-form {
+        grid-template-columns: 1fr;
     }
 
-    .adm-form-actions > * {
+    .adm-edit-dialog .adm-mini-form > label,
+    .adm-edit-dialog[data-modal-kind="delivery"] .adm-mini-form > label:nth-of-type(3),
+    .adm-edit-dialog[data-modal-kind="delivery"] .adm-flex-form > label:nth-of-type(3) {
+        grid-column: 1;
+    }
+
+    .adm-edit-dialog .adm-modal-actions-end {
+        width: 100%;
+    }
+
+    .adm-edit-dialog .adm-modal-actions-end > button {
         flex: 1;
+        min-width: 0;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] .adm-product-fixed-footer > * {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ip-inventory-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ip-inventory-heading > .adm-detail-toggle > summary {
+        width: 100%;
+    }
+
+    .ip-inventory-filters input {
+        width: 100%;
     }
 }
 
-/* ==========================================
-   ACCESSIBILITY
-   ========================================== */
+@media (max-width: 430px) {
+    .adm-edit-dialog[data-modal-kind="product"] .adm-product-column:first-child > .adm-form-panel:first-child {
+        grid-template-columns: 1fr;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] .adm-product-column:first-child > .adm-form-panel:first-child > * {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-height: 740px) and (min-width: 781px) {
+    .adm-edit-dialog[data-modal-kind="product"] .adm-edit-content {
+        padding: 9px 13px;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] .adm-product-column {
+        gap: 8px;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] .adm-product-column > .adm-form-panel {
+        padding: 10px 12px;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] .adm-image-preview {
+        height: 90px;
+        min-height: 90px;
+        max-height: 90px;
+    }
+
+    .adm-edit-dialog[data-modal-kind="product"] textarea[data-description] {
+        height: 65px;
+        min-height: 65px;
+    }
+}
 
 @media (prefers-reduced-motion: reduce) {
-
     *,
     *::before,
     *::after {
@@ -1922,65 +2619,26 @@ svg {
     }
 }
 
-.adm-visually-hidden {
-    position: absolute !important;
-
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.adm-optional {
-    font-weight: 400;
-    color: #90869a;
-}
-
 /* ==========================================
-   ANALYTICS CHART FIX
-   Native HTML progress bars
+   CONSISTENT SVG ICONS
    ========================================== */
 
-.adm-chart-progress {
+.adm-quick-icon svg {
     display: block;
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 100%;
-    height: 11px;
-
-    border: none;
-    border-radius: 99px;
-
-    background: #eee7f5;
-    overflow: hidden;
+    width: 20px;
+    height: 20px;
 }
 
-/* Chrome, Edge, Safari */
-
-.adm-chart-progress::-webkit-progress-bar {
-    background: #eee7f5;
-    border-radius: 99px;
+.adm-nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
 }
 
-.adm-chart-progress::-webkit-progress-value {
-    background: linear-gradient(
-        90deg,
-        #b19acb,
-        #8063a7
-    );
-
-    border-radius: 99px;
-}
-
-/* Firefox */
-
-.adm-chart-progress::-moz-progress-bar {
-    background: #8063a7;
-    border-radius: 99px;
+.adm-nav-icon svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    color: #8c75a8;
 }

@@ -32,7 +32,7 @@
     <div><h2 id="recent-products-heading">Recently Updated Products</h2><p>Most
         recent changes to the menu.</p></div>
     <a class="adm-text-link"
-      href="{{ url_for('admin.manage_products') }}">Manage Products →</a>
+      href="{{ url_for('admin.manage_products') }}">Manage Products</a>
   </div>
   <div class="adm-table-scroll">
     <table class="adm-table">
@@ -56,7 +56,7 @@
                   product.id }}</small></span>
             </div></td>
           <td>{{ product.category_name }}</td>
-          <td class="adm-price-cell">₱{{ '%.2f'|format(product.price) }}</td>
+          <td class="adm-price-cell">â‚±{{ '%.2f'|format(product.price) }}</td>
           <td><span
               class="adm-status {{ 'archived' if not product.is_active else ('available' if product.is_available else 'unavailable') }}">{{
               'Archived' if not product.is_active else ('Available' if
@@ -101,7 +101,7 @@
     <div class="adm-panel-heading"><div><h2 id="orders-heading">Recent
           Orders</h2><p>Latest orders and their status.</p></div><a
         class="adm-text-link" href="{{ url_for('admin.admin_orders') }}">All
-        Orders →</a></div>
+        Orders</a></div>
     <div class="adm-table-scroll"><table class="adm-table">
         <thead><tr><th scope="col">Order</th><th scope="col">Status</th><th
               scope="col">Total</th></tr></thead>
@@ -111,7 +111,7 @@
                 href="{{ url_for('admin.admin_order_detail', order_id=order.id) }}"><strong>{{
                   order.order_number }}</strong></a></td><td>{{
               order.status|replace('_',' ')|title }}</td><td
-              class="adm-price-cell">₱{{ '%.2f'|format(order.total_amount)
+              class="adm-price-cell">â‚±{{ '%.2f'|format(order.total_amount)
               }}</td></tr>
           {% else %}<tr><td colspan="3" class="adm-empty-cell">No orders have
               been placed yet.</td></tr>{% endfor %}
@@ -121,7 +121,7 @@
     <div class="adm-panel-heading"><div><h2 id="stock-heading">Inventory
           Alerts</h2><p>Items below their reorder threshold.</p></div><a
         class="adm-text-link"
-        href="{{ url_for('admin.admin_inventory') }}">Stock Control →</a></div>
+        href="{{ url_for('admin.admin_inventory') }}">Stock Control</a></div>
     <div class="adm-table-scroll"><table class="adm-table">
         <thead><tr><th scope="col">Inventory Item</th><th scope="col">On
               Hand</th></tr></thead>

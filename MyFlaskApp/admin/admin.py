@@ -1,4 +1,3 @@
-
 import csv
 import io
 import re
@@ -45,10 +44,7 @@ TRANSITIONS = {
     "out_for_delivery": ("completed",),
 }
 
-
-# ==========================================
 # SHARED HELPERS
-# ==========================================
 
 def actor_id():
     user = current_user()
@@ -145,6 +141,26 @@ def page_number():
         )
     )
 
+# ADMIN PAGINATION - 10 RECORDS PER PAGE
+
+ADMIN_PAGE_SIZE = 10
+
+
+def get_page_info(total):
+    total = int(total or 0)
+
+    pages = max(
+        1,
+        (total + ADMIN_PAGE_SIZE - 1)
+        // ADMIN_PAGE_SIZE
+    )
+
+    page = min(page_number(), pages)
+
+    offset = (page - 1) * ADMIN_PAGE_SIZE
+
+    return page, pages, offset
+
 
 def console(section, title, **kwargs):
     return render_template(
@@ -167,10 +183,7 @@ def make_slug(value):
         r"[^a-z0-9]+", "-", value.lower()
     ).strip("-")[:100]
 
-
-# ==========================================
 # CATEGORY MANAGEMENT
-# ==========================================
 
 @admin_bp.route(
     "/categories",
@@ -348,6 +361,13 @@ def categories_page():
             url_for("admin.categories_page")
         )
 
+    # List ten categories at a time; existing POST actions are unchanged.
+    total = db_one(
+        "SELECT COUNT(*) AS n FROM product_categories"
+    )["n"]
+
+    page, pages, offset = get_page_info(total)
+
     rows = db_all(
         """
         SELECT c.*,
@@ -357,20 +377,22 @@ def categories_page():
             WHERE p.category_id = c.id
         ) AS product_count
         FROM product_categories c
-        ORDER BY c.display_order, c.name
-        """
+        ORDER BY c.display_order, c.name, c.id
+        LIMIT %s OFFSET %s
+        """,
+        (ADMIN_PAGE_SIZE, offset),
     )
 
     return console(
         "categories",
         "Product Categories",
-        rows=rows
+        rows=rows,
+        page=page,
+        pages=pages,
+        total=total,
     )
 
-
-# ==========================================
 # ORDER MANAGEMENT
-# ==========================================
 
 @admin_bp.route("/orders")
 @role_required("admin")
@@ -417,7 +439,7 @@ def admin_orders():
         tuple(params),
     )["n"]
 
-    page = page_number()
+    page, pages, offset = get_page_info(total)
 
     rows = db_all(
         f"""
@@ -435,11 +457,9 @@ def admin_orders():
         JOIN users u ON u.id = o.user_id
         WHERE {condition}
         ORDER BY o.created_at DESC, o.id DESC
-        LIMIT 15 OFFSET %s
+        LIMIT %s OFFSET %s
         """,
-        tuple(
-            params + [(page - 1) * 15]
-        ),
+        tuple(params + [ADMIN_PAGE_SIZE, offset]),
     )
 
     return console(
@@ -450,7 +470,7 @@ def admin_orders():
         status=status,
         statuses=ORDER_STATUSES,
         page=page,
-        pages=max(1, (total + 14) // 15),
+        pages=pages,
         total=total
     )
 
@@ -650,10 +670,7 @@ def admin_order_status(order_id):
         )
     )
 
-
-# ==========================================
 # MANUAL PAYMENT CONFIRMATION
-# ==========================================
 
 @admin_bp.route(
     "/orders/<int:order_id>/payment",
@@ -799,10 +816,7 @@ def admin_payment_received(order_id):
         )
     )
 
-
-# ==========================================
 # CUSTOMER MANAGEMENT
-# ==========================================
 
 @admin_bp.route("/customers")
 @role_required("admin")
@@ -835,7 +849,7 @@ def admin_customers():
         tuple(params),
     )["n"]
 
-    page = page_number()
+    page, pages, offset = get_page_info(total)
 
     rows = db_all(
         f"""
@@ -850,12 +864,10 @@ def admin_customers():
             created_at
         FROM users
         WHERE {where}
-        ORDER BY created_at DESC
-        LIMIT 15 OFFSET %s
+        ORDER BY created_at DESC, id DESC
+        LIMIT %s OFFSET %s
         """,
-        tuple(
-            params + [(page - 1) * 15]
-        ),
+        tuple(params + [ADMIN_PAGE_SIZE, offset]),
     )
 
     return console(
@@ -864,10 +876,9 @@ def admin_customers():
         rows=rows,
         q=q,
         page=page,
-        pages=max(1, (total + 14) // 15),
+        pages=pages,
         total=total
     )
-
 
 @admin_bp.route(
     "/customers/<int:user_id>/status",
@@ -923,10 +934,7 @@ def admin_customer_status(user_id):
         url_for("admin.admin_customers")
     )
 
-
-# ==========================================
 # DELIVERY AREA MANAGEMENT
-# ==========================================
 
 @admin_bp.route(
     "/delivery-areas",
@@ -1080,6 +1088,7 @@ def admin_delivery_areas():
             url_for("admin.admin_delivery_areas")
         )
 
+    # Keep the region dropdown complete; paginate the coverage table.
     regions = db_all(
         """
         SELECT id, name
@@ -1089,38 +1098,54 @@ def admin_delivery_areas():
         """
     )
 
+    total = db_one(
+        "SELECT COUNT(*) AS n FROM service_areas"
+    )["n"]
+
+    page, pages, offset = get_page_info(total)
+
     rows = db_all(
         """
         SELECT a.*, r.name AS region_name
         FROM service_areas a
         JOIN service_regions r
             ON r.id = a.region_id
-        ORDER BY r.name, a.city_municipality
-        """
+        ORDER BY r.name, a.city_municipality, a.id
+        LIMIT %s OFFSET %s
+        """,
+        (ADMIN_PAGE_SIZE, offset),
     )
 
     return console(
         "areas",
         "Delivery Areas",
         rows=rows,
-        regions=regions
+        regions=regions,
+        page=page,
+        pages=pages,
+        total=total,
     )
 
-
-# ==========================================
 # INVENTORY OVERVIEW
-# ==========================================
+
+# INVENTORY OVERVIEW + MOVEMENT HISTORY
 
 @admin_bp.route("/stock-control")
 @role_required("admin")
 def admin_inventory():
 
+    per_page = 10
+
+    # --------------------------------------
+    # INVENTORY SEARCH
+    # --------------------------------------
+
     q = request.args.get(
         "q", ""
     ).strip()[:80]
 
-    params = []
     where = "i.is_active = 1"
+    params = []
 
     if q:
         where += (
@@ -1130,59 +1155,135 @@ def admin_inventory():
             ")"
         )
 
-        params = [f"%{q}%"] * 2
+        keyword = f"%{q}%"
+        params = [keyword, keyword]
 
-    total = db_one(
+    # --------------------------------------
+    # INVENTORY PAGINATION
+    # --------------------------------------
+
+    total = int(db_one(
         f"""
         SELECT COUNT(*) AS n
         FROM inventory_items i
         WHERE {where}
         """,
-        tuple(params),
-    )["n"]
+        tuple(params)
+    )["n"])
 
-    page = page_number()
+    pages = max(
+        1,
+        (total + per_page - 1) // per_page
+    )
+
+    page = min(page_number(), pages)
+    offset = (page - 1) * per_page
 
     rows = db_all(
         f"""
         SELECT
             i.*,
             c.name AS category_name
+
         FROM inventory_items i
+
         JOIN inventory_categories c
             ON c.id = i.category_id
+
         WHERE {where}
-        ORDER BY i.item_name
-        LIMIT 15 OFFSET %s
+
+        ORDER BY i.item_name, i.id
+
+        LIMIT %s OFFSET %s
         """,
-        tuple(
-            params + [(page - 1) * 15]
-        ),
+        tuple(params + [per_page, offset])
     )
 
-    cats = db_all(
+    # All categories for Add/Edit dropdowns
+    categories = db_all(
         """
         SELECT id, name
         FROM inventory_categories
-        ORDER BY name
+        ORDER BY name, id
         """
     )
+
+    # --------------------------------------
+    # STOCK MOVEMENT HISTORY
+    # Separate pagination from inventory
+    # --------------------------------------
+
+    movement_total = int(db_one(
+        """
+        SELECT COUNT(*) AS n
+        FROM stock_movements
+        """
+    )["n"])
+
+    movement_pages = max(
+        1,
+        (movement_total + per_page - 1)
+        // per_page
+    )
+
+    requested_movement_page = request.args.get(
+        "mov_page", default=1, type=int
+    )
+
+    movement_page = min(
+        max(1, requested_movement_page or 1),
+        movement_pages
+    )
+
+    movement_offset = (
+        movement_page - 1
+    ) * per_page
+
+    movements = db_all(
+        """
+        SELECT
+            m.id,
+            m.inventory_item_id,
+            i.item_name,
+            i.unit,
+            m.movement_type,
+            m.quantity_change,
+            m.quantity_before,
+            m.quantity_after,
+            m.notes
+
+        FROM stock_movements m
+
+        JOIN inventory_items i
+            ON i.id = m.inventory_item_id
+
+        ORDER BY m.id DESC
+
+        LIMIT %s OFFSET %s
+        """,
+        (per_page, movement_offset)
+    )
+
+    # --------------------------------------
+    # RENDER INVENTORY PAGE
+    # --------------------------------------
 
     return console(
         "inventory",
         "Inventory",
         rows=rows,
-        categories=cats,
+        categories=categories,
         q=q,
         page=page,
-        pages=max(1, (total + 14) // 15),
-        total=total
+        pages=pages,
+        total=total,
+        movements=movements,
+        movement_page=movement_page,
+        movement_pages=movement_pages,
+        movement_total=movement_total,
     )
 
-
-# ==========================================
 # ADD INVENTORY ITEM
-# ==========================================
 
 @admin_bp.route(
     "/stock-control/add",
@@ -1301,10 +1402,145 @@ def admin_inventory_add():
         url_for("admin.admin_inventory")
     )
 
+# EDIT INVENTORY ITEM
 
-# ==========================================
+@admin_bp.route(
+    "/stock-control/<int:item_id>/edit",
+    methods=["POST"]
+)
+@role_required("admin")
+def admin_inventory_edit(item_id):
+
+    # Only active items can be edited.
+    existing = db_one(
+        """
+        SELECT id, item_type, unit
+        FROM inventory_items
+        WHERE id = %s
+          AND is_active = 1
+        """,
+        (item_id,)
+    )
+
+    if not existing:
+        abort(404)
+
+    try:
+
+        # ----------------------------------
+        # GET FORM VALUES
+        # ----------------------------------
+
+        name = request.form.get(
+            "item_name", ""
+        ).strip()
+
+        category_id = request.form.get(
+            "category_id", type=int
+        )
+
+        sku = request.form.get(
+            "sku", ""
+        ).strip() or None
+
+        reorder = quantity(
+            request.form.get(
+                "reorder_level", "0"
+            ),
+            allow_zero=True
+        )
+
+        # ----------------------------------
+        # VALIDATION
+        # ----------------------------------
+
+        if not 2 <= len(name) <= 180:
+            raise ValueError(
+                "Item name must contain "
+                "2 to 180 characters."
+            )
+
+        if sku and len(sku) > 50:
+            raise ValueError(
+                "SKU must be 50 characters or fewer."
+            )
+
+        if not category_id:
+            raise ValueError(
+                "Please select an inventory category."
+            )
+
+        category = db_one(
+            """
+            SELECT id
+            FROM inventory_categories
+            WHERE id = %s
+            """,
+            (category_id,)
+        )
+
+        if not category:
+            raise ValueError(
+                "Selected inventory category "
+                "does not exist."
+            )
+
+        # Prevent changing units and item types
+        # while stock and recipes use this item.
+
+        # ----------------------------------
+        # UPDATE DATABASE
+        # ----------------------------------
+
+        db_write(
+            """
+            UPDATE inventory_items
+
+            SET
+                item_name = %s,
+                category_id = %s,
+                sku = %s,
+                reorder_level = %s
+
+            WHERE id = %s
+              AND is_active = 1
+            """,
+            (
+                name,
+                category_id,
+                sku,
+                reorder,
+                item_id
+            )
+        )
+
+        audit(
+            "inventory_item_updated",
+            "inventory_items",
+            item_id,
+            f"Updated item: {name}"
+        )
+
+        flash(
+            "Inventory item updated successfully.",
+            "success"
+        )
+
+    except IntegrityError:
+        flash(
+            "This SKU is already being used "
+            "by another inventory item.",
+            "danger"
+        )
+
+    except ValueError as exc:
+        flash(str(exc), "danger")
+
+    return redirect(
+        url_for("admin.admin_inventory")
+    )
+
 # RECORD STOCK MOVEMENT
-# ==========================================
 
 @admin_bp.route(
     "/stock-control/<int:item_id>/movement",
@@ -1471,10 +1707,7 @@ def admin_inventory_movement(item_id):
         url_for("admin.admin_inventory")
     )
 
-
-# ==========================================
 # SALES INSIGHTS
-# ==========================================
 
 @admin_bp.route("/insights")
 @role_required("admin")
@@ -1544,14 +1777,17 @@ def admin_insights():
         recent=recent
     )
 
-
-# ==========================================
 # AUDIT HISTORY
-# ==========================================
 
 @admin_bp.route("/activity")
 @role_required("admin")
 def admin_activity():
+
+    total = db_one(
+        "SELECT COUNT(*) AS n FROM audit_logs"
+    )["n"]
+
+    page, pages, offset = get_page_info(total)
 
     rows = db_all(
         """
@@ -1569,20 +1805,21 @@ def admin_activity():
         FROM audit_logs a
         LEFT JOIN users u ON u.id = a.user_id
         ORDER BY a.created_at DESC, a.id DESC
-        LIMIT 75
-        """
+        LIMIT %s OFFSET %s
+        """,
+        (ADMIN_PAGE_SIZE, offset),
     )
 
     return console(
         "activity",
         "Audit History",
-        rows=rows
+        rows=rows,
+        page=page,
+        pages=pages,
+        total=total,
     )
 
-
-# ==========================================
 # CSV REPORTS
-# ==========================================
 
 def csv_safe(value):
     s = "" if value is None else str(value)
@@ -1715,10 +1952,7 @@ def admin_reports():
         "Data Exports"
     )
 
-
-# ==========================================
 # DASHBOARD EXTRA STATISTICS
-# ==========================================
 
 def dashboard_extra():
 

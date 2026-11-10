@@ -1,132 +1,407 @@
+
 {% extends "admin_modal_base.html" if modal else "admin_base.html" %}
+
 {% block content %}
+
 {% set editing = product is not none %}
-{% set selected_category = request.form.get('category_id', product.category_id
-if product else '') %}
-{% set selected_price = request.form.get('price', product.price if product else
-'') %}
+
+{% set selected_category = request.form.get(
+    'category_id',
+    product.category_id if product else ''
+) %}
+
+{% set selected_price = request.form.get(
+    'price',
+    product.price if product else ''
+) %}
+
 {% if request.method == 'POST' %}
-{% set available_checked = request.form.get('is_available') == '1' %}
-{% set mto_checked = request.form.get('is_made_to_order') == '1' %}
+    {% set available_checked =
+        request.form.get('is_available') == '1' %}
+    {% set mto_checked =
+        request.form.get('is_made_to_order') == '1' %}
 {% else %}
-{% set available_checked = product.is_available if product else false %}
-{% set mto_checked = product.is_made_to_order if product else false %}
+    {% set available_checked =
+        product.is_available if product else false %}
+    {% set mto_checked =
+        product.is_made_to_order if product else false %}
 {% endif %}
+
 {% if not modal %}
 <div class="adm-page-heading">
-  <div><a class="adm-back-link" href="{{ url_for('admin.manage_products') }}">←
-      Back to Products</a><span class="adm-eyebrow"
-      style="display:block">CATALOG / PRODUCT DETAILS</span><h1>{{
-      'Edit Product' if editing else 'Add New Product' }}</h1><p>{{
-      'Update details shown on the customer site.' if editing else
-      'Fill in the information for a new bakery product.' }}</p></div>
+    <div>
+        <a class="adm-back-link"
+           href="{{ url_for('admin.manage_products') }}">
+            ← Back to Products
+        </a>
+
+        <span class="adm-eyebrow" style="display:block">
+            CATALOG / PRODUCT DETAILS
+        </span>
+
+        <h1>
+            {{ 'Edit Product' if editing else 'Add New Product' }}
+        </h1>
+
+        <p>
+            {{ 'Update details shown on the customer site.'
+               if editing else
+               'Fill in the information for a new bakery product.' }}
+        </p>
+    </div>
 </div>
 {% endif %}
-<form method="post" action="{{ form_action }}" enctype="multipart/form-data"
-  class="adm-product-form" {% if modal %}data-modal-form{% endif %}>
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="adm-form-grid">
-    <section class="adm-panel adm-form-panel"
-      aria-labelledby="product-information-heading">
-      <h2 id="product-information-heading">Product Information</h2>
-      <p class="adm-form-intro">Use a clear product name and an accurate selling
-        price.</p>
-      <div class="adm-field">
-        <label for="name">Product name <span class="required"
-            aria-hidden="true">*</span></label>
-        <input id="name" type="text" name="name" minlength="2" maxlength="180"
-          required autocomplete="off" placeholder="e.g. Ensaimada Ube"
-          value="{{ request.form.get('name', product.name if product else '') }}">
-      </div>
-      <div class="adm-field">
-        <label for="category_id">Category <span class="required"
-            aria-hidden="true">*</span></label>
-        <select id="category_id" name="category_id" required>
-          <option value>Select a category</option>
-          {% for category in categories %}<option value="{{ category.id }}" {%
-            if selected_category|string == category.id|string %}selected{% endif
-            %}>{{ category.name }}</option>{% endfor %}
-        </select>
-        <small>Manage available categories from the Categories page.</small>
-      </div>
-      <div class="adm-field">
-        <label for="price">Selling price (PHP) <span class="required"
-            aria-hidden="true">*</span></label>
-        <div class="adm-price-input"><span aria-hidden="true">₱</span><input
-            id="price" type="number" name="price" step="0.01" min="0.01"
-            max="99999999.99" required inputmode="decimal" placeholder="0.00"
-            value="{{ selected_price }}"></div>
-        <small>Enter the confirmed product price. Maximum two decimal
-          places.</small>
-      </div>
-      <div class="adm-field">
-        <label for="description">Description <span
-            class="adm-optional">(optional)</span></label>
-        <textarea id="description" name="description" rows="6" maxlength="2000"
-          data-description
-          placeholder="Ingredients, flavor, and other useful product details...">{{ request.form.get('description', (product.description or '') if product else '') }}</textarea>
-        <small><span data-description-count>0</span> / 2000 characters</small>
-      </div>
-    </section>
-    <div class="adm-form-side">
-      <section class="adm-panel adm-form-panel"
-        aria-labelledby="product-image-heading">
-        <h2 id="product-image-heading">Product Photograph</h2>
-        <p class="adm-form-intro">A real product photo helps customers recognize
-          the item.</p>
-        <div class="adm-image-preview" data-image-preview>
-          {% if editing and product.image_path %}<img
-            src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
-            alt="Current photo of {{ product.name }}">
-          {% else %}<div class="adm-image-empty"><svg viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="1.5"
-              aria-hidden="true"><rect x="3" y="3" width="18" height="18"
-                rx="3" /><circle cx="8" cy="8" r="2" /><path
-                d="m4 17 6-6 4 4 3-3 3 4" /></svg><p>Photo preview</p><small>No
-              image selected</small></div>{% endif %}
+
+
+<form
+    method="post"
+    action="{{ form_action }}"
+    enctype="multipart/form-data"
+    class="adm-product-form"
+    {% if modal %}data-modal-form{% endif %}
+>
+
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <div class="adm-form-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="adm-product-column">
+
+            <!-- PRODUCT INFORMATION -->
+
+            <section class="adm-panel adm-form-panel">
+
+                <h2>Product Information</h2>
+
+                <p class="adm-form-intro">
+                    Basic details and selling price.
+                </p>
+
+                <div class="adm-field">
+
+                    <label for="name">
+                        Product name
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        id="name"
+                        type="text"
+                        name="name"
+                        minlength="2"
+                        maxlength="180"
+                        required
+                        autocomplete="off"
+                        placeholder="e.g. Ensaimada Ube"
+                        value="{{ request.form.get('name', product.name if product else '') }}"
+                    >
+
+                </div>
+
+                <div class="adm-field">
+
+                    <label for="category_id">
+                        Category
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="category_id"
+                        name="category_id"
+                        required
+                    >
+                        <option value="">
+                            Select a category
+                        </option>
+
+                        {% for category in categories %}
+
+                        <option
+                            value="{{ category.id }}"
+                            {% if selected_category|string == category.id|string %}
+                            selected
+                            {% endif %}
+                        >
+                            {{ category.name }}
+                        </option>
+
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+                <div class="adm-field">
+
+                    <label for="price">
+                        Selling price (PHP)
+                        <span class="required">*</span>
+                    </label>
+
+                    <div class="adm-price-input">
+
+                        <span aria-hidden="true">â‚±</span>
+
+                        <input
+                            id="price"
+                            type="number"
+                            name="price"
+                            min="0.01"
+                            max="99999999.99"
+                            step="0.01"
+                            inputmode="decimal"
+                            placeholder="0.00"
+                            required
+                            value="{{ selected_price }}"
+                        >
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PRODUCT SETTINGS -->
+
+            <section class="adm-panel adm-form-panel">
+
+                <h2>Product Settings</h2>
+
+                <p class="adm-form-intro">
+                    Ordering and preparation options.
+                </p>
+
+                <label
+                    class="adm-switch-row"
+                    for="is_available"
+                >
+
+                    <span>
+                        <strong>Available to order</strong>
+                        <small>
+                            Allow customers to order this product.
+                        </small>
+                    </span>
+
+                    <input
+                        id="is_available"
+                        type="checkbox"
+                        name="is_available"
+                        value="1"
+                        {% if available_checked %}checked{% endif %}
+                    >
+
+                </label>
+
+                <label
+                    class="adm-switch-row"
+                    for="is_made_to_order"
+                >
+
+                    <span>
+                        <strong>Made to order</strong>
+                        <small>
+                            Requires preparation before fulfillment.
+                        </small>
+                    </span>
+
+                    <input
+                        id="is_made_to_order"
+                        type="checkbox"
+                        name="is_made_to_order"
+                        value="1"
+                        {% if mto_checked %}checked{% endif %}
+                    >
+
+                </label>
+
+                <p class="adm-form-hint">
+                    Product visibility and ordering availability
+                    are managed separately.
+                </p>
+
+            </section>
+
         </div>
-        <div class="adm-field">
-          <label for="image">{{ 'Replace photo' if editing else 'Upload photo'
-            }}</label>
-          <input id="image" type="file" name="image"
-            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-          <small>JPG, PNG or WEBP · Maximum 5 MB. {{
-            'Leave blank to keep the current photo.' if editing else
-            'You can add an image later.' }}</small>
+
+
+        <!-- RIGHT COLUMN -->
+        <div class="adm-product-column">
+
+            <!-- PRODUCT PHOTOGRAPH -->
+
+            <section class="adm-panel adm-form-panel">
+
+                <h2>Product Photograph</h2>
+
+                <p class="adm-form-intro">
+                    Upload a clear photo of the bakery product.
+                </p>
+
+                <div
+                    class="adm-image-preview"
+                    data-image-preview
+                >
+
+                    {% if editing and product.image_path %}
+
+                        <img
+                            src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
+                            alt="Current photo of {{ product.name }}"
+                        >
+
+                    {% else %}
+
+                        <div class="adm-image-empty">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                aria-hidden="true"
+                            >
+                                <rect
+                                    x="3"
+                                    y="3"
+                                    width="18"
+                                    height="18"
+                                    rx="3"
+                                />
+                                <circle cx="8" cy="8" r="2"/>
+                                <path
+                                    d="m4 17 6-6 4 4 3-3 3 4"
+                                />
+                            </svg>
+
+                            <p>Photo preview</p>
+                            <small>No image selected</small>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <div class="adm-field">
+
+                    <label for="image">
+                        {{ 'Replace photo' if editing else 'Upload photo' }}
+                    </label>
+
+                    <input
+                        id="image"
+                        type="file"
+                        name="image"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    >
+
+                    <small>
+                        JPG, PNG or WEBP Â· Maximum 5 MB.
+                        {{ 'Leave blank to keep the current photo.'
+                           if editing else
+                           'You can add a photo later.' }}
+                    </small>
+
+                </div>
+
+            </section>
+
+
+            <!-- PRODUCT DESCRIPTION -->
+
+            <section class="adm-panel adm-form-panel">
+
+                <h2>Product Description</h2>
+
+                <p class="adm-form-intro">
+                    Describe the flavor, ingredients or product details.
+                </p>
+
+                <div class="adm-field">
+
+                    <label for="description">
+                        Description
+                        <span class="adm-optional">(optional)</span>
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="3"
+                        maxlength="2000"
+                        data-description
+                        placeholder="Describe this product..."
+                    >{{ request.form.get('description', (product.description or '') if product else '') }}</textarea>
+
+                    <small>
+                        <span data-description-count>0</span>
+                        / 2000 characters
+                    </small>
+
+                </div>
+
+            </section>
+
         </div>
-      </section>
-      <section class="adm-panel adm-form-panel"
-        aria-labelledby="product-settings-heading">
-        <h2 id="product-settings-heading">Product Settings</h2>
-        <p class="adm-form-intro">Manage ordering status and preparation
-          type.</p>
-        <label class="adm-switch-row" for="is_available"><span><strong>Available
-              to order</strong><small>Customers can order this product when
-              checkout is connected.</small></span><input id="is_available"
-            type="checkbox" name="is_available" value="1" {% if
-            available_checked %}checked{% endif %}></label>
-        <label class="adm-switch-row" for="is_made_to_order"><span><strong>Made
-              to order</strong><small>Indicates that preparation is required
-              before fulfillment.</small></span><input id="is_made_to_order"
-            type="checkbox" name="is_made_to_order" value="1" {% if mto_checked
-            %}checked{% endif %}></label>
-        <p class="adm-form-hint">New products are visible unless archived.
-          Availability is separate from visibility: an unavailable product may
-          still appear in the catalog.</p>
-      </section>
+
     </div>
-  </div>
-  <div class="adm-form-actions">{% if modal %}<button class="adm-secondary-btn"
-      type="button"
-      data-modal-close>Cancel</button>{% else %}<a class="adm-secondary-btn"
-      href="{{ url_for('admin.manage_products') }}">Cancel</a>{% endif %}<button
-      class="adm-primary-btn" type="submit">{{ 'Save Changes' if editing else
-      'Add Product' }}</button></div>
+
+
+    <!-- PRODUCT FORM ACTIONS -->
+
+    <div class="adm-form-actions">
+
+        {% if modal %}
+
+            <button
+                type="button"
+                class="adm-secondary-btn"
+                data-modal-close
+            >
+                Cancel
+            </button>
+
+        {% else %}
+
+            <a
+                class="adm-secondary-btn"
+                href="{{ url_for('admin.manage_products') }}"
+            >
+                Cancel
+            </a>
+
+        {% endif %}
+
+        <button
+            type="submit"
+            class="adm-primary-btn"
+        >
+            {{ 'Save Changes' if editing else 'Add Product' }}
+        </button>
+
+    </div>
+
 </form>
+
 {% endblock %}
-{% block modal_eyebrow %}CATALOG / PRODUCT DETAILS{% endblock %}
-{% block modal_title %}{{ 'Edit Product' if product else 'Add New Product' }}{%
-endblock %}
-{% block modal_subtitle %}{{ 'Update details shown on the customer site.' if
-product else 'Fill in the information for a new bakery product.' }}{% endblock
-%}
+
+
+{% block modal_eyebrow %}
+CATALOG / PRODUCT DETAILS
+{% endblock %}
+
+{% block modal_title %}
+{{ 'Edit Product' if product else 'Add New Product' }}
+{% endblock %}
+
+{% block modal_subtitle %}
+{{ 'Update details shown on the customer site.'
+   if product else
+   'Fill in the information for a new bakery product.' }}
+{% endblock %}

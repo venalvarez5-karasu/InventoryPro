@@ -3,161 +3,245 @@
 
 {% block content %}
 
-<section class="section-space">
+<section class="pdp-page">
 
     <div class="container">
 
-        <div class="breadcrumbs">
+        <!-- BREADCRUMBS -->
+
+        <nav
+            class="pdp-breadcrumbs"
+            aria-label="Breadcrumb"
+        >
             <a href="{{ url_for('index.home') }}">
                 Home
             </a>
 
-            <span>/</span>
+            <span aria-hidden="true">/</span>
 
             <a href="{{ url_for('products.browse') }}">
                 Products
             </a>
 
-            <span>/</span>
+            <span aria-hidden="true">/</span>
 
-            <span>{{ product.name }}</span>
-        </div>
+            <span aria-current="page">
+                {{ product.name }}
+            </span>
+        </nav>
 
-        <div class="detail-grid">
+
+        <!-- PRODUCT DETAILS -->
+
+        <article class="pdp-card">
 
             <!-- PRODUCT IMAGE -->
-            <div class="detail-media">
 
-                {% if product.image_path %}
+            <div class="pdp-gallery">
 
-                <img
-                    src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
-                    alt="{{ product.name }}">
+                <div class="pdp-image-frame">
 
-                {% else %}
+                    {% if product.image_path %}
 
-                <span class="detail-placeholder" aria-hidden="true">
+                        <img
+                            class="pdp-image"
+                            src="{{ url_for('products.static', filename='images/' ~ product.image_path) }}"
+                            alt="{{ product.name }}"
+                            loading="eager"
+                        >
 
-                    {% if product.category_slug == 'cookies' %}
-                    🍪
-                    {% elif product.category_slug == 'almonds' %}
-                    🍫
-                    {% elif product.category_slug == 'savory-breads' %}
-                    🍞
                     {% else %}
-                    🥐
+
+                        <div class="pdp-placeholder">
+
+                            {% if product.category_slug == 'cookies' %}
+                                🍪
+                            {% elif product.category_slug == 'almonds' %}
+                                🍫
+                            {% elif product.category_slug == 'savory-breads' %}
+                                🍞
+                            {% else %}
+                                🥐
+                            {% endif %}
+
+                            <span>
+                                Product photograph coming soon
+                            </span>
+
+                        </div>
+
                     {% endif %}
 
-                </span>
-
-                {% endif %}
+                </div>
 
             </div>
 
-            <!-- PRODUCT INFORMATION -->
-            <div class="detail-info">
 
-                <span class="eyebrow">
+            <!-- PRODUCT INFORMATION -->
+
+            <div class="pdp-info">
+
+                <span class="pdp-category">
                     {{ product.category_name }}
                 </span>
 
-                <h1>
+                <h1 class="pdp-title">
                     {{ product.name }}
                 </h1>
 
-                <p class="detail-price">
-                    ₱{{ '%.2f'|format(product.price) }}
+                <p class="pdp-price">
+                    â‚±{{ '%.2f'|format(product.price) }}
                 </p>
 
-                {% if product.is_available %}
 
-                <span class="availability available">
-                    Available to order
-                </span>
+                <!-- AVAILABILITY -->
 
-                {% else %}
+                <div class="pdp-badges">
 
-                <span class="availability unavailable">
-                    Currently unavailable
-                </span>
+                    {% if product.is_available %}
 
-                {% endif %}
+                        <span class="pdp-status pdp-available">
+                            <span class="pdp-status-dot"></span>
+                            Available to order
+                        </span>
 
-                {% if product.is_made_to_order %}
-                <p class="detail-note">
-                    Made-to-order product
-                </p>
-                {% endif %}
-
-                <hr>
-
-                <h3>Product Description</h3>
-
-                <p class="detail-description">
-                    {% if product.description %}
-                    {{ product.description }}
                     {% else %}
-                    More product details will be added soon.
+
+                        <span class="pdp-status pdp-unavailable">
+                            Currently unavailable
+                        </span>
+
                     {% endif %}
-                </p>
 
-                {% if product.is_active and product.is_available %}
+                    {% if product.is_made_to_order %}
 
-                <form
-                    action="{{ url_for('cart.add_to_cart') }}"
-                    method="post">
+                        <span class="pdp-made-to-order">
+                            Made to order
+                        </span>
 
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}">
+                    {% endif %}
 
-                    <input
-                        type="hidden"
-                        name="product_id"
-                        value="{{ product.id }}">
+                </div>
 
-                    <label for="cart-quantity">
-                        Quantity
-                    </label>
 
-                    <input
-                        type="number"
-                        id="cart-quantity"
-                        name="quantity"
-                        min="1"
-                        max="99"
-                        value="1"
-                        required>
+                <!-- DESCRIPTION -->
 
-                    <button type="submit">
-                        Add to Cart
-                    </button>
+                <div class="pdp-description-section">
 
-                </form>
+                    <h2>
+                        Product Description
+                    </h2>
 
-                {% else %}
+                    <p>
+                        {% if product.description %}
+                            {{ product.description }}
+                        {% else %}
+                            Additional product details
+                            will be provided by the bakery.
+                        {% endif %}
+                    </p>
 
-                <button type="button" disabled>
-                    Currently Unavailable
-                </button>
+                </div>
 
-                {% endif %}
 
-                <p class="detail-note">
-                    Online ordering will be enabled
-                    after cart and checkout development.
-                </p>
+                <!-- ADD TO CART -->
+
+                <div class="pdp-order-section">
+
+                    {% if product.is_active and product.is_available %}
+
+                        <form
+                            class="pdp-cart-form"
+                            action="{{ url_for('cart.add_to_cart') }}"
+                            method="post"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="product_id"
+                                value="{{ product.id }}"
+                            >
+
+                            <div class="pdp-cart-controls">
+
+                                <div class="pdp-quantity">
+
+                                    <label for="cart-quantity">
+                                        Quantity
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="cart-quantity"
+                                        name="quantity"
+                                        min="1"
+                                        max="99"
+                                        step="1"
+                                        value="1"
+                                        required
+                                    >
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    class="pdp-add-button"
+                                >
+                                    <span aria-hidden="true">
+                                        +
+                                    </span>
+
+                                    Add to Cart
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                        <p class="pdp-order-note">
+                            Delivery availability and fees
+                            are checked during checkout.
+                        </p>
+
+                    {% else %}
+
+                        <button
+                            type="button"
+                            class="pdp-add-button"
+                            disabled
+                        >
+                            Currently Unavailable
+                        </button>
+
+                        <p class="pdp-order-note">
+                            This item cannot be ordered
+                            at the moment.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- BACK LINK -->
 
                 <a
                     href="{{ url_for('products.browse') }}"
-                    class="text-arrow">
-                    ← Back to Products
+                    class="pdp-back-link"
+                >
+                    <span aria-hidden="true">←</span>
+                    Continue Browsing
                 </a>
 
             </div>
 
-        </div>
+        </article>
 
     </div>
 

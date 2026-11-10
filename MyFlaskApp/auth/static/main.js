@@ -3,9 +3,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ======================================
     // SHOW / HIDE PASSWORD
-    // ======================================
 
     document
         .querySelectorAll("[data-password-toggle]")
@@ -30,10 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-
-    // ======================================
     // REGISTRATION ELEMENTS
-    // ======================================
 
     const form = document.getElementById("register-form");
 
@@ -47,10 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordFeedback = document.getElementById("password-feedback");
     const confirmFeedback = document.getElementById("confirm-feedback");
 
-
-    // ======================================
     // LETTERS ONLY: NAME FIELDS
-    // ======================================
 
     document
         .querySelectorAll("[data-letters-only]")
@@ -69,10 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-
-    // ======================================
     // PHILIPPINE MOBILE NUMBER
-    // ======================================
 
     document
         .querySelectorAll("[data-ph-mobile]")
@@ -93,10 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-
-    // ======================================
     // POSTAL CODE: 4 DIGITS
-    // ======================================
 
     document
         .querySelectorAll("[data-ph-postal]")
@@ -109,10 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-
-    // ======================================
     // OTP: 6 DIGITS
-    // ======================================
 
     document
         .querySelectorAll("[data-otp]")
@@ -125,10 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-
-    // ======================================
     // INPUT HIGHLIGHTING
-    // ======================================
 
     function paint(input, feedback, state, message) {
         if (!input || !feedback) return;
@@ -150,10 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         feedback.textContent = message || "";
     }
 
-
-    // ======================================
     // LIVE EMAIL / PHONE AVAILABILITY
-    // ======================================
 
     const timers = {};
     const controllers = {};
@@ -266,8 +243,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         feedback,
                         "success",
                         isEmail
-                            ? "✓ Email is available."
-                            : "✓ Mobile number is available."
+                            ? "âœ“ Email is available."
+                            : "âœ“ Mobile number is available."
                     );
                 }
 
@@ -294,10 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 500);
     }
 
-
-    // ======================================
     // EMAIL INPUT LISTENER
-    // ======================================
 
     if (emailInput) {
         emailInput.addEventListener("input", () => {
@@ -309,12 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
-    // ======================================
     // LIVE PASSWORD RULES
-    // ======================================
 
-  
 function updatePasswordRules() {
     if (!passwordInput) return;
 
@@ -353,7 +323,7 @@ function updatePasswordRules() {
             passwordInput,
             passwordFeedback,
             "success",
-            "✓ Password meets all requirements."
+            "âœ“ Password meets all requirements."
         );
     } else {
         paint(
@@ -367,10 +337,7 @@ function updatePasswordRules() {
     updateConfirmPassword();
 }
 
-
-    // ======================================
     // LIVE PASSWORD MATCHING
-    // ======================================
 
     function updateConfirmPassword() {
         if (!passwordInput || !confirmInput) return;
@@ -398,7 +365,7 @@ function updatePasswordRules() {
                 confirmInput,
                 confirmFeedback,
                 "success",
-                "✓ Passwords match."
+                "âœ“ Passwords match."
             );
         } else {
             confirmInput.setCustomValidity(
@@ -409,7 +376,7 @@ function updatePasswordRules() {
                 confirmInput,
                 confirmFeedback,
                 "error",
-                "✕ Passwords do not match."
+                "âœ• Passwords do not match."
             );
         }
     }
@@ -428,10 +395,7 @@ function updatePasswordRules() {
         );
     }
 
-
-    // ======================================
     // VALIDATE BEFORE SUBMITTING
-    // ======================================
 
     if (form) {
         form.addEventListener("submit", (event) => {
@@ -481,10 +445,7 @@ function updatePasswordRules() {
         });
     }
 
-
-    // ======================================
     // OTHER AUTH FORMS
-    // ======================================
 
     document
         .querySelectorAll(".auth-form:not(#register-form)")
@@ -510,9 +471,7 @@ function updatePasswordRules() {
 
 });
 
-// ==========================================
 // PHILIPPINE ADDRESS DROPDOWNS
-// ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
     const province = document.getElementById("province");

@@ -1,4 +1,3 @@
-
 import hashlib
 import hmac
 import json
@@ -37,10 +36,7 @@ auth_bp = Blueprint(
     static_folder="static",
 )
 
-
-# ==========================================
 # VALIDATION RULES
-# ==========================================
 
 EMAIL_RE = re.compile(
     r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
@@ -97,10 +93,7 @@ def good_password(password):
         )
     )
 
-
-# ==========================================
 # DATABASE HELPERS
-# ==========================================
 
 def find_one(sql, values=()):
     cur = mysql.connection.cursor(DictCursor)
@@ -127,10 +120,7 @@ def save(sql, values=()):
     finally:
         cur.close()
 
-
-# ==========================================
 # LOGIN AND ROLE PROTECTION
-# ==========================================
 
 def current_user():
     user_id = session.get("user_id")
@@ -202,10 +192,7 @@ def role_required(*roles):
 
     return decorator
 
-
-# ==========================================
 # EMAIL OTP HELPERS
-# ==========================================
 
 def is_email_verified(user_id):
     return bool(
@@ -370,10 +357,7 @@ def send_code(user, purpose):
         "has been sent to your email."
     )
 
-
-# ==========================================
 # CUSTOMER REGISTRATION
-# ==========================================
 
 @auth_bp.route(
     "/register",
@@ -579,10 +563,7 @@ def register():
         title="Register",
     )
 
-
-# ==========================================
 # REAL-TIME EMAIL / NUMBER CHECK
-# ==========================================
 
 @auth_bp.route(
     "/check-availability",
@@ -657,10 +638,7 @@ def check_availability():
         "exists": bool(existing)
     }
 
-
-# ==========================================
 # LOGIN
-# ==========================================
 
 @auth_bp.route(
     "/login",
@@ -779,10 +757,7 @@ def login():
         title="Login",
     )
 
-
-# ==========================================
 # VERIFY EMAIL OTP
-# ==========================================
 
 @auth_bp.route(
     "/otp",
@@ -976,10 +951,7 @@ def otp():
         title="Email Verification",
     )
 
-
-# ==========================================
 # RESEND OTP
-# ==========================================
 
 @auth_bp.route(
     "/resend-otp",
@@ -1027,10 +999,7 @@ def resend_otp():
         url_for("auth.otp")
     )
 
-
-# ==========================================
 # FORGOT PASSWORD
-# ==========================================
 
 @auth_bp.route(
     "/forgot-password",
@@ -1112,10 +1081,7 @@ def forgot_password():
         title="Forgot Password",
     )
 
-
-# ==========================================
 # RESET PASSWORD
-# ==========================================
 
 @auth_bp.route(
     "/reset-password",
@@ -1208,10 +1174,7 @@ def reset_password():
         title="Reset Password",
     )
 
-
-# ==========================================
 # PHILIPPINE ADDRESS DROPDOWNS
-# ==========================================
 
 PSGC_API = "https://psgc.cloud/api/v2"
 
@@ -1230,10 +1193,7 @@ PROVINCE_ENDPOINTS = {
     ),
 }
 
-
-# ==========================================
 # FETCH PHILIPPINE LOCATIONS
-# ==========================================
 
 @lru_cache(maxsize=512)
 def fetch_psgc(path):
@@ -1288,10 +1248,7 @@ def fetch_psgc(path):
         key=lambda item: item["name"].casefold(),
     )
 
-
-# ==========================================
 # GET CITIES / MUNICIPALITIES
-# ==========================================
 
 def get_cities(province):
 
@@ -1305,10 +1262,7 @@ def get_cities(province):
         else []
     )
 
-
-# ==========================================
 # GET BARANGAYS
-# ==========================================
 
 def get_barangays(
     province,
@@ -1330,10 +1284,7 @@ def get_barangays(
         + "/barangays"
     )
 
-
-# ==========================================
 # SERVER-SIDE ADDRESS VALIDATION
-# ==========================================
 
 def valid_selected_address(
     province,
@@ -1372,10 +1323,7 @@ def valid_selected_address(
 
         return False
 
-
-# ==========================================
 # ADDRESS OPTIONS API
-# ==========================================
 
 @auth_bp.route(
     "/address-options",
@@ -1429,10 +1377,7 @@ def address_options():
             "error": "Location service unavailable",
         }, 503
 
-
-# ==========================================
 # COMPLETE CUSTOMER PROFILE
-# ==========================================
 
 @auth_bp.route(
     "/complete-profile",
@@ -1672,10 +1617,7 @@ def complete_profile():
         address=address,
     )
 
-
-# ==========================================
 # LOGOUT
-# ==========================================
 
 @auth_bp.route(
     "/logout",

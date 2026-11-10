@@ -1,30 +1,22 @@
 
 {% extends "admin_base.html" %}
-
 {% block content %}
 
 <div class="adm-page-heading">
     <div>
-        <span class="adm-eyebrow">
-            INVENTORYPRO MANAGEMENT
-        </span>
-
+        <span class="adm-eyebrow">INVENTORYPRO MANAGEMENT</span>
         <h1>{{ title }}</h1>
-
-        <p>
-            Manage bakery operations with reliable,
-            up-to-date records.
-        </p>
+        <p>Manage bakery operations with reliable, up-to-date records.</p>
     </div>
 
     {% if section == 'orders' %}
     <a class="adm-secondary-btn"
-        href="{{ url_for('admin.admin_export', kind='orders') }}">
+       href="{{ url_for('admin.admin_export', kind='orders') }}">
         Export Orders CSV
     </a>
     {% elif section == 'inventory' %}
     <a class="adm-secondary-btn"
-        href="{{ url_for('admin.admin_export', kind='inventory') }}">
+       href="{{ url_for('admin.admin_export', kind='inventory') }}">
         Export Inventory CSV
     </a>
     {% endif %}
@@ -32,29 +24,28 @@
 
 {% if section == 'categories' %}
 
-<!-- CATEGORIES -->
+<!-- ==========================================
+     CATEGORIES
+     ========================================== -->
 
 <section class="adm-panel adm-console-panel">
     <h2>Add a Category</h2>
 
-    <form class="adm-flex-form"
-        method="post"
-        action="{{ url_for('admin.categories_page') }}">
-
-        <input type="hidden" name="csrf_token"
-            value="{{ csrf_token() }}">
+    <form class="adm-flex-form" method="post"
+          action="{{ url_for('admin.categories_page') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="add">
 
         <label>
             Category name
             <input name="name" minlength="2" maxlength="100"
-                required placeholder="e.g. Specialty Breads">
+                   required placeholder="e.g. Specialty Breads">
         </label>
 
         <label>
             Display order
             <input type="number" name="display_order"
-                min="0" max="9999" value="5" required>
+                   min="0" max="9999" value="5" required>
         </label>
 
         <button type="submit" class="adm-primary-btn">
@@ -65,7 +56,6 @@
 
 <section class="adm-panel adm-console-panel">
     <h2>Existing Categories</h2>
-
     <p class="adm-console-muted">
         Category URL slugs stay unchanged when renamed,
         so existing customer links continue working.
@@ -87,52 +77,42 @@
                 <tr>
                     <td>
                         <strong>{{ row.name }}</strong>
-                        <small class="adm-console-muted">
-                            /{{ row.slug }}
-                        </small>
+                        <small class="adm-console-muted">/{{ row.slug }}</small>
                     </td>
-
                     <td>{{ row.product_count }}</td>
                     <td>{{ row.display_order }}</td>
-
                     <td>
-                        <span
-                            class="adm-status {{ 'available' if row.is_active else 'archived' }}">
+                        <span class="adm-status {{ 'available' if row.is_active else 'archived' }}">
                             {{ 'Active' if row.is_active else 'Disabled' }}
                         </span>
                     </td>
-
                     <td>
                         <details class="adm-detail-toggle"
-                            data-modal-title="Edit category">
+                                 data-modal-title="Edit category">
                             <summary>Edit</summary>
 
-                            <form class="adm-mini-form"
-                                method="post"
-                                action="{{ url_for('admin.categories_page') }}">
-
+                            <form class="adm-mini-form" method="post"
+                                  action="{{ url_for('admin.categories_page') }}">
                                 <input type="hidden" name="csrf_token"
-                                    value="{{ csrf_token() }}">
+                                       value="{{ csrf_token() }}">
                                 <input type="hidden" name="category_id"
-                                    value="{{ row.id }}">
+                                       value="{{ row.id }}">
 
                                 <label>
                                     Name
                                     <input name="name" value="{{ row.name }}"
-                                        maxlength="100" required>
+                                           minlength="2" maxlength="100" required>
                                 </label>
 
                                 <label>
                                     Display order
                                     <input type="number" name="display_order"
-                                        min="0" max="9999"
-                                        value="{{ row.display_order }}"
-                                        required>
+                                           min="0" max="9999"
+                                           value="{{ row.display_order }}" required>
                                 </label>
 
                                 <button class="adm-action-button"
-                                    name="action" value="update"
-                                    type="submit">
+                                        name="action" value="update" type="submit">
                                     Save
                                 </button>
 
@@ -140,10 +120,8 @@
                                     class="adm-action-button {{ 'danger' if row.is_active else 'restore' }}"
                                     name="action"
                                     value="{{ 'disable' if row.is_active else 'enable' }}"
-                                    type="submit"
-                                    formnovalidate>
-                                    {{ 'Disable' if row.is_active else 'Enable'
-                                    }}
+                                    type="submit" formnovalidate>
+                                    {{ 'Disable' if row.is_active else 'Enable' }}
                                 </button>
                             </form>
                         </details>
@@ -163,31 +141,27 @@
 
 {% elif section == 'orders' %}
 
-<!-- ORDER MANAGEMENT -->
+<!-- ==========================================
+     ORDER MANAGEMENT
+     ========================================== -->
 
 <section class="adm-panel">
-
     <form class="adm-console-filters" method="get">
-
-        <input type="search"
-            name="q"
-            maxlength="80"
-            value="{{ q }}"
-            placeholder="Order number, customer, or email">
+        <input type="search" name="q" maxlength="80"
+               value="{{ q }}"
+               placeholder="Order number, customer, or email">
 
         <select name="status">
-            <option value>All statuses</option>
+            <option value="">All statuses</option>
             {% for s in statuses %}
             <option value="{{ s }}"
-                {% if status == s %}selected{% endif %}>
+                    {% if status == s %}selected{% endif %}>
                 {{ s|replace('_', ' ')|title }}
             </option>
             {% endfor %}
         </select>
 
-        <button type="submit" class="adm-primary-btn">
-            Filter
-        </button>
+        <button type="submit" class="adm-primary-btn">Filter</button>
     </form>
 
     <div class="adm-table-scroll">
@@ -199,42 +173,33 @@
                     <th>Placed</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th></th>
+                    <th>Action</th>
                 </tr>
             </thead>
-
             <tbody>
                 {% for row in rows %}
                 <tr>
                     <td>
                         <strong>{{ row.order_number }}</strong>
-                        <small class="adm-console-muted">
-                            {{ row.email }}
-                        </small>
+                        <small class="adm-console-muted">{{ row.email }}</small>
                     </td>
-
                     <td>{{ row.recipient_name }}</td>
                     <td>{{ row.created_at }}</td>
-
                     <td class="adm-price-cell">
-                        ₱{{ '%.2f'|format(row.total_amount) }}
+                        â‚±{{ '%.2f'|format(row.total_amount) }}
                     </td>
-
                     <td>
-                        <span
-                            class="adm-status {{ 'available' if row.status == 'completed' else 'unavailable' }}">
+                        <span class="adm-status {{ 'available' if row.status == 'completed' else 'unavailable' }}">
                             {{ row.status|replace('_', ' ')|title }}
                         </span>
                     </td>
-
                     <td>
                         <a class="adm-action-button"
-                            href="{{ url_for('admin.admin_order_detail', order_id=row.id) }}">
+                           href="{{ url_for('admin.admin_order_detail', order_id=row.id) }}">
                             View
                         </a>
                     </td>
                 </tr>
-
                 {% else %}
                 <tr>
                     <td colspan="6" class="adm-empty-cell">
@@ -249,20 +214,16 @@
 
 {% elif section == 'customers' %}
 
-<!-- CUSTOMERS -->
+<!-- ==========================================
+     CUSTOMER MANAGEMENT
+     ========================================== -->
 
 <section class="adm-panel">
-
     <form class="adm-console-filters" method="get">
-        <input type="search"
-            name="q"
-            maxlength="80"
-            value="{{ q }}"
-            placeholder="Search name or email">
+        <input type="search" name="q" maxlength="80"
+               value="{{ q }}" placeholder="Search name or email">
 
-        <button type="submit" class="adm-primary-btn">
-            Search
-        </button>
+        <button type="submit" class="adm-primary-btn">Search</button>
     </form>
 
     <div class="adm-table-scroll">
@@ -277,49 +238,37 @@
                     <th>Action</th>
                 </tr>
             </thead>
-
             <tbody>
                 {% for row in rows %}
                 <tr>
                     <td>
-                        <strong>
-                            {{ row.first_name }} {{ row.last_name }}
-                        </strong>
+                        <strong>{{ row.first_name }} {{ row.last_name }}</strong>
                     </td>
-
                     <td>{{ row.email }}</td>
-                    <td>{{ row.mobile_number or '—' }}</td>
+                    <td>{{ row.mobile_number  }}</td>
                     <td>{{ row.created_at }}</td>
-
                     <td>
-                        <span
-                            class="adm-status {{ 'available' if row.account_status == 'active' else 'archived' }}">
+                        <span class="adm-status {{ 'available' if row.account_status == 'active' else 'archived' }}">
                             {{ row.account_status|title }}
                         </span>
                     </td>
-
                     <td>
                         <form method="post"
-                            action="{{ url_for('admin.admin_customer_status', user_id=row.id) }}"
-                            data-confirm="Change this customer's account status?">
+                              action="{{ url_for('admin.admin_customer_status', user_id=row.id) }}"
+                              data-confirm="Change this customer's account status?">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
 
-                            <input type="hidden"
-                                name="csrf_token"
-                                value="{{ csrf_token() }}">
-
-                            <input type="hidden"
-                                name="status"
-                                value="{{ 'disabled' if row.account_status == 'active' else 'active' }}">
+                            <input type="hidden" name="status"
+                                   value="{{ 'disabled' if row.account_status == 'active' else 'active' }}">
 
                             <button type="submit"
-                                class="adm-action-button {{ 'danger' if row.account_status == 'active' else 'restore' }}">
-                                {{ 'Disable' if row.account_status == 'active'
-                                else 'Reactivate' }}
+                                    class="adm-action-button {{ 'danger' if row.account_status == 'active' else 'restore' }}">
+                                {{ 'Disable' if row.account_status == 'active' else 'Reactivate' }}
                             </button>
                         </form>
                     </td>
                 </tr>
-
                 {% else %}
                 <tr>
                     <td colspan="6" class="adm-empty-cell">
@@ -334,49 +283,43 @@
 
 {% elif section == 'areas' %}
 
-<!-- DELIVERY AREAS -->
+<!-- ==========================================
+     DELIVERY AREA MANAGEMENT
+     ========================================== -->
 
 <section class="adm-panel adm-console-panel">
     <h2>Add a Delivery Area</h2>
-
     <p class="adm-console-muted">
-        New areas remain disabled unless the bakery
-        confirms delivery coverage and fees.
+        New areas remain disabled unless the bakery confirms
+        delivery coverage and fees.
     </p>
 
-    <form class="adm-flex-form"
-        method="post"
-        action="{{ url_for('admin.admin_delivery_areas') }}">
-
-        <input type="hidden" name="csrf_token"
-            value="{{ csrf_token() }}">
+    <form class="adm-flex-form" method="post"
+          action="{{ url_for('admin.admin_delivery_areas') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="add">
 
         <label>
             Province / region
             <select name="region_id" required>
-                <option value>Select region</option>
+                <option value="">Select region</option>
                 {% for region in regions %}
-                <option value="{{ region.id }}">
-                    {{ region.name }}
-                </option>
+                <option value="{{ region.id }}">{{ region.name }}</option>
                 {% endfor %}
             </select>
         </label>
 
         <label>
             City / municipality
-            <input name="city_municipality"
-                minlength="2" maxlength="100"
-                required placeholder="e.g. Lumban">
+            <input name="city_municipality" minlength="2"
+                   maxlength="100" required placeholder="e.g. Lumban">
         </label>
 
         <label>
-            Delivery fee (₱)
+            Delivery fee (â‚±)
             <input type="number" name="delivery_fee"
-                min="0" max="99999999.99"
-                step="0.01"
-                placeholder="Confirmed fee">
+                   min="0" max="99999999.99" step="0.01"
+                   placeholder="Confirmed fee">
         </label>
 
         <label class="adm-checkbox-label">
@@ -389,9 +332,7 @@
             Allow COD
         </label>
 
-        <button type="submit" class="adm-primary-btn">
-            Add Area
-        </button>
+        <button type="submit" class="adm-primary-btn">Add Area</button>
     </form>
 </section>
 
@@ -410,60 +351,44 @@
                     <th>Manage</th>
                 </tr>
             </thead>
-
             <tbody>
                 {% for row in rows %}
                 <tr>
                     <td>{{ row.region_name }}</td>
-
-                    <td>
-                        <strong>
-                            {{ row.city_municipality }}
-                        </strong>
-                    </td>
-
+                    <td><strong>{{ row.city_municipality }}</strong></td>
                     <td>
                         {% if row.delivery_fee is not none %}
-                        ₱{{ '%.2f'|format(row.delivery_fee) }}
+                        â‚±{{ '%.2f'|format(row.delivery_fee) }}
                         {% else %}
                         Unconfirmed
                         {% endif %}
                     </td>
-
                     <td>
-                        <span
-                            class="adm-status {{ 'available' if row.is_enabled else 'archived' }}">
+                        <span class="adm-status {{ 'available' if row.is_enabled else 'archived' }}">
                             {{ 'Enabled' if row.is_enabled else 'Disabled' }}
                         </span>
                     </td>
-
-                    <td>
-                        {{ 'Yes' if row.cod_enabled else 'No' }}
-                    </td>
-
+                    <td>{{ 'Yes' if row.cod_enabled else 'No' }}</td>
                     <td>
                         <details class="adm-detail-toggle"
-                            data-modal-title="Edit delivery area">
+                                 data-modal-title="Edit delivery area">
                             <summary>Edit</summary>
 
-                            <form class="adm-mini-form"
-                                method="post"
-                                action="{{ url_for('admin.admin_delivery_areas') }}">
-
+                            <form class="adm-mini-form" method="post"
+                                  action="{{ url_for('admin.admin_delivery_areas') }}">
                                 <input type="hidden" name="csrf_token"
-                                    value="{{ csrf_token() }}">
+                                       value="{{ csrf_token() }}">
                                 <input type="hidden" name="action"
-                                    value="update">
+                                       value="update">
                                 <input type="hidden" name="area_id"
-                                    value="{{ row.id }}">
+                                       value="{{ row.id }}">
 
                                 <label>
                                     Region
-                                    <select name="region_id">
+                                    <select name="region_id" required>
                                         {% for region in regions %}
                                         <option value="{{ region.id }}"
-                                            {% if region.id == row.region_id
-                                            %}selected{% endif %}>
+                                                {% if region.id == row.region_id %}selected{% endif %}>
                                             {{ region.name }}
                                         </option>
                                         {% endfor %}
@@ -473,45 +398,38 @@
                                 <label>
                                     City
                                     <input name="city_municipality"
-                                        value="{{ row.city_municipality }}"
-                                        maxlength="100" required>
+                                           value="{{ row.city_municipality }}"
+                                           minlength="2" maxlength="100" required>
                                 </label>
 
                                 <label>
-                                    Fee (₱)
-                                    <input type="number"
-                                        name="delivery_fee"
-                                        min="0" step="0.01"
-                                        value="{{ row.delivery_fee if row.delivery_fee is not none else '' }}">
+                                    Fee (â‚±)
+                                    <input type="number" name="delivery_fee"
+                                           min="0" max="99999999.99" step="0.01"
+                                           value="{{ row.delivery_fee if row.delivery_fee is not none else '' }}">
                                 </label>
 
                                 <label class="adm-checkbox-label">
-                                    <input type="checkbox"
-                                        name="is_enabled"
-                                        value="1"
-                                        {% if row.is_enabled %}checked{% endif
-                                        %}>
+                                    <input type="checkbox" name="is_enabled"
+                                           value="1"
+                                           {% if row.is_enabled %}checked{% endif %}>
                                     Enabled
                                 </label>
 
                                 <label class="adm-checkbox-label">
-                                    <input type="checkbox"
-                                        name="cod_enabled"
-                                        value="1"
-                                        {% if row.cod_enabled %}checked{% endif
-                                        %}>
+                                    <input type="checkbox" name="cod_enabled"
+                                           value="1"
+                                           {% if row.cod_enabled %}checked{% endif %}>
                                     COD
                                 </label>
 
-                                <button type="submit"
-                                    class="adm-action-button">
+                                <button type="submit" class="adm-action-button">
                                     Save
                                 </button>
                             </form>
                         </details>
                     </td>
                 </tr>
-
                 {% else %}
                 <tr>
                     <td colspan="6" class="adm-empty-cell">
@@ -526,83 +444,106 @@
 
 {% elif section == 'inventory' %}
 
-<!-- INVENTORY -->
+<!-- ==========================================
+     INVENTORY MANAGEMENT
+     ========================================== -->
 
 <section class="adm-panel adm-console-panel">
+    <div class="ip-inventory-heading">
+        <div>
+            <h2>Inventory Items</h2>
+            <p class="adm-console-muted">
+                Manage ingredients, packaging, stock levels
+                and reorder thresholds.
+            </p>
+        </div>
 
-    <details class="adm-detail-toggle">
-        <summary>+ Register New Inventory Item</summary>
+        <!-- ADD INVENTORY ITEM -->
 
-        <form class="adm-flex-form"
-            method="post"
-            action="{{ url_for('admin.admin_inventory_add') }}">
+        <details class="adm-detail-toggle"
+                 data-modal-title="Add Inventory Item">
+            <summary>+ Add Inventory Item</summary>
 
-            <input type="hidden" name="csrf_token"
-                value="{{ csrf_token() }}">
+            <form class="adm-flex-form" method="post"
+                  action="{{ url_for('admin.admin_inventory_add') }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
 
-            <label>
-                Item name
-                <input name="item_name"
-                    minlength="2" maxlength="180" required>
-            </label>
+                <label>
+                    Item name
+                    <input name="item_name" minlength="2"
+                           maxlength="180" required
+                           placeholder="e.g. All-Purpose Flour">
+                </label>
 
-            <label>
-                Category
-                <select name="category_id" required>
-                    <option value>Select</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.id }}">
-                        {{ cat.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </label>
+                <label>
+                    Category
+                    <select name="category_id" required>
+                        <option value="">Select category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
 
-            <label>
-                Item type
-                <select name="item_type" required>
-                    <option value="ingredient">Ingredient</option>
-                    <option value="packaging">Packaging</option>
-                    <option value="finished_product">Finished Product</option>
-                </select>
-            </label>
+                <label>
+                    Item type
+                    <select name="item_type" required>
+                        <option value="ingredient">Ingredient</option>
+                        <option value="packaging">Packaging</option>
+                        <option value="finished_product">Finished Product</option>
+                    </select>
+                </label>
 
-            <label>
-                Unit
-                <input name="unit" maxlength="20"
-                    placeholder="g / kg / pcs" required>
-            </label>
+                <label>
+                    Unit
+                    <input name="unit" maxlength="20" required
+                           placeholder="g / kg / pcs">
+                </label>
 
-            <label>
-                SKU (optional)
-                <input name="sku" maxlength="50">
-            </label>
+                <label>
+                    SKU (optional)
+                    <input name="sku" maxlength="50"
+                           placeholder="e.g. ING-FLOUR-001">
+                </label>
 
-            <label>
-                Reorder level
-                <input type="number" name="reorder_level"
-                    min="0" step="0.001"
-                    value="0" required>
-            </label>
+                <label>
+                    Reorder level
+                    <input type="number" name="reorder_level"
+                           min="0" max="999999999.999"
+                           step="0.001" value="0" required>
+                </label>
 
-            <button type="submit" class="adm-primary-btn">
-                Create Item
-            </button>
-        </form>
-    </details>
-</section>
+                <button type="submit" class="adm-primary-btn">
+                    Create Item
+                </button>
+            </form>
+        </details>
+    </div>
 
-<section class="adm-panel">
+    <!-- INVENTORY SEARCH -->
 
-    <form class="adm-console-filters" method="get">
-        <input type="search" name="q"
-            maxlength="80" value="{{ q }}"
-            placeholder="Search inventory item or SKU">
+    <form class="adm-console-filters ip-inventory-filters"
+          method="get"
+          action="{{ url_for('admin.admin_inventory') }}">
+
+        <input type="search" name="q" maxlength="80"
+               value="{{ q }}"
+               placeholder="Search item name or SKU...">
 
         <button type="submit" class="adm-primary-btn">
             Search
         </button>
+
+        {% if q %}
+        <a class="adm-secondary-btn"
+           href="{{ url_for('admin.admin_inventory') }}">
+            Clear
+        </a>
+        {% endif %}
     </form>
+
+    <!-- INVENTORY TABLE -->
 
     <div class="adm-table-scroll">
         <table class="adm-table">
@@ -613,7 +554,7 @@
                     <th>Type</th>
                     <th>On Hand</th>
                     <th>Reorder Level</th>
-                    <th>Manage</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -640,61 +581,135 @@
                     <td>
                         {{ row.reorder_level }} {{ row.unit }}
 
-                        {% if row.reorder_level > 0 and row.quantity_on_hand <=
-                        row.reorder_level %}
+                        {% if row.reorder_level > 0 and row.quantity_on_hand <= row.reorder_level %}
                         <span class="adm-status archived">
-                            Low stock
+                            Low Stock
                         </span>
                         {% endif %}
                     </td>
 
                     <td>
-                        <details class="adm-detail-toggle"
-                            data-modal-title="Record stock movement">
-                            <summary>Stock In / Out</summary>
+                        <div class="adm-table-actions ip-inventory-row-actions">
 
-                            <form class="adm-mini-form"
-                                method="post"
-                                action="{{ url_for('admin.admin_inventory_movement', item_id=row.id) }}">
+                            <!-- EDIT INVENTORY ITEM -->
 
-                                <input type="hidden"
-                                    name="csrf_token"
-                                    value="{{ csrf_token() }}">
+                            <details class="adm-detail-toggle"
+                                     data-modal-title="Edit Inventory Item">
+                                <summary>Edit</summary>
 
-                                <label>
-                                    Movement
-                                    <select name="movement_type" required>
-                                        <option value="stock_in">Stock
-                                            In</option>
-                                        <option value="stock_out">Stock
-                                            Out</option>
-                                    </select>
-                                </label>
+                                <form class="adm-mini-form"
+                                      method="post"
+                                      action="{{ url_for('admin.admin_inventory_edit', item_id=row.id) }}">
 
-                                <label>
-                                    Quantity ({{ row.unit }})
-                                    <input type="number"
-                                        name="quantity_change"
-                                        min="0.001"
-                                        step="0.001"
-                                        required>
-                                </label>
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
 
-                                <label>
-                                    Reason
-                                    <input name="notes"
-                                        minlength="3"
-                                        maxlength="255"
-                                        required
-                                        placeholder="e.g. Supplier delivery">
-                                </label>
+                                    <label>
+                                        Item name
+                                        <input name="item_name"
+                                               value="{{ row.item_name }}"
+                                               minlength="2"
+                                               maxlength="180" required>
+                                    </label>
 
-                                <button type="submit"
-                                    class="adm-action-button">
-                                    Record Movement
-                                </button>
-                            </form>
-                        </details>
+                                    <label>
+                                        Category
+                                        <select name="category_id" required>
+                                            {% for cat in categories %}
+                                            <option value="{{ cat.id }}"
+                                                    {% if cat.id == row.category_id %}selected{% endif %}>
+                                                {{ cat.name }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+
+                                    <label>
+                                        SKU (optional)
+                                        <input name="sku" maxlength="50"
+                                               value="{{ row.sku or '' }}">
+                                    </label>
+
+                                    <label>
+                                        Reorder level ({{ row.unit }})
+                                        <input type="number"
+                                               name="reorder_level"
+                                               min="0"
+                                               max="999999999.999"
+                                               step="0.001"
+                                               value="{{ row.reorder_level }}"
+                                               required>
+                                    </label>
+
+                                    <p class="ip-inventory-note">
+                                        Type:
+                                        {{ row.item_type|replace('_', ' ')|title }}
+                                        Â· Unit: {{ row.unit }}.
+                                        These remain unchanged to protect
+                                        existing recipes and stock records.
+                                    </p>
+
+                                    <button type="submit" class="adm-primary-btn">
+                                        Save Changes
+                                    </button>
+                                </form>
+                            </details>
+
+                            <!-- STOCK IN / OUT -->
+
+                            <details class="adm-detail-toggle"
+                                     data-modal-title="Record Stock Movement">
+                                <summary>Stock In / Out</summary>
+
+                                <form class="adm-mini-form"
+                                      method="post"
+                                      action="{{ url_for('admin.admin_inventory_movement', item_id=row.id) }}">
+
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
+
+                                    <p class="ip-inventory-note">
+                                        Current stock:
+                                        <strong>
+                                            {{ row.quantity_on_hand }}
+                                            {{ row.unit }}
+                                        </strong>
+                                    </p>
+
+                                    <label>
+                                        Movement
+                                        <select name="movement_type" required>
+                                            <option value="stock_in">Stock In</option>
+                                            <option value="stock_out">Stock Out</option>
+                                        </select>
+                                    </label>
+
+                                    <label>
+                                        Quantity ({{ row.unit }})
+                                        <input type="number"
+                                               name="quantity_change"
+                                               min="0.001"
+                                               step="0.001"
+                                               placeholder="0.000"
+                                               required>
+                                    </label>
+
+                                    <label>
+                                        Reason
+                                        <input name="notes"
+                                               minlength="3"
+                                               maxlength="255"
+                                               placeholder="e.g. Supplier delivery"
+                                               required>
+                                    </label>
+
+                                    <button type="submit" class="adm-primary-btn">
+                                        Record Movement
+                                    </button>
+                                </form>
+                            </details>
+
+                        </div>
                     </td>
                 </tr>
 
@@ -710,9 +725,98 @@
     </div>
 </section>
 
+<!-- ==========================================
+     STOCK MOVEMENT HISTORY
+     ========================================== -->
+
+<section class="adm-panel adm-console-panel">
+    <div class="ip-inventory-heading">
+        <div>
+            <h2>Stock Movement History</h2>
+            <p class="adm-console-muted">
+                Track stock-in, stock-out and automatic recipe consumption.
+            </p>
+        </div>
+    </div>
+
+    <div class="adm-table-scroll">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Movement</th>
+                    <th>Item</th>
+                    <th>Type</th>
+                    <th>Change</th>
+                    <th>Before</th>
+                    <th>After</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>#{{ movement.id }}</td>
+
+                    <td>
+                        <strong>{{ movement.item_name }}</strong>
+                    </td>
+
+                    <td>
+                        {{ movement.movement_type|replace('_', ' ')|title }}
+                    </td>
+
+                    <td>
+                        <span class="ip-stock-change {{ 'positive' if movement.quantity_change > 0 else 'negative' }}">
+                            {% if movement.quantity_change > 0 %}+{% endif %}
+                            {{ movement.quantity_change }}
+                            {{ movement.unit }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ movement.quantity_before }}
+                        {{ movement.unit }}
+                    </td>
+
+                    <td>
+                        {{ movement.quantity_after }}
+                        {{ movement.unit }}
+                    </td>
+
+                    <td class="adm-console-wrap">
+                        {{ movement.notes  }}
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="7" class="adm-empty-cell">
+                        No stock movements recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MOVEMENT HISTORY PAGINATION -->
+
+    {% with
+        page=movement_page,
+        pages=movement_pages,
+        total=movement_total,
+        pager_param='mov_page'
+    %}
+        {% include "admin_pagination.html" %}
+    {% endwith %}
+</section>
+
 {% elif section == 'insights' %}
 
-<!-- ANALYTICS -->
+<!-- ==========================================
+     ANALYTICS / INSIGHTS
+     ========================================== -->
 
 <div class="adm-stats-grid">
 
@@ -737,12 +841,14 @@
     <div class="adm-stat-card">
         <span class="adm-stat-label">Completed Order Value</span>
         <strong>
-            ₱{{ '%.2f'|format(overview.completed_value or 0) }}
+            â‚±{{ '%.2f'|format(overview.completed_value or 0) }}
         </strong>
         <small>Not necessarily collected payments</small>
     </div>
 
 </div>
+
+<!-- MOST ORDERED PRODUCTS -->
 
 <section class="adm-panel adm-console-panel">
     <h2>Most Ordered Products</h2>
@@ -766,8 +872,9 @@
                 <tr>
                     <td>{{ row.name }}</td>
                     <td>{{ row.units }}</td>
-                    <td>₱{{ '%.2f'|format(row.amount) }}</td>
+                    <td>â‚±{{ '%.2f'|format(row.amount) }}</td>
                 </tr>
+
                 {% else %}
                 <tr>
                     <td colspan="3" class="adm-empty-cell">
@@ -780,8 +887,10 @@
     </div>
 </section>
 
+<!-- ORDER ACTIVITY TABLE -->
+
 <section class="adm-panel adm-console-panel">
-    <h2>Order Activity — Last 7 Days</h2>
+    <h2>Order Activity Last 7 Days</h2>
 
     <div class="adm-table-scroll">
         <table class="adm-table">
@@ -798,8 +907,9 @@
                 <tr>
                     <td>{{ row.order_day }}</td>
                     <td>{{ row.orders }}</td>
-                    <td>₱{{ '%.2f'|format(row.value or 0) }}</td>
+                    <td>â‚±{{ '%.2f'|format(row.value or 0) }}</td>
                 </tr>
+
                 {% else %}
                 <tr>
                     <td colspan="3" class="adm-empty-cell">
@@ -812,14 +922,15 @@
     </div>
 </section>
 
-<!-- ANALYTICS CHARTS -->
+<!-- ==========================================
+     ANALYTICS CHARTS
+     ========================================== -->
 
 <div class="adm-overview-grid">
 
     <!-- TOP SELLING PRODUCTS -->
 
     <section class="adm-panel adm-console-panel">
-
         <h2>Top Products by Quantity Sold</h2>
 
         <p class="adm-console-muted">
@@ -827,215 +938,190 @@
         </p>
 
         {% if top %}
-
         {% set maximum = top|map(attribute='units')|max %}
 
         <div class="adm-chart-list">
-
             {% for product in top %}
 
             <div class="adm-chart-item">
-
                 <div class="adm-chart-info">
-
-                    <span>
-                        {{ product.name }}
-                    </span>
-
-                    <strong>
-                        {{ product.units }} sold
-                    </strong>
-
+                    <span>{{ product.name }}</span>
+                    <strong>{{ product.units }} sold</strong>
                 </div>
 
                 <progress
                     class="adm-chart-progress"
                     value="{{ product.units }}"
                     max="{{ maximum }}"
-                    aria-label="{{ product.name }}: {{ product.units }} units sold"></progress>
-
-                {% endfor %}
-
+                    aria-label="{{ product.name }}: {{ product.units }} units sold">
+                </progress>
             </div>
 
-            {% else %}
+            {% endfor %}
+        </div>
 
-            <p class="adm-console-muted">
-                No completed orders to visualize yet.
-            </p>
+        {% else %}
+        <p class="adm-console-muted">
+            No completed orders to visualize yet.
+        </p>
+        {% endif %}
+    </section>
 
-            {% endif %}
+    <!-- DAILY ORDER ACTIVITY -->
 
-        </section>
+    <section class="adm-panel adm-console-panel">
+        <h2>Daily Order Activity</h2>
 
-        <!-- ORDER ACTIVITY -->
+        <p class="adm-console-muted">
+            Recorded orders during the last 7 days.
+        </p>
 
-        <section class="adm-panel adm-console-panel">
+        {% if recent %}
+        {% set maximum_orders = recent|map(attribute='orders')|max %}
 
-            <h2>Daily Order Activity</h2>
+        <div class="adm-chart-list">
+            {% for day in recent %}
 
-            <p class="adm-console-muted">
-                Recorded orders during the last 7 days.
-            </p>
-
-            {% if recent %}
-
-            {% set maximum_orders = recent|map(attribute='orders')|max %}
-
-            <div class="adm-chart-list">
-
-                {% for day in recent %}
-
-                <div class="adm-chart-item">
-
-                    <div class="adm-chart-info">
-
-                        <span>
-                            {{ day.order_day }}
-                        </span>
-
-                        <strong>
-                            {{ day.orders }} orders
-                        </strong>
-
-                    </div>
-
-                    <progress
-                        class="adm-chart-progress"
-                        value="{{ day.orders }}"
-                        max="{{ maximum_orders }}"
-                        aria-label="{{ day.order_day }}: {{ day.orders }} orders"></progress>
-
-                    {% else %}
-
-                    <p class="adm-console-muted">
-                        No orders recorded in the last 7 days.
-                    </p>
-
-                    {% endif %}
-
-                </section>
-
-            </div>
-
-            {% elif section == 'activity' %}
-
-            <!-- AUDIT HISTORY -->
-
-            <section class="adm-panel">
-                <div class="adm-table-scroll">
-                    <table class="adm-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Administrator</th>
-                                <th>Action</th>
-                                <th>Record</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {% for row in rows %}
-                            <tr>
-                                <td>{{ row.created_at }}</td>
-                                <td>{{ row.actor|trim or 'System' }}</td>
-                                <td>
-                                    {{ row.action|replace('_', ' ')|title }}
-                                </td>
-                                <td>
-                                    {{ row.entity_name }}
-                                    #{{ row.entity_id or '—' }}
-                                </td>
-                                <td class="adm-console-wrap">
-                                    {{ row.details or '—' }}
-                                </td>
-                            </tr>
-
-                            {% else %}
-                            <tr>
-                                <td colspan="5" class="adm-empty-cell">
-                                    No admin activity recorded.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="adm-chart-item">
+                <div class="adm-chart-info">
+                    <span>{{ day.order_day }}</span>
+                    <strong>{{ day.orders }} orders</strong>
                 </div>
-            </section>
 
-            {% elif section == 'reports' %}
-
-            <!-- REPORT EXPORTS -->
-
-            <div class="adm-quick-grid">
-
-                <a class="adm-quick-card"
-                    href="{{ url_for('admin.admin_export', kind='products') }}">
-                    <span class="adm-quick-icon">▤</span>
-                    <strong>Products CSV</strong>
-                    <p>
-                        Export product names, categories, prices,
-                        and availability.
-                    </p>
-                </a>
-
-                <a class="adm-quick-card"
-                    href="{{ url_for('admin.admin_export', kind='orders') }}">
-                    <span class="adm-quick-icon">▦</span>
-                    <strong>Orders CSV</strong>
-                    <p>
-                        Export order totals, statuses,
-                        and payment methods.
-                    </p>
-                </a>
-
-                <a class="adm-quick-card"
-                    href="{{ url_for('admin.admin_export', kind='inventory') }}">
-                    <span class="adm-quick-icon">▧</span>
-                    <strong>Inventory CSV</strong>
-                    <p>
-                        Export stock quantities, units, SKU,
-                        and reorder thresholds.
-                    </p>
-                </a>
-
+                <progress
+                    class="adm-chart-progress"
+                    value="{{ day.orders }}"
+                    max="{{ maximum_orders }}"
+                    aria-label="{{ day.order_day }}: {{ day.orders }} orders">
+                </progress>
             </div>
 
-            <p class="adm-console-muted">
-                Exports include up to 10,000 records per report.
-                Only administrators can access them.
-            </p>
+            {% endfor %}
+        </div>
 
-            {% endif %}
+        {% else %}
+        <p class="adm-console-muted">
+            No orders recorded in the last 7 days.
+        </p>
+        {% endif %}
+    </section>
 
-            <!-- PAGINATION -->
+</div>
 
-            {% if section in ['orders', 'customers', 'inventory'] and pages > 1
-            %}
+{% elif section == 'activity' %}
 
-            <nav class="adm-console-pagination" aria-label="Pagination">
+<!-- ==========================================
+     AUDIT HISTORY
+     ========================================== -->
 
-                {% if page > 1 %}
-                <a
-                    href="?page={{ page-1 }}&q={{ q|urlencode }}{% if status is defined %}&status={{ status|urlencode }}{% endif %}">
-                    ← Previous
-                </a>
-                {% endif %}
+<section class="adm-panel">
+    <div class="adm-table-scroll">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Administrator</th>
+                    <th>Action</th>
+                    <th>Record</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
 
-                <span>
-                    Page {{ page }} of {{ pages }} · {{ total }} records
-                </span>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.created_at }}</td>
 
-                {% if page < pages %}
-                <a
-                    href="?page={{ page+1 }}&q={{ q|urlencode }}{% if status is defined %}&status={{ status|urlencode }}{% endif %}">
-                    Next →
-                </a>
-                {% endif %}
+                    <td>
+                        {{ row.actor|trim or 'System' }}
+                    </td>
 
-            </nav>
+                    <td>
+                        {{ row.action|replace('_', ' ')|title }}
+                    </td>
 
-            {% endif %}
+                    <td>
+                        {{ row.entity_name }}
+                        #{{ row.entity_id  }}
+                    </td>
 
-            {% endblock %}
+                    <td class="adm-console-wrap">
+                        {{ row.details  }}
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="5" class="adm-empty-cell">
+                        No admin activity recorded.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% elif section == 'reports' %}
+
+<!-- ==========================================
+     REPORT EXPORTS
+     ========================================== -->
+
+<div class="adm-quick-grid">
+
+    <a class="adm-quick-card"
+       href="{{ url_for('admin.admin_export', kind='products') }}">
+        <span class="adm-quick-icon">â–¤</span>
+        <strong>Products CSV</strong>
+        <p>
+            Export product names, categories, prices
+            and availability.
+        </p>
+    </a>
+
+    <a class="adm-quick-card"
+       href="{{ url_for('admin.admin_export', kind='orders') }}">
+        <span class="adm-quick-icon">â–¦</span>
+        <strong>Orders CSV</strong>
+        <p>
+            Export order totals, statuses
+            and payment methods.
+        </p>
+    </a>
+
+    <a class="adm-quick-card"
+       href="{{ url_for('admin.admin_export', kind='inventory') }}">
+        <span class="adm-quick-icon">â–§</span>
+        <strong>Inventory CSV</strong>
+        <p>
+            Export stock quantities, units, SKU
+            and reorder thresholds.
+        </p>
+    </a>
+
+</div>
+
+<p class="adm-console-muted">
+    Exports include up to 10,000 records per report.
+    Only administrators can access them.
+</p>
+
+{% endif %}
+
+<!-- ==========================================
+     REUSABLE CENTERED PAGINATION
+     ========================================== -->
+
+{% if section in [
+    'categories',
+    'orders',
+    'customers',
+    'inventory',
+    'areas',
+    'activity'
+] %}
+    {% include "admin_pagination.html" %}
+{% endif %}
+
+{% endblock %}

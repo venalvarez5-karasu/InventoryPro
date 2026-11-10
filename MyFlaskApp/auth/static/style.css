@@ -158,10 +158,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     }
 }
 
-/* ===========================
-   EMAIL OTP VERIFICATION
-   =========================== */
-
+   /* EMAIL OTP VERIFICATION */
 .otp-input {
     width: 100%;
     text-align: center;
@@ -196,10 +193,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     color: #483474;
 }
 
-/* ========================================
-   REAL-TIME REGISTRATION VALIDATION
-   ======================================== */
-
+   /* REAL-TIME REGISTRATION VALIDATION */
 /* Valid input */
 .auth-form input.is-valid:not([type="checkbox"]) {
     border: 2px solid #16a34a !important;
@@ -261,7 +255,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 
 .password-rules li::before {
-    content: "○";
+    content: "â—‹";
     font-size: 14px;
     font-weight: bold;
 }
@@ -271,7 +265,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 
 .password-rules li.passed::before {
-    content: "✓";
+    content: "âœ“";
 }
 
 .password-rules li.failed {
@@ -279,13 +273,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 
 .password-rules li.failed::before {
-    content: "×";
+    content: "Ã";
 }
 
-/* ========================================
-   COMPACT REGISTER FORM SPACING
-   ======================================== */
-
+   /* COMPACT REGISTER FORM SPACING */
 #register-form {
     gap: 0 !important;
 }
@@ -375,7 +366,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 
 #register-form .password-rules li::before {
-    content: "○";
+    content: "â—‹";
     font-size: 13px;
     color: #877d98;
 }
@@ -385,7 +376,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 
 #register-form .password-rules li.passed::before {
-    content: "●";
+    content: "â—";
     color: #16a34a;
 }
 
@@ -394,7 +385,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 
 #register-form .password-rules li.failed::before {
-    content: "○";
+    content: "â—‹";
     color: #dc2626;
 }
 
