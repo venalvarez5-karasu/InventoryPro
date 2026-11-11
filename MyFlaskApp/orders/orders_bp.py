@@ -89,8 +89,6 @@ def order_list():
     )
 
 
-@orders_bp.route("/<int:order_id>")
-
 # ==========================================
 # CUSTOMER - SUBMIT PICKUP DEPOSIT REFERENCE
 # ==========================================
@@ -125,7 +123,7 @@ def submit_pickup_deposit(order_id):
 
         return redirect(
             url_for(
-                "orders.order_list",
+                "orders.order_detail",
                 order_id=order_id
             )
         )
@@ -269,13 +267,13 @@ def submit_pickup_deposit(order_id):
 
     return redirect(
         url_for(
-            "orders.order_list",
+            "orders.order_detail",
             order_id=order_id
         )
     )
 
+@orders_bp.route("/<int:order_id>", methods=["GET"])
 def order_detail(order_id):
-
     user_id = get_user_id()
 
     if not user_id:
@@ -289,7 +287,7 @@ def order_detail(order_id):
             url_for(
                 "auth.login",
                 next=url_for(
-                    "orders.order_list",
+                    "orders.order_detail",
                     order_id=order_id
                 )
             )
@@ -338,8 +336,9 @@ def order_detail(order_id):
     )
 
     return render_template(
-        "order_detail.html",
-        order=orders[0],
-        items=items,
-        title="Order Details",
-    )
+    "order_detail.html",
+    order=orders[0],
+    items=items,
+    payments=payments,
+    title="Order Details",
+)
