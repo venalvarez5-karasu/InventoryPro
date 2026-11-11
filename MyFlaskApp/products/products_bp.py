@@ -157,16 +157,22 @@ def browse():
 
 # PRODUCT DETAILS
 
+# ==========================================
+# PRODUCT DETAILS
+# ==========================================
+
 @products_bp.route("/<string:slug>")
 def product_detail(slug):
 
     cursor = mysql.connection.cursor(DictCursor)
 
     try:
+        # Get selected product.
         cursor.execute(
             """
             SELECT
                 p.id,
+                p.category_id,
                 p.name,
                 p.slug,
                 p.description,
@@ -189,19 +195,62 @@ def product_detail(slug):
 
             LIMIT 1
             """,
-            (slug,),
+            (slug,)
         )
 
         product = cursor.fetchone()
 
+        if not product:
+            abort(404)
+
+        # Recommend up to four other products.
+        # Prioritize products in the same category.
+        # Fill remaining slots from other categories.
+        cursor.execute(
+            """
+            SELECT
+                p.id,
+                p.name,
+                p.slug,
+                p.price,
+                p.image_path,
+                p.is_available,
+                c.name AS category_name,
+                c.slug AS category_slug
+
+            FROM products p
+
+            INNER JOIN product_categories c
+                ON p.category_id = c.id
+
+            WHERE p.id <> %s
+              AND p.is_active = 1
+              AND c.is_active = 1
+
+            ORDER BY
+                CASE
+                    WHEN p.category_id = %s THEN 0
+                    ELSE 1
+                END ASC,
+                p.is_available DESC,
+                p.id ASC
+
+            LIMIT 4
+            """,
+            (
+                product["id"],
+                product["category_id"]
+            )
+        )
+
+        related_products = cursor.fetchall()
+
     finally:
         cursor.close()
-
-    if not product:
-        abort(404)
 
     return render_template(
         "product_detail.html",
         title=product["name"],
         product=product,
+        related_products=related_products
     )

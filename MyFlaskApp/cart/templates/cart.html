@@ -15,9 +15,9 @@
         <h1>Shopping Cart</h1>
         <p>Review your bakery favorites before checkout.</p>
         <p id="ip-cart-save-status"
-   role="status"
-   aria-live="polite"
-   hidden></p>
+            role="status"
+            aria-live="polite"
+            hidden></p>
     </div>
 
     {% if items %}
@@ -40,6 +40,8 @@
 
             <article class="ip-cart-item">
 
+                <!-- PRODUCT -->
+
                 <div class="ip-cart-product">
 
                     <a
@@ -52,9 +54,7 @@
                             alt="{{ item.name }}"
                             loading="lazy">
                         {% else %}
-                        <span aria-hidden="true">
-                            {{ item.name[:1] }}
-                        </span>
+                        <span>{{ item.name[:1] }}</span>
                         {% endif %}
 
                     </a>
@@ -67,9 +67,7 @@
                         </a>
 
                         {% if item.is_active and item.is_available %}
-                        <small class="ip-cart-available">
-                            Available
-                        </small>
+                        <small class="ip-cart-available">Available</small>
                         {% else %}
                         <small class="ip-cart-unavailable">
                             Currently unavailable
@@ -77,30 +75,28 @@
                         {% endif %}
 
                     </div>
-
                 </div>
 
+                <!-- UNIT PRICE -->
+
                 <span class="ip-cart-price">
-                    &#8369;{{ "%.2f"|format(item.price) }}
+                    &#8369;{{ '%.2f'|format(item.price) }}
                 </span>
 
-                <!-- EXISTING UPDATE ROUTE -->
+                <!-- QUANTITY -->
 
                 <form
                     method="post"
                     action="{{ url_for('cart.update_cart') }}"
                     class="ip-cart-quantity-form"
                     data-cart-quantity-form
-                    data-unit-price="{{ '%.2f'|format(item.price) }}"
-                    ></form>
+                    data-unit-price="{{ '%.2f'|format(item.price) }}">
 
-                    <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}">
+                    <input type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
 
-                    <input
-                        type="hidden"
+                    <input type="hidden"
                         name="product_id"
                         value="{{ item.id }}">
 
@@ -134,34 +130,33 @@
 
                 </form>
 
-                <<strong class="ip-cart-line-total" data-cart-line-total>
-                    &#8369;{{ "%.2f"|format(item.line_total) }}
+                <!-- PRODUCT SUBTOTAL -->
+
+                <strong class="ip-cart-line-total"
+                    data-cart-line-total>
+                    &#8369;{{ '%.2f'|format(item.line_total) }}
                 </strong>
 
-                <!-- REMOVE USING EXISTING ROUTE -->
+                <!-- REMOVE PRODUCT -->
 
                 <form
                     method="post"
                     action="{{ url_for('cart.update_cart') }}"
                     class="ip-cart-remove-form">
 
-                    <input
-                        type="hidden"
+                    <input type="hidden"
                         name="csrf_token"
                         value="{{ csrf_token() }}">
 
-                    <input
-                        type="hidden"
+                    <input type="hidden"
                         name="product_id"
                         value="{{ item.id }}">
 
-                    <input
-                        type="hidden"
+                    <input type="hidden"
                         name="quantity"
                         value="0">
 
-                    <button
-                        type="submit"
+                    <button type="submit"
                         class="ip-cart-remove"
                         aria-label="Remove {{ item.name }}"
                         title="Remove product">
@@ -192,7 +187,7 @@
 
                 <div class="ip-cart-summary-row">
                     <span>Subtotal</span>
-                    <strong>
+                    <strong data-cart-subtotal>
                         &#8369;{{ "%.2f"|format(subtotal) }}
                     </strong>
                 </div>
@@ -298,7 +293,6 @@
     {% endif %}
 
 </section>
-
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -622,6 +616,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-
 
 {% endblock %}
