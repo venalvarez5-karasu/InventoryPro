@@ -6,6 +6,11 @@ import unicodedata
 from datetime import datetime
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from flask import jsonify
+import os
+import json
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
 from flask import (
     Response, abort, current_app, flash,
@@ -1087,12 +1092,209 @@ def get_delivery_fee(distance):
 
     return None
 
+# ==========================================
+# OPTIONAL AUTOMATIC ROAD DISTANCE
+# ==========================================
+
+def auto_road_distance(region_id, city):
+    """
+    Calculate a driving route from the
+    Los Banos town center to a destination
+    municipality center.
+
+    Returns None when routing is unavailable.
+    Does not overwrite existing local distances.
+    """
+
+    api_key = os.getenv("GEOAPIFY_API_KEY", "").strip()
+
+    if not api_key:
+        return None
+
+    region = db_one(
+        """
+        SELECT name
+        FROM service_regions
+        WHERE id = %s AND is_active = 1
+        """,
+        (region_id,)
+    )
+
+    if not region:
+        return None
+
+    region_name = region["name"]
+
+    # Approximate Los Banos town-center coordinates.
+    # Replace these with the bakery's verified
+    # coordinates for more accurate routing.
+    origin_lat = 14.170
+    origin_lon = 121.242
+
+    def normalize(text):
+        return "".join(
+            character
+            for character in unicodedata.normalize(
+                "NFKD", str(text).casefold()
+            )
+            if character.isalnum()
+        )
+
+    def request_json(endpoint, parameters):
+        url = endpoint + "?" + urlencode(parameters)
+
+        request_object = Request(
+            url,
+            headers={
+                "User-Agent": "InventoryPro/1.0",
+                "Accept": "application/json"
+            }
+        )
+
+        with urlopen(request_object, timeout=12) as response:
+            return json.load(response)
+
+    try:
+        if (
+            normalize(region_name).startswith("laguna")
+            and normalize(city) == "losbanos"
+        ):
+            return Decimal("0.00")
+
+        # Find coordinates of the selected city.
+        result = request_json(
+            "https://api.geoapify.com/v1/geocode/search",
+            {
+                "text": (
+                    f"{city}, {region_name}, Philippines"
+                ),
+                "filter": "countrycode:ph",
+                "limit": 5,
+                "apiKey": api_key
+            }
+        )
+
+        features = result.get("features", [])
+
+        selected = None
+        expected_city = normalize(city)
+
+        region_check = (
+            "metro manila"
+            if "ncr" in region_name.casefold()
+            else region_name.casefold()
+        )
+
+        for feature in features:
+            properties = feature.get("properties", {})
+
+            names = [
+                properties.get("city", ""),
+                properties.get("name", ""),
+                properties.get("municipality", ""),
+                properties.get("town", "")
+            ]
+
+            location_text = " ".join(
+                str(properties.get(field, ""))
+                for field in (
+                    "formatted",
+                    "county",
+                    "state",
+                    "suburb"
+                )
+            ).casefold()
+
+            matching_city = any(
+                normalize(name) == expected_city
+                for name in names
+            )
+
+            matching_region = (
+                region_check in location_text
+            )
+
+            if matching_city and matching_region:
+                selected = feature
+                break
+
+        if selected is None:
+            return None
+
+        coordinates = selected["geometry"]["coordinates"]
+
+        destination_lon = float(coordinates[0])
+        destination_lat = float(coordinates[1])
+
+        # Reject coordinates outside the Philippines.
+        if not (
+            116 <= destination_lon <= 127
+            and 5 <= destination_lat <= 21
+        ):
+            return None
+
+        # Calculate actual route length along roads.
+        route = request_json(
+            "https://api.geoapify.com/v1/routing",
+            {
+                "waypoints": (
+                    f"{origin_lat},{origin_lon}|"
+                    f"{destination_lat},{destination_lon}"
+                ),
+                "mode": "drive",
+                "format": "json",
+                "apiKey": api_key
+            }
+        )
+
+        routes = route.get("results", [])
+
+        if not routes:
+            return None
+
+        distance_meters = Decimal(
+            str(routes[0]["distance"])
+        )
+
+        if not distance_meters.is_finite():
+            return None
+
+        distance_km = (
+            distance_meters / Decimal("1000")
+        ).quantize(
+            Decimal("0.01"),
+            rounding=ROUND_HALF_UP
+        )
+
+        if not 0 <= distance_km <= 99999.99:
+            return None
+
+        return distance_km
+
+    except (
+        HTTPError,
+        URLError,
+        TimeoutError,
+        ValueError,
+        KeyError,
+        TypeError,
+        IndexError,
+        InvalidOperation
+    ):
+        current_app.logger.warning(
+            "Automatic road routing unavailable for %s, %s",
+            city,
+            region_name
+        )
+
+        return None
+
 
 def lookup_delivery_distance(region_id, city):
     """Look up a previously saved local route estimate."""
 
     if not region_id or not city:
-        return None
+        return auto_road_distance(region_id, city)
 
     result = db_one(
         """

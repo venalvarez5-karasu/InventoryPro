@@ -415,3 +415,22 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     cursor: not-allowed;
 }
 
+
+/* FINAL PASSWORD REQUIREMENT ICON FIX */
+
+#register-form .password-rules li::before {
+    content: "\25CB" !important;
+    color: #90849e;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#register-form .password-rules li.passed::before {
+    content: "\2713" !important;
+    color: #15803d;
+}
+
+#register-form .password-rules li.failed::before {
+    content: "\25CB" !important;
+    color: #dc2626;
+}

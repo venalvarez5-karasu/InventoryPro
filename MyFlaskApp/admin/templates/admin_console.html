@@ -341,358 +341,342 @@
 
 {% elif section == 'areas' %}
 
-<!-- ==========================================
-     LOCAL DISTANCE LOOKUP CONFIG
-     ========================================== -->
+<div id="adm-distance-config"
+     data-lookup-url="{{ url_for('admin.admin_delivery_distance_lookup') }}"
+     hidden></div>
 
-<div
-    id="adm-distance-config"
-    data-lookup-url="{{ url_for('admin.admin_delivery_distance_lookup') }}"
-    hidden>
-</div>
+<div class="adm-delivery-page">
 
-<!-- ==========================================
-     ADD DELIVERY AREA
-     ========================================== -->
+    <!-- ADD DELIVERY AREA -->
 
-<section class="adm-panel adm-console-panel">
-    <h2>Add a Delivery Area</h2>
+    <section class="adm-panel adm-delivery-editor">
 
-    <p class="adm-console-muted">
-        Shipping fees follow the approved distance tiers.
-        Saved local distances are filled automatically.
-    </p>
+        <div class="adm-delivery-heading">
+            <div>
+                <h2>Add Delivery Area</h2>
+                <p>Select a destination and configure delivery availability.</p>
+            </div>
 
-    <form
-        class="adm-flex-form adm-distance-form"
-        data-distance-form
-        method="post"
-        action="{{ url_for('admin.admin_delivery_areas') }}">
-
-        <input type="hidden"
-               name="csrf_token"
-               value="{{ csrf_token() }}">
-
-        <input type="hidden"
-               name="action"
-               value="add">
-
-        <!-- FIXED ORIGIN -->
-
-        <div class="adm-delivery-origin">
-            <span class="adm-delivery-section-label">
-                From / Bakery Origin
-            </span>
-
-            <div class="adm-delivery-origin-grid">
-                <div>
-                    <small>Province</small>
-                    <strong>Laguna</strong>
-                </div>
-
-                <div>
-                    <small>City / Municipality</small>
-                    <strong>Los Ba&ntilde;os</strong>
-                </div>
+            <div class="adm-delivery-origin-chip">
+                <span>FROM</span>
+                <strong>Los Ba&ntilde;os, Laguna</strong>
             </div>
         </div>
 
-        <div class="adm-delivery-section-label">
-            To / Delivery Destination
+        <form class="adm-flex-form adm-distance-form"
+              data-distance-form
+              method="post"
+              action="{{ url_for('admin.admin_delivery_areas') }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <input type="hidden"
+                   name="action"
+                   value="add">
+
+            <div class="adm-delivery-fields">
+
+                <label class="adm-delivery-field">
+                    Province / Region
+
+                    <select name="region_id" required>
+                        <option value="">Select region</option>
+
+                        {% for region in regions %}
+                        <option value="{{ region.id }}">
+                            {{ region.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="adm-delivery-field">
+                    City / Municipality
+
+                    <input type="text"
+                           name="city_municipality"
+                           minlength="2"
+                           maxlength="100"
+                           placeholder="Select city / municipality"
+                           autocomplete="off"
+                           required>
+                </label>
+
+                <label class="adm-delivery-field">
+                    Road Distance (km)
+
+                    <input type="number"
+                           name="estimated_distance_km"
+                           min="0"
+                           max="99999.99"
+                           step="0.01"
+                           placeholder="Auto lookup or enter km">
+                </label>
+
+                <div class="adm-delivery-fee-preview"
+                     data-delivery-preview
+                     aria-live="polite">
+
+                    <span>Delivery Fee</span>
+
+                    <strong data-delivery-fee>
+                        Select destination
+                    </strong>
+
+                    <small data-delivery-note>
+                        Based on saved road distance.
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="adm-delivery-checks">
+                <label class="adm-checkbox-label">
+                    <input type="checkbox"
+                           name="is_enabled"
+                           value="1">
+                    Enable delivery
+                </label>
+
+                <label class="adm-checkbox-label">
+                    <input type="checkbox"
+                           name="cod_enabled"
+                           value="1">
+                    Allow COD
+                </label>
+            </div>
+
+            <button type="submit" class="adm-primary-btn">
+                Add Delivery Area
+            </button>
+        </form>
+
+        <details class="adm-delivery-rate-details">
+            <summary>
+                <span>View Shipping Rates</span>
+                <small>₱15–₱65 · Up to 100 km</small>
+            </summary>
+
+            <div class="adm-delivery-rate-list">
+                <span>0–5 km <strong>&#8369;15</strong></span>
+                <span>5–15 km <strong>&#8369;20</strong></span>
+                <span>15–25 km <strong>&#8369;30</strong></span>
+                <span>25–50 km <strong>&#8369;40</strong></span>
+                <span>50–75 km <strong>&#8369;50</strong></span>
+                <span>75–100 km <strong>&#8369;65</strong></span>
+            </div>
+
+            <p class="adm-delivery-rate-note">
+                Over 100 km requires a manual quotation.
+                Shipping rates are subsidized estimates.
+            </p>
+        </details>
+    </section>
+
+    <!-- CONFIGURED DELIVERY AREAS -->
+
+    <section class="adm-panel adm-delivery-list">
+
+        <div class="adm-delivery-list-heading">
+            <div>
+                <h2>Configured Delivery Areas</h2>
+                <p>Manage supported destinations and their delivery fees.</p>
+            </div>
+
+            <span class="adm-delivery-record-count">
+                {{ total }} {{ 'Area' if total == 1 else 'Areas' }}
+            </span>
         </div>
 
-        <label>
-            Province / Region
-            <select name="region_id" required>
-                <option value="">Select region</option>
+        <div class="adm-table-scroll">
+            <table class="adm-table">
 
-                {% for region in regions %}
-                <option value="{{ region.id }}">
-                    {{ region.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </label>
+                <thead>
+                    <tr>
+                        <th>Region</th>
+                        <th>City / Municipality</th>
+                        <th>Distance</th>
+                        <th>Shipping Fee</th>
+                        <th>Delivery</th>
+                        <th>COD</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-        <label>
-            City / Municipality
-            <input
-                type="text"
-                name="city_municipality"
-                minlength="2"
-                maxlength="100"
-                autocomplete="off"
-                placeholder="e.g. Manila"
-                required>
-        </label>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
 
-        <label>
-            Estimated road distance (km)
-            <input
-                type="number"
-                name="estimated_distance_km"
-                min="0"
-                max="99999.99"
-                step="0.01"
-                placeholder="Auto lookup or enter km once">
-        </label>
+                        <td>{{ row.region_name }}</td>
 
-        <div class="adm-delivery-fee-preview"
-             data-delivery-preview>
+                        <td>
+                            <strong>{{ row.city_municipality }}</strong>
+                        </td>
 
-            <span>Customer Delivery Fee</span>
+                        <td>
+                            {% if row.estimated_distance_km is not none %}
+                                {{ row.estimated_distance_km }} km
+                            {% else %}
+                                <span class="adm-delivery-muted">
+                                    Not set
+                                </span>
+                            {% endif %}
+                        </td>
 
-            <strong data-delivery-fee>
-                Select destination
-            </strong>
+                        <td>
+                            {% if row.delivery_fee is not none %}
+                                <strong>
+                                    &#8369;{{ '%.2f'|format(row.delivery_fee) }}
+                                </strong>
+                            {% else %}
+                                <span class="adm-delivery-muted">
+                                    For quotation
+                                </span>
+                            {% endif %}
+                        </td>
 
-            <small data-delivery-note>
-                The system will check locally saved distances.
-            </small>
+                        <td>
+                            <span class="adm-status {{ 'available' if row.is_enabled else 'archived' }}">
+                                {{ 'Enabled' if row.is_enabled else 'Disabled' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ 'Yes' if row.cod_enabled else 'No' }}
+                        </td>
+
+                        <td>
+                            <details class="adm-detail-toggle"
+                                     data-modal-title="Edit Delivery Area">
+
+                                <summary>Edit</summary>
+
+                                <form class="adm-mini-form adm-distance-form"
+                                      data-distance-form
+                                      data-existing-fee="{{ row.delivery_fee if row.delivery_fee is not none else '' }}"
+                                      method="post"
+                                      action="{{ url_for('admin.admin_delivery_areas') }}">
+
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           value="{{ csrf_token() }}">
+
+                                    <input type="hidden"
+                                           name="action"
+                                           value="update">
+
+                                    <input type="hidden"
+                                           name="area_id"
+                                           value="{{ row.id }}">
+
+                                    <div class="adm-delivery-modal-origin">
+                                        From Los Ba&ntilde;os, Laguna
+                                    </div>
+
+                                    <div class="adm-delivery-fields">
+
+                                        <label class="adm-delivery-field">
+                                            Province / Region
+
+                                            <select name="region_id" required>
+                                                {% for region in regions %}
+                                                <option value="{{ region.id }}"
+                                                        {% if region.id == row.region_id %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ region.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+
+                                        <label class="adm-delivery-field">
+                                            City / Municipality
+
+                                            <input type="text"
+                                                   name="city_municipality"
+                                                   value="{{ row.city_municipality }}"
+                                                   minlength="2"
+                                                   maxlength="100"
+                                                   required>
+                                        </label>
+
+                                        <label class="adm-delivery-field">
+                                            Road Distance (km)
+
+                                            <input type="number"
+                                                   name="estimated_distance_km"
+                                                   min="0"
+                                                   max="99999.99"
+                                                   step="0.01"
+                                                   value="{{ row.estimated_distance_km if row.estimated_distance_km is not none else '' }}"
+                                                   placeholder="Auto lookup or enter km">
+                                        </label>
+
+                                        <div class="adm-delivery-fee-preview"
+                                             data-delivery-preview
+                                             aria-live="polite">
+
+                                            <span>Delivery Fee</span>
+
+                                            <strong data-delivery-fee>
+                                                {% if row.delivery_fee is not none %}
+                                                    &#8369;{{ '%.2f'|format(row.delivery_fee) }}
+                                                {% else %}
+                                                    For quotation
+                                                {% endif %}
+                                            </strong>
+
+                                            <small data-delivery-note>
+                                                Based on saved distance.
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div class="adm-delivery-checks">
+                                        <label class="adm-checkbox-label">
+                                            <input type="checkbox"
+                                                   name="is_enabled"
+                                                   value="1"
+                                                   {% if row.is_enabled %}checked{% endif %}>
+                                            Enable delivery
+                                        </label>
+
+                                        <label class="adm-checkbox-label">
+                                            <input type="checkbox"
+                                                   name="cod_enabled"
+                                                   value="1"
+                                                   {% if row.cod_enabled %}checked{% endif %}>
+                                            Allow COD
+                                        </label>
+                                    </div>
+
+                                    <button type="submit"
+                                            class="adm-primary-btn">
+                                        Save Changes
+                                    </button>
+                                </form>
+                            </details>
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="7" class="adm-empty-cell">
+                            No delivery areas configured yet.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+    </section>
+</div>
 
-        <label class="adm-checkbox-label">
-            <input
-                type="checkbox"
-                name="is_enabled"
-                value="1">
-            Enable delivery
-        </label>
-
-        <label class="adm-checkbox-label">
-            <input
-                type="checkbox"
-                name="cod_enabled"
-                value="1">
-            Allow COD
-        </label>
-
-        <button type="submit" class="adm-primary-btn">
-            Add Area
-        </button>
-    </form>
-</section>
-
-<!-- ==========================================
-     DELIVERY FEE REFERENCE
-     ========================================== -->
-
-<section class="adm-panel adm-console-panel">
-
-    <h2>Approved Delivery Fee Tiers</h2>
-
-    <p class="adm-console-muted">
-        Fixed customer-facing fees for approved
-        destinations from Los Ba&ntilde;os, Laguna.
-    </p>
-
-    <div class="adm-delivery-tier-grid">
-        <div><span>0–5 km</span><strong>&#8369;15</strong></div>
-        <div><span>Over 5–15 km</span><strong>&#8369;20</strong></div>
-        <div><span>Over 15–25 km</span><strong>&#8369;30</strong></div>
-        <div><span>Over 25–50 km</span><strong>&#8369;40</strong></div>
-        <div><span>Over 50–75 km</span><strong>&#8369;50</strong></div>
-        <div><span>Over 75–100 km</span><strong>&#8369;65</strong></div>
-    </div>
-
-    <p class="adm-console-muted">
-        Beyond 100 km: manual quotation required.
-        These rates are subsidized and should be
-        reviewed against actual courier costs.
-    </p>
-</section>
-
-<!-- ==========================================
-     CONFIGURED COVERAGE
-     ========================================== -->
-
-<section class="adm-panel adm-console-panel">
-
-    <h2>Configured Delivery Areas</h2>
-
-    <div class="adm-table-scroll">
-        <table class="adm-table">
-
-            <thead>
-                <tr>
-                    <th>Region</th>
-                    <th>City</th>
-                    <th>Distance</th>
-                    <th>Delivery Fee</th>
-                    <th>Delivery</th>
-                    <th>COD</th>
-                    <th>Manage</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for row in rows %}
-                <tr>
-
-                    <td>{{ row.region_name }}</td>
-
-                    <td>
-                        <strong>{{ row.city_municipality }}</strong>
-                    </td>
-
-                    <td>
-                        {% if row.estimated_distance_km is not none %}
-                            {{ row.estimated_distance_km }} km
-                        {% else %}
-                            Not configured
-                        {% endif %}
-                    </td>
-
-                    <td>
-                        {% if row.delivery_fee is not none %}
-                            &#8369;{{ '%.2f'|format(row.delivery_fee) }}
-                        {% else %}
-                            For quotation
-                        {% endif %}
-                    </td>
-
-                    <td>
-                        <span class="adm-status {{ 'available' if row.is_enabled else 'archived' }}">
-                            {{ 'Enabled' if row.is_enabled else 'Disabled' }}
-                        </span>
-                    </td>
-
-                    <td>
-                        {{ 'Yes' if row.cod_enabled else 'No' }}
-                    </td>
-
-                    <td>
-                        <details
-                            class="adm-detail-toggle"
-                            data-modal-title="Edit Delivery Area">
-
-                            <summary>Edit</summary>
-
-                            <form
-                                class="adm-mini-form adm-distance-form"
-                                data-distance-form
-                                data-existing-fee="{{ row.delivery_fee if row.delivery_fee is not none else '' }}"
-                                method="post"
-                                action="{{ url_for('admin.admin_delivery_areas') }}">
-
-                                <input type="hidden"
-                                       name="csrf_token"
-                                       value="{{ csrf_token() }}">
-
-                                <input type="hidden"
-                                       name="action"
-                                       value="update">
-
-                                <input type="hidden"
-                                       name="area_id"
-                                       value="{{ row.id }}">
-
-                                <div class="adm-delivery-origin">
-                                    <span class="adm-delivery-section-label">
-                                        From / Bakery Origin
-                                    </span>
-
-                                    <p>
-                                        Laguna / Los Ba&ntilde;os
-                                    </p>
-                                </div>
-
-                                <label>
-                                    Province / Region
-                                    <select name="region_id" required>
-
-                                        {% for region in regions %}
-                                        <option
-                                            value="{{ region.id }}"
-                                            {% if region.id == row.region_id %}
-                                            selected
-                                            {% endif %}>
-                                            {{ region.name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </label>
-
-                                <label>
-                                    City / Municipality
-                                    <input
-                                        type="text"
-                                        name="city_municipality"
-                                        minlength="2"
-                                        maxlength="100"
-                                        value="{{ row.city_municipality }}"
-                                        required>
-                                </label>
-
-                                <label>
-                                    Estimated road distance (km)
-                                    <input
-                                        type="number"
-                                        name="estimated_distance_km"
-                                        min="0"
-                                        max="99999.99"
-                                        step="0.01"
-                                        value="{{ row.estimated_distance_km if row.estimated_distance_km is not none else '' }}"
-                                        placeholder="Enter estimated km">
-                                </label>
-
-                                <div class="adm-delivery-fee-preview"
-                                     data-delivery-preview>
-
-                                    <span>Customer Delivery Fee</span>
-
-                                    <strong data-delivery-fee>
-                                        {% if row.delivery_fee is not none %}
-                                            &#8369;{{ '%.2f'|format(row.delivery_fee) }}
-                                        {% else %}
-                                            For quotation
-                                        {% endif %}
-                                    </strong>
-
-                                    <small data-delivery-note>
-                                        The fee follows the approved distance tiers.
-                                    </small>
-                                </div>
-
-                                <label class="adm-checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        name="is_enabled"
-                                        value="1"
-                                        {% if row.is_enabled %}checked{% endif %}>
-                                    Enable delivery
-                                </label>
-
-                                <label class="adm-checkbox-label">
-                                    <input
-                                        type="checkbox"
-                                        name="cod_enabled"
-                                        value="1"
-                                        {% if row.cod_enabled %}checked{% endif %}>
-                                    Allow COD
-                                </label>
-
-                                <button type="submit"
-                                        class="adm-primary-btn">
-                                    Save Changes
-                                </button>
-
-                            </form>
-                        </details>
-                    </td>
-                </tr>
-
-                {% else %}
-                <tr>
-                    <td colspan="7" class="adm-empty-cell">
-                        No delivery areas configured yet.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</section>
 
 {% elif section == 'inventory' %}
 

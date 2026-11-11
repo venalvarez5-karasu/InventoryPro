@@ -243,8 +243,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         feedback,
                         "success",
                         isEmail
-                            ? "âœ“ Email is available."
-                            : "âœ“ Mobile number is available."
+                            ? "Email is available."
+                            : "Mobile number is available."
                     );
                 }
 
@@ -323,7 +323,7 @@ function updatePasswordRules() {
             passwordInput,
             passwordFeedback,
             "success",
-            "âœ“ Password meets all requirements."
+            "Password meets all requirements."
         );
     } else {
         paint(
@@ -365,7 +365,7 @@ function updatePasswordRules() {
                 confirmInput,
                 confirmFeedback,
                 "success",
-                "âœ“ Passwords match."
+                "Passwords match."
             );
         } else {
             confirmInput.setCustomValidity(
@@ -376,7 +376,7 @@ function updatePasswordRules() {
                 confirmInput,
                 confirmFeedback,
                 "error",
-                "âœ• Passwords do not match."
+                "Passwords do not match."
             );
         }
     }

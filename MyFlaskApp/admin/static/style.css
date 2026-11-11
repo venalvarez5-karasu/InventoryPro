@@ -3412,316 +3412,442 @@ body {
 }
 
 /* ==========================================
-   DELIVERY PRICING DESIGN
+   INVENTORYPRO - DELIVERY AREAS
+   FINAL CLEAN LAYOUT
    ========================================== */
 
-.adm-delivery-pricing-panel {
-    margin-bottom: 20px;
-}
+/* Main Delivery Areas layout */
 
-.adm-fee-rule-form {
+.adm-delivery-page {
     display: grid;
-    grid-template-columns:
-        minmax(0, 1fr)
-        minmax(0, 1fr)
-        auto;
-    gap: 12px;
-    align-items: end;
-    margin-top: 15px;
-}
-
-.adm-fee-rule-form label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-
-    color: #514260;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.adm-fee-rule-form input {
+    gap: 18px;
     width: 100%;
-    min-height: 41px;
-    padding: 9px 11px;
-
-    border: 1px solid #e3d9eb;
-    border-radius: 9px;
-    background: #fff;
-    color: #352a43;
 }
 
-.adm-fee-rule-form input:focus {
-    outline: none;
-    border-color: #a68dc1;
-    box-shadow: 0 0 0 3px rgba(118, 91, 157, 0.10);
-}
-
-.adm-fee-rule-note {
-    margin: 13px 0 0;
-    color: #84788e;
-    font-size: 11px;
-    line-height: 1.6;
-}
-
-/* Add/Edit delivery area forms */
-
-.adm-content .adm-delivery-area-form {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    align-items: start;
-}
-
-.adm-delivery-area-form > label {
-    min-width: 0;
-    min-height: 0;
+.adm-delivery-page > .adm-panel {
     margin: 0;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e6ddec;
+    border-radius: 14px;
+    box-shadow: none;
 }
 
-.adm-delivery-area-form > label.adm-checkbox-label {
-    display: inline-flex;
-    align-items: center;
-    flex-direction: row;
-    gap: 8px;
+/* Compact form card */
+
+.adm-delivery-editor {
+    padding: 24px;
 }
 
-.adm-delivery-fee-preview {
+.adm-delivery-heading,
+.adm-delivery-list-heading {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-
-    grid-column: 1 / -1;
-    padding: 12px 14px;
-
-    border: 1px solid #e7dcf0;
-    border-radius: 10px;
-
-    background: #f7f3fb;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.adm-delivery-fee-preview > span {
-    color: #7d6a90;
-    font-size: 11px;
-    font-weight: 700;
+.adm-delivery-heading {
+    margin-bottom: 22px;
 }
 
-.adm-delivery-fee-preview > strong {
-    color: #674a89;
+.adm-delivery-heading h2,
+.adm-delivery-list-heading h2 {
+    margin: 0 0 4px;
+    color: #342740;
     font-size: 17px;
     font-weight: 750;
+    letter-spacing: -0.25px;
 }
 
-.adm-delivery-fee-preview > small {
-    color: #90849c;
-    font-size: 10px;
+.adm-delivery-heading p,
+.adm-delivery-list-heading p {
+    margin: 0;
+    color: #8a7c94;
+    font-size: 11px;
     line-height: 1.5;
 }
 
-/* Make preview full-width inside centered modals */
+/* Small origin indicator */
 
-.adm-edit-dialog .adm-delivery-fee-preview {
-    grid-column: 1 / -1;
-    margin: 0;
-}
-
-/* Form submit buttons stay aligned */
-
-.adm-delivery-area-form > .adm-primary-btn {
-    justify-self: end;
-}
-
-@media (max-width: 760px) {
-    .adm-fee-rule-form {
-        grid-template-columns: 1fr;
-    }
-
-    .adm-fee-rule-form > button {
-        width: 100%;
-    }
-
-    .adm-content .adm-delivery-area-form {
-        grid-template-columns: 1fr;
-    }
-
-    .adm-delivery-fee-preview {
-        grid-column: 1 / -1;
-    }
-}
-
-/* ==========================================
-   DELIVERY AREA - FINAL COMPACT LAYOUT
-   ========================================== */
-
-.adm-content .adm-distance-form,
-.adm-edit-dialog[data-modal-kind="delivery"] .adm-distance-form {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 16px;
-    align-items: start;
-    width: 100%;
-    max-width: none;
-}
-
-.adm-distance-form > .adm-delivery-origin,
-.adm-distance-form > .adm-delivery-section-label,
-.adm-distance-form > .adm-delivery-fee-preview,
-.adm-distance-form > .adm-modal-actions {
-    grid-column: 1 / -1;
-}
-
-.adm-distance-form > label,
-.adm-edit-dialog[data-modal-kind="delivery"]
-.adm-distance-form > label:not(.adm-checkbox-label) {
+.adm-delivery-origin-chip {
     display: flex;
-    flex: none;
-    flex-direction: column;
-    grid-column: auto !important;
-    gap: 6px;
-    width: 100%;
-    min-height: 0;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-}
-
-.adm-distance-form > label.adm-checkbox-label {
-    display: inline-flex;
-    flex-direction: row;
     align-items: center;
     gap: 8px;
-    grid-column: auto;
-    min-height: 35px;
-}
-
-.adm-distance-form input:not([type="checkbox"]),
-.adm-distance-form select {
-    width: 100%;
-    min-height: 42px;
-    padding: 9px 12px;
-    border: 1px solid #e1d7eb;
+    padding: 8px 12px;
+    background: #f7f3fa;
+    border: 1px solid #e9e0ef;
     border-radius: 9px;
-    background: #fff;
-    color: #382b47;
+    white-space: nowrap;
 }
 
-.adm-delivery-origin {
-    padding: 13px 15px;
-    border: 1px solid #e9e1ef;
-    border-radius: 11px;
-    background: #fbf9fd;
-}
-
-.adm-delivery-section-label {
-    display: block;
-    color: #755b93;
-    font-size: 11px;
+.adm-delivery-origin-chip span {
+    color: #917da2;
+    font-size: 9px;
     font-weight: 800;
-    letter-spacing: .3px;
+    letter-spacing: 0.7px;
 }
 
-.adm-delivery-origin-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 9px;
-}
-
-.adm-delivery-origin-grid div {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.adm-delivery-origin-grid small {
-    color: #8b7d98;
-    font-size: 10px;
-}
-
-.adm-delivery-origin-grid strong,
-.adm-delivery-origin p {
-    margin: 0;
-    color: #42334f;
-    font-size: 12px;
+.adm-delivery-origin-chip strong {
+    color: #6c518a;
+    font-size: 11px;
     font-weight: 750;
 }
 
+/* Form arrangement */
+
+.adm-delivery-page .adm-distance-form,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-distance-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    align-items: center;
+}
+
+.adm-delivery-page .adm-delivery-fields,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+.adm-delivery-page .adm-delivery-field,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    color: #554565;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Inputs and dropdowns */
+
+.adm-delivery-page .adm-delivery-field input,
+.adm-delivery-page .adm-delivery-field select,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-field input,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-field select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 12px;
+    margin: 0;
+
+    color: #3b2e4a;
+    background: #ffffff;
+
+    border: 1px solid #e2d9eb;
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.adm-delivery-page .adm-delivery-field input:focus,
+.adm-delivery-page .adm-delivery-field select:focus,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-field input:focus,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-field select:focus {
+    border-color: #9c80ba;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(118, 91, 157, 0.08);
+}
+
+.adm-delivery-page .adm-delivery-field input::placeholder {
+    color: #a094aa;
+}
+
+/* Compact fee preview */
+
+.adm-delivery-page .adm-delivery-fee-preview,
+.adm-edit-dialog[data-modal-kind="delivery"]
 .adm-delivery-fee-preview {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding: 13px 15px;
-    border: 1px solid #e5d9ef;
-    border-radius: 11px;
-    background: #f6f1fa;
+    justify-content: center;
+    align-self: end;
+    gap: 3px;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 72px;
+    margin: 0;
+    padding: 10px 15px;
+
+    background: #f8f5fb;
+    border: 1px solid #e8dff0;
+    border-radius: 9px;
 }
 
 .adm-delivery-fee-preview span {
-    color: #806d93;
-    font-size: 11px;
+    color: #847292;
+    font-size: 10px;
     font-weight: 700;
 }
 
 .adm-delivery-fee-preview strong {
-    color: #684b8e;
-    font-size: 21px;
+    color: #694e8e;
+    font-size: 16px;
     font-weight: 750;
+    line-height: 1.35;
 }
 
 .adm-delivery-fee-preview small {
-    color: #84758f;
-    font-size: 11px;
-    line-height: 1.5;
+    color: #95879f;
+    font-size: 10px;
+    line-height: 1.35;
 }
 
-.adm-delivery-tier-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin: 13px 0;
-}
+/* Delivery and COD checkboxes */
 
-.adm-delivery-tier-grid > div {
+.adm-delivery-page .adm-delivery-checks,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-checks {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
-    padding: 12px;
-    border: 1px solid #eae1f1;
-    border-radius: 9px;
-    background: #fbf9fd;
+    gap: 12px 22px;
+    min-width: 0;
 }
 
-.adm-delivery-tier-grid span {
-    color: #786988;
+.adm-delivery-checks .adm-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    color: #5c4a6b;
+    font-size: 11px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.adm-delivery-checks input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    accent-color: #765b9d;
+}
+
+/* Buttons */
+
+.adm-delivery-page .adm-distance-form > .adm-primary-btn,
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-distance-form > .adm-primary-btn {
+    width: auto;
+    min-width: 148px;
+    min-height: 40px;
+    padding: 9px 17px;
+    justify-self: end;
+    margin: 0;
+    font-weight: 750;
+}
+
+/* Expandable rate guide */
+
+.adm-delivery-rate-details {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #f0ebf3;
+}
+
+.adm-delivery-rate-details > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    list-style: none;
+    cursor: pointer;
+}
+
+.adm-delivery-rate-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.adm-delivery-rate-details > summary span {
+    color: #6e548d;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.adm-delivery-rate-details > summary small {
+    color: #92849c;
+    font-size: 10px;
+}
+
+.adm-delivery-rate-details > summary:hover span {
+    text-decoration: underline;
+}
+
+.adm-delivery-rate-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 15px;
+}
+
+.adm-delivery-rate-list span {
+    color: #82768e;
     font-size: 11px;
 }
 
-.adm-delivery-tier-grid strong {
-    color: #684b8e;
-    font-size: 14px;
+.adm-delivery-rate-list strong {
+    color: #6b508b;
+    margin-left: 4px;
+    font-weight: 750;
+}
+
+.adm-delivery-rate-note {
+    margin: 10px 0 0;
+    color: #95899e;
+    font-size: 10px;
+}
+
+/* Configured areas */
+
+.adm-delivery-list {
+    padding: 0;
+}
+
+.adm-delivery-list-heading {
+    padding: 20px 22px 16px;
+}
+
+.adm-delivery-record-count {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #f5f0f9;
+    color: #795e95;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.adm-delivery-list .adm-table-scroll {
+    margin: 0 22px 20px;
+    border: 1px solid #eee7f3;
+    border-radius: 10px;
+    overflow-x: auto;
+}
+
+.adm-delivery-list .adm-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.adm-delivery-list .adm-table thead th {
+    padding: 13px 14px;
+    background: #f8f5fa;
+    color: #867594;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.25px;
+    white-space: nowrap;
+}
+
+.adm-delivery-list .adm-table tbody td {
+    padding: 14px;
+    font-size: 11px;
+    border-bottom: 1px solid #eee8f3;
+    vertical-align: middle;
+}
+
+.adm-delivery-list .adm-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.adm-delivery-list .adm-table tbody tr:hover {
+    background: #fdfbff;
+}
+
+.adm-delivery-list .adm-table tbody td strong {
+    color: #453551;
+    font-weight: 700;
+}
+
+.adm-delivery-muted {
+    color: #9a8ca4;
+}
+
+/* Modal adjustment - scoped to delivery only */
+
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-delivery-modal-origin {
+    grid-column: 1 / -1;
+    color: #7f6b91;
+    font-size: 11px;
+    font-weight: 700;
 }
 
 .adm-edit-dialog[data-modal-kind="delivery"]
 .adm-distance-form > .adm-modal-actions {
-    display: flex;
-    justify-content: flex-end;
+    grid-column: 1 / -1;
     width: 100%;
 }
 
-@media (max-width: 650px) {
-    .adm-content .adm-distance-form,
-    .adm-edit-dialog[data-modal-kind="delivery"] .adm-distance-form,
-    .adm-delivery-tier-grid {
+.adm-edit-dialog[data-modal-kind="delivery"]
+.adm-distance-form > .adm-delivery-fields {
+    grid-column: 1 / -1;
+}
+
+/* Responsive delivery layout */
+
+@media (max-width: 720px) {
+    .adm-delivery-editor {
+        padding: 17px;
+    }
+
+    .adm-delivery-heading {
+        align-items: flex-start;
+    }
+
+    .adm-delivery-page .adm-distance-form,
+    .adm-edit-dialog[data-modal-kind="delivery"]
+    .adm-distance-form {
         grid-template-columns: 1fr;
     }
 
-    .adm-distance-form > label {
-        grid-column: 1 / -1 !important;
+    .adm-delivery-page .adm-delivery-fields,
+    .adm-edit-dialog[data-modal-kind="delivery"]
+    .adm-delivery-fields {
+        grid-template-columns: 1fr;
     }
 
-    .adm-delivery-origin-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .adm-delivery-page .adm-distance-form > .adm-primary-btn {
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .adm-delivery-list-heading {
+        padding: 17px;
+    }
+
+    .adm-delivery-list .adm-table-scroll {
+        margin: 0 14px 15px;
+    }
+
+    .adm-delivery-rate-details > summary {
+        flex-wrap: wrap;
     }
 }
