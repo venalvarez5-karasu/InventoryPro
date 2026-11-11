@@ -1,0 +1,30 @@
+
+# Environment variables / credentials
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# Local files
+*.log
+.pytest_cache/
+location_cache/
+
+# Database backups
+*.sql
+*.sql.gz
+*.dump
+
+# Operating system
+.DS_Store
+Thumbs.db

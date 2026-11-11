@@ -34,34 +34,45 @@ def db_all(sql, args=()):
         cur.close()
 
 
-def require_staff_type(staff_type):
+def require_staff(kind):
     user = current_user()
-    staff_profile = profile(user)
+    info = profile(user)
 
-    if not staff_profile:
+    if not info or not info["is_enabled"]:
         abort(403)
 
-    if not staff_profile["is_enabled"]:
-        abort(403)
-
-    if staff_profile["staff_type"] != staff_type:
+    if info["staff_type"] != kind:
         abort(403)
 
     return user
 
 
-BASE_STYLE = """
+def pagination(total):
+    pages = max(1, (total + PER_PAGE - 1) // PER_PAGE)
+    page = request.args.get("page", 1, type=int) or 1
+    page = min(max(1, page), pages)
+
+    return page, pages, (page - 1) * PER_PAGE
+
+
+PAGE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }} | InventoryPro</title>
 <style>
-* { box-sizing:border-box; }
+* {box-sizing:border-box}
 body {
     margin:0;
-    font-family:'Segoe UI',Arial,sans-serif;
     background:#faf9fc;
     color:#30243d;
+    font-family:'Segoe UI',Arial,sans-serif;
 }
 .layout {
     display:grid;
-    grid-template-columns:210px minmax(0,1fr);
+    grid-template-columns:220px minmax(0,1fr);
     min-height:100vh;
 }
 .sidebar {
@@ -72,223 +83,417 @@ body {
 .brand {
     font-size:20px;
     font-weight:700;
-    margin-bottom:4px;
 }
-.brand-sub {
-    color:#d8c8e5;
-    font-size:11px;
-    margin-bottom:38px;
-}
-.nav-link {
+.brand small {
     display:block;
-    text-decoration:none;
-    color:#f1e9f8;
+    font-size:11px;
+    color:#d9c8e6;
+    font-weight:400;
+    margin-top:5px;
+}
+nav {margin-top:35px}
+nav a {
+    display:block;
     padding:13px;
+    margin:5px 0;
     border-radius:8px;
+    color:#f1eaf6;
     font-size:13px;
-    margin-bottom:6px;
+    text-decoration:none;
 }
-.nav-link:hover,.nav-link.active {
-    background:#6e4c8b;
+nav a:hover,nav a.active {
+    background:#71518e;
 }
-.main {padding:30px;min-width:0;}
-.header {
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:24px;
+main {
+    padding:30px;
+    min-width:0;
 }
 h1 {
     font-size:26px;
-    margin:0 0 6px;
+    margin:0 0 7px;
 }
 .subtitle {
-    color:#817489;
+    color:#81748b;
     font-size:13px;
-    margin:0;
-}
-.card {
-    background:white;
-    border:1px solid #e9e1ef;
-    border-radius:12px;
-    padding:22px;
-    margin-bottom:18px;
+    margin:0 0 25px;
 }
 .stats {
     display:grid;
     grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:12px;
+    gap:13px;
     margin-bottom:22px;
 }
-.stat {
-    background:white;
-    padding:20px;
+.stat,.panel {
+    background:#fff;
     border:1px solid #e9e1ef;
     border-radius:12px;
 }
-.stat small {
-    color:#75677d;
+.stat {padding:20px}
+.stat span {
+    color:#746681;
     font-size:12px;
 }
 .stat strong {
     display:block;
-    font-size:27px;
-    margin-top:9px;
     color:#39214e;
+    font-size:27px;
+    margin-top:10px;
 }
-.table-wrap {overflow-x:auto;}
-table {
-    width:100%;
-    border-collapse:collapse;
-    min-width:720px;
+.panel {
+    padding:21px;
+    margin-bottom:20px;
 }
-th,td {
-    padding:14px 12px;
-    text-align:left;
-    font-size:12px;
-    border-bottom:1px solid #eee9f1;
-    vertical-align:top;
-}
-th {
-    color:#72647c;
-    background:#f8f5fb;
-    font-weight:700;
-}
-td small {
-    display:block;
-    color:#817489;
-    margin-top:5px;
-    line-height:1.5;
-}
-.status {
-    display:inline-block;
-    border-radius:20px;
-    background:#f0e8f6;
-    color:#644180;
-    padding:7px 10px;
-    font-size:11px;
-    font-weight:600;
-}
-.btn {
-    display:inline-block;
-    background:#76518e;
-    color:#fff;
-    border:none;
-    padding:10px 14px;
-    border-radius:7px;
-    text-decoration:none;
-    font:600 12px 'Segoe UI',Arial,sans-serif;
-    cursor:pointer;
-}
-.btn:hover {background:#5a3c75;}
-.btn-light {
-    background:#f1eaf7;
-    color:#56396d;
+.panel h2 {
+    font-size:17px;
+    margin:0 0 18px;
 }
 .filters {
     display:flex;
-    flex-wrap:wrap;
     gap:8px;
+    flex-wrap:wrap;
     margin-bottom:18px;
 }
-.filters a {
-    font-size:12px;
-    text-decoration:none;
+.filters a,.page-btn {
     padding:9px 13px;
-    border:1px solid #e5dced;
+    border:1px solid #e4d7ed;
     border-radius:8px;
-    color:#644b75;
+    font-size:12px;
+    color:#61467b;
+    text-decoration:none;
 }
 .filters a.active {
     background:#76518e;
-    color:white;
+    border-color:#76518e;
+    color:#fff;
 }
-.actions {
+.table-wrap {overflow-x:auto}
+table {
+    width:100%;
+    min-width:720px;
+    border-collapse:collapse;
+}
+th,td {
+    text-align:left;
+    padding:14px 12px;
+    border-bottom:1px solid #eee8f2;
+    font-size:12px;
+    vertical-align:middle;
+}
+th {
+    background:#f8f5fb;
+    color:#746681;
+}
+td small {
+    display:block;
+    color:#877b90;
+    margin-top:5px;
+}
+.status {
+    display:inline-block;
+    padding:7px 10px;
+    border-radius:20px;
+    background:#f0e8f7;
+    color:#684787;
+    font-size:11px;
+}
+.btn {
+    border:0;
+    background:#76518e;
+    color:white;
+    padding:10px 13px;
+    border-radius:7px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+}
+.btn:hover {background:#5c3b75}
+.action-form {
     display:flex;
     flex-direction:column;
-    gap:8px;
-    min-width:140px;
+    gap:7px;
 }
 select {
     width:100%;
-    border:1px solid #ded3e6;
-    border-radius:7px;
     padding:9px;
+    border:1px solid #ded3e7;
+    border-radius:7px;
     background:#fff;
 }
-.pagination {
+.pager {
     display:flex;
     align-items:center;
     justify-content:space-between;
-    flex-wrap:wrap;
     gap:12px;
-    margin-top:18px;
+    flex-wrap:wrap;
+    margin-top:20px;
+}
+.pager-links {
+    display:flex;
+    gap:8px;
 }
 .empty {
-    padding:25px;
     text-align:center;
-    color:#796c84;
+    color:#84768d;
+    padding:25px;
 }
 @media(max-width:900px) {
-    .stats {grid-template-columns:repeat(2,1fr);}
+    .stats {grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:700px) {
-    .layout {display:block;}
-    .sidebar {padding:16px;}
-    .brand-sub {margin-bottom:16px;}
-    .main {padding:16px;}
-    h1 {font-size:22px;}
+    .layout {display:block}
+    .sidebar {padding:18px}
+    nav {margin-top:15px}
+    main {padding:18px}
 }
 </style>
-"""
-
-
-LAYOUT_START = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ title }} | InventoryPro</title>
-""" + BASE_STYLE + """
 </head>
 <body>
 <div class="layout">
 <aside class="sidebar">
-    <div class="brand">InventoryPro</div>
-    <div class="brand-sub">Tali's Bread &amp; Pastries</div>
+    <div class="brand">
+        InventoryPro
+        <small>Tali's Bread &amp; Pastries</small>
+    </div>
     <nav>
-        <a class="nav-link"
-           href="{{ url_for('staff.dashboard') }}">
-           Dashboard
+        <a href="{{ url_for('staff.dashboard') }}">
+            Main Dashboard
         </a>
-        <a class="nav-link"
-           href="{{ url_for('staff_extras.queue') }}">
-           Bakery Order Queue
+        {% if role == 'bakery' %}
+        <a href="{{ url_for('staff_extras.queue') }}"
+           class="{{ 'active' if page_type == 'queue' else '' }}">
+            Order Queue
         </a>
-        <a class="nav-link"
-           href="{{ url_for('staff_extras.history') }}">
-           Rider History
+        {% else %}
+        <a href="{{ url_for('staff_extras.history') }}"
+           class="{{ 'active' if page_type == 'history' else '' }}">
+            Delivery History
         </a>
+        {% endif %}
     </nav>
 </aside>
-<main class="main">
-<div class="header">
-    <div>
-        <h1>{{ title }}</h1>
-        <p class="subtitle">{{ subtitle }}</p>
+
+<main>
+<h1>{{ title }}</h1>
+<p class="subtitle">{{ subtitle }}</p>
+
+{% if page_type == 'queue' %}
+<section class="stats">
+    <div class="stat">
+        <span>Awaiting Review</span>
+        <strong>{{ stats.review }}</strong>
     </div>
-    <a class="btn btn-light"
-       href="{{ url_for('staff.dashboard') }}">
-       Back to Dashboard
-    </a>
+    <div class="stat">
+        <span>Confirmed</span>
+        <strong>{{ stats.confirmed }}</strong>
+    </div>
+    <div class="stat">
+        <span>Preparing</span>
+        <strong>{{ stats.preparing }}</strong>
+    </div>
+    <div class="stat">
+        <span>Ready</span>
+        <strong>{{ stats.ready }}</strong>
+    </div>
+</section>
+
+<section class="panel">
+<h2>Customer Orders</h2>
+
+<div class="filters">
+{% for value,label in [
+    ('all','All'),
+    ('pending_verification','For Review'),
+    ('pending','New'),
+    ('confirmed','Confirmed'),
+    ('preparing','Preparing'),
+    ('ready','Ready')
+] %}
+<a href="{{ url_for('staff_extras.queue',status=value) }}"
+   class="{{ 'active' if selected == value else '' }}">
+    {{ label }}
+</a>
+{% endfor %}
 </div>
-"""
 
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for o in rows %}
+<tr>
+<td>
+<strong>{{ o.order_number }}</strong>
+<small>{{ o.order_type|title }}</small>
+</td>
+<td>{{ o.recipient_name or 'Customer' }}</td>
+<td>₱{{ "%.2f"|format(o.total_amount) }}</td>
+<td>
+<span class="status">
+{{ o.status|replace('_',' ')|title }}
+</span>
+</td>
+<td>
+{% set next_status = {
+    'pending_verification':'pending',
+    'pending':'confirmed',
+    'confirmed':'preparing',
+    'preparing':'ready'
+}.get(o.status) %}
 
-LAYOUT_END = """
+{% if next_status %}
+<form class="action-form"
+      method="post"
+      action="{{ url_for('staff.change_status',order_id=o.id) }}"
+      onsubmit="return confirm('Continue with this order action?')">
+<input type="hidden" name="csrf_token"
+       value="{{ csrf_token() }}">
+<input type="hidden" name="status"
+       value="{{ next_status }}">
+<button class="btn" type="submit">
+{{ {
+    'pending':'Mark Reviewed',
+    'confirmed':'Accept Order',
+    'preparing':'Start Preparing',
+    'ready':'Mark Ready'
+}.get(next_status) }}
+</button>
+</form>
+
+{% elif o.status == 'ready'
+         and o.order_type == 'delivery' %}
+<form class="action-form"
+      method="post"
+      action="{{ url_for('staff.bakery_assign_rider',order_id=o.id) }}"
+      onsubmit="return confirm('Assign selected rider?')">
+<input type="hidden" name="csrf_token"
+       value="{{ csrf_token() }}">
+<select name="rider_id" required>
+<option value="">Select Rider</option>
+{% for rider in riders %}
+<option value="{{ rider.id }}"
+    {% if o.rider_user_id == rider.id %}selected{% endif %}>
+    {{ rider.first_name }} {{ rider.last_name }}
+</option>
+{% endfor %}
+</select>
+<button class="btn" type="submit">
+    {{ 'Change Rider' if o.rider_user_id else 'Assign Rider' }}
+</button>
+</form>
+
+{% elif o.status == 'ready'
+         and o.order_type == 'pickup' %}
+<form class="action-form"
+      method="post"
+      action="{{ url_for('staff.change_status',order_id=o.id) }}"
+      onsubmit="return confirm('Complete this pickup order?')">
+<input type="hidden" name="csrf_token"
+       value="{{ csrf_token() }}">
+<input type="hidden" name="status"
+       value="completed">
+<button class="btn" type="submit">Complete Pickup</button>
+</form>
+
+{% else %}
+<span class="status">No action</span>
+{% endif %}
+</td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="empty">No orders found.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div class="pager">
+<span>{{ total }} orders · Page {{ page }} of {{ pages }}</span>
+<div class="pager-links">
+{% if page > 1 %}
+<a class="page-btn"
+   href="{{ url_for('staff_extras.queue',
+                    status=selected,page=page-1) }}">
+    Previous
+</a>
+{% endif %}
+{% if page < pages %}
+<a class="page-btn"
+   href="{{ url_for('staff_extras.queue',
+                    status=selected,page=page+1) }}">
+    Next
+</a>
+{% endif %}
+</div>
+</div>
+</section>
+
+{% else %}
+
+<section class="stats">
+<div class="stat">
+    <span>Completed Deliveries</span>
+    <strong>{{ total }}</strong>
+</div>
+</section>
+
+<section class="panel">
+<h2>My Delivery Records</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Order</th>
+<th>Customer</th>
+<th>Destination</th>
+<th>Amount</th>
+<th>Ordered On</th>
+</tr>
+</thead>
+<tbody>
+{% for o in rows %}
+<tr>
+<td><strong>{{ o.order_number }}</strong></td>
+<td>{{ o.recipient_name or 'Customer' }}</td>
+<td>{{ o.delivery_address_snapshot or 'N/A' }}</td>
+<td>₱{{ "%.2f"|format(o.total_amount) }}</td>
+<td>{{ o.created_at }}</td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="empty">
+No completed deliveries yet.
+</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div class="pager">
+<span>Page {{ page }} of {{ pages }}</span>
+<div class="pager-links">
+{% if page > 1 %}
+<a class="page-btn"
+   href="{{ url_for('staff_extras.history',page=page-1) }}">
+    Previous
+</a>
+{% endif %}
+{% if page < pages %}
+<a class="page-btn"
+   href="{{ url_for('staff_extras.history',page=page+1) }}">
+    Next
+</a>
+{% endif %}
+</div>
+</div>
+</section>
+{% endif %}
 </main>
 </div>
 </body>
@@ -296,168 +501,65 @@ LAYOUT_END = """
 """
 
 
-@staff_extras_bp.get("/history")
-@role_required("staff")
-def history():
-    user = require_staff_type("rider")
-
-    total = int(db_one("""
-        SELECT COUNT(*) AS total
-        FROM orders o
-        JOIN delivery_assignments d ON d.order_id = o.id
-        WHERE d.rider_user_id = %s
-          AND o.order_type = 'delivery'
-          AND o.status = 'completed'
-    """, (user["id"],))["total"])
-
-    pages = max(1, (total + PER_PAGE - 1) // PER_PAGE)
-    page = max(1, request.args.get("page", 1, type=int) or 1)
-    page = min(page, pages)
-
-    history_rows = db_all("""
-        SELECT
-            o.order_number,
-            o.recipient_name,
-            o.delivery_address_snapshot,
-            o.total_amount,
-            o.status,
-            o.created_at
-        FROM orders o
-        JOIN delivery_assignments d ON d.order_id = o.id
-        WHERE d.rider_user_id = %s
-          AND o.order_type = 'delivery'
-          AND o.status = 'completed'
-        ORDER BY o.created_at DESC, o.id DESC
-        LIMIT %s OFFSET %s
-    """, (
-        user["id"],
-        PER_PAGE,
-        (page - 1) * PER_PAGE
-    ))
-
-    html = LAYOUT_START + """
-<section class="stats">
-    <div class="stat">
-        <small>Completed Deliveries</small>
-        <strong>{{ total }}</strong>
-    </div>
-</section>
-
-<section class="card">
-    <h2>Delivery Records</h2>
-    <div class="table-wrap">
-    <table>
-        <thead>
-            <tr>
-                <th>Order</th>
-                <th>Customer</th>
-                <th>Delivery Address</th>
-                <th>Amount</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for order in rows %}
-            <tr>
-                <td><strong>{{ order.order_number }}</strong></td>
-                <td>{{ order.recipient_name or 'Customer' }}</td>
-                <td>{{ order.delivery_address_snapshot or 'N/A' }}</td>
-                <td>₱{{ "%.2f"|format(order.total_amount) }}</td>
-                <td><span class="status">Completed</span></td>
-            </tr>
-        {% else %}
-            <tr><td colspan="5" class="empty">
-                No completed deliveries yet.
-            </td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    </div>
-
-    <div class="pagination">
-        <span>Page {{ page }} of {{ pages }}</span>
-        <div>
-        {% if page > 1 %}
-            <a class="btn btn-light"
-               href="{{ url_for('staff_extras.history', page=page-1) }}">
-               Previous
-            </a>
-        {% endif %}
-        {% if page < pages %}
-            <a class="btn"
-               href="{{ url_for('staff_extras.history', page=page+1) }}">
-               Next
-            </a>
-        {% endif %}
-        </div>
-    </div>
-</section>
-""" + LAYOUT_END
-
-    return render_template_string(
-        html,
-        title="Delivery History",
-        subtitle="Review your completed deliveries.",
-        rows=history_rows,
-        total=total,
-        page=page,
-        pages=pages
-    )
-
-
 @staff_extras_bp.get("/queue")
 @role_required("staff")
 def queue():
-    require_staff_type("bakery")
+    require_staff("bakery")
 
-    allowed = ("pending", "confirmed", "preparing", "ready")
+    statuses = (
+        "pending_verification",
+        "pending",
+        "confirmed",
+        "preparing",
+        "ready",
+    )
+
     selected = request.args.get("status", "all")
 
-    if selected not in allowed + ("all",):
+    if selected not in statuses + ("all",):
         selected = "all"
 
-    where = "status IN ('pending','confirmed','preparing','ready')"
-    args = []
-
-    if selected != "all":
-        where += " AND status = %s"
-        args.append(selected)
-
-    totals = db_one("""
+    stats = db_one("""
         SELECT
-            COUNT(*) AS total,
-            COALESCE(SUM(status = 'pending'),0) AS pending,
-            COALESCE(SUM(status = 'confirmed'),0) AS confirmed,
-            COALESCE(SUM(status = 'preparing'),0) AS preparing,
-            COALESCE(SUM(status = 'ready'),0) AS ready
+          COALESCE(SUM(status IN
+            ('pending_verification','pending')),0) AS review,
+          COALESCE(SUM(status='confirmed'),0) AS confirmed,
+          COALESCE(SUM(status='preparing'),0) AS preparing,
+          COALESCE(SUM(status='ready'),0) AS ready
         FROM orders
-        WHERE status IN ('pending','confirmed','preparing','ready')
     """)
 
+    if selected == "all":
+        where = """
+            o.status IN (
+                'pending_verification','pending',
+                'confirmed','preparing','ready'
+            )
+        """
+        args = []
+    else:
+        where = "o.status = %s"
+        args = [selected]
+
     total = int(db_one(
-        "SELECT COUNT(*) AS total FROM orders WHERE " + where,
+        "SELECT COUNT(*) AS total FROM orders o WHERE " + where,
         tuple(args)
     )["total"])
 
-    pages = max(1, (total + PER_PAGE - 1) // PER_PAGE)
-    page = max(1, request.args.get("page", 1, type=int) or 1)
-    page = min(page, pages)
+    page, pages, offset = pagination(total)
 
     orders = db_all("""
         SELECT
-            o.id,
-            o.order_number,
-            o.order_type,
-            o.status,
-            o.recipient_name,
-            o.total_amount,
+            o.id, o.order_number, o.order_type,
+            o.status, o.recipient_name, o.total_amount,
             d.rider_user_id
         FROM orders o
-        LEFT JOIN delivery_assignments d ON d.order_id = o.id
-        WHERE """ + where.replace("status", "o.status") + """
-        ORDER BY o.created_at DESC, o.id DESC
+        LEFT JOIN delivery_assignments d
+            ON d.order_id = o.id
+        WHERE """ + where + """
+        ORDER BY o.created_at ASC, o.id ASC
         LIMIT %s OFFSET %s
-    """, tuple(args + [PER_PAGE, (page-1)*PER_PAGE]))
+    """, tuple(args + [PER_PAGE, offset]))
 
     riders = db_all("""
         SELECT u.id, u.first_name, u.last_name
@@ -470,153 +572,64 @@ def queue():
         ORDER BY u.first_name, u.last_name
     """)
 
-    html = LAYOUT_START + """
-<div class="stats">
-    <div class="stat"><small>New</small>
-        <strong>{{ totals.pending }}</strong></div>
-    <div class="stat"><small>Confirmed</small>
-        <strong>{{ totals.confirmed }}</strong></div>
-    <div class="stat"><small>Preparing</small>
-        <strong>{{ totals.preparing }}</strong></div>
-    <div class="stat"><small>Ready</small>
-        <strong>{{ totals.ready }}</strong></div>
-</div>
+    return render_template_string(
+        PAGE,
+        title="Bakery Order Queue",
+        subtitle="Review and manage customer orders.",
+        page_type="queue",
+        role="bakery",
+        stats=stats,
+        selected=selected,
+        rows=orders,
+        riders=riders,
+        total=total,
+        page=page,
+        pages=pages
+    )
 
-<section class="card">
-<h2>Customer Orders</h2>
 
-<div class="filters">
-{% for value,label in [
-    ('all','All'),('pending','New'),
-    ('confirmed','Confirmed'),
-    ('preparing','Preparing'),('ready','Ready')
-] %}
-<a href="{{ url_for('staff_extras.queue',status=value) }}"
-   class="{{ 'active' if selected == value else '' }}">
-   {{ label }}
-</a>
-{% endfor %}
-</div>
+@staff_extras_bp.get("/history")
+@role_required("staff")
+def history():
+    user = require_staff("rider")
 
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-    <th>Order</th>
-    <th>Customer</th>
-    <th>Amount</th>
-    <th>Status</th>
-    <th>Action</th>
-</tr>
-</thead>
-<tbody>
-{% for order in orders %}
-<tr>
-<td>
-    <strong>{{ order.order_number }}</strong>
-    <small>{{ order.order_type|title }}</small>
-</td>
-<td>{{ order.recipient_name or 'Customer' }}</td>
-<td>₱{{ "%.2f"|format(order.total_amount) }}</td>
-<td>
-    <span class="status">
-        {{ order.status|replace('_',' ')|title }}
-    </span>
-</td>
-<td>
-<div class="actions">
-{% set next_status = {
-    'pending':'confirmed',
-    'confirmed':'preparing',
-    'preparing':'ready'
-}.get(order.status) %}
+    total = int(db_one("""
+        SELECT COUNT(*) AS total
+        FROM orders o
+        JOIN delivery_assignments d
+            ON d.order_id = o.id
+        WHERE d.rider_user_id = %s
+          AND o.order_type = 'delivery'
+          AND o.status = 'completed'
+    """, (user["id"],))["total"])
 
-{% if next_status %}
-<form method="post"
-      action="{{ url_for('staff.change_status',
-                         order_id=order.id) }}"
-      onsubmit="return confirm('Update order status?')">
-    <input type="hidden" name="csrf_token"
-           value="{{ csrf_token() }}">
-    <input type="hidden" name="status"
-           value="{{ next_status }}">
-    <button type="submit" class="btn">
-        {{ {
-          'confirmed':'Confirm Order',
-          'preparing':'Start Preparing',
-          'ready':'Mark Ready'
-        }.get(next_status) }}
-    </button>
-</form>
+    page, pages, offset = pagination(total)
 
-{% elif order.status == 'ready'
-       and order.order_type == 'delivery' %}
-
-<form method="post"
-      action="{{ url_for('staff.bakery_assign_rider',
-                         order_id=order.id) }}"
-      onsubmit="return confirm('Assign selected rider?')">
-    <input type="hidden" name="csrf_token"
-           value="{{ csrf_token() }}">
-    <select name="rider_id" required>
-      <option value="">Select Rider</option>
-      {% for rider in riders %}
-      <option value="{{ rider.id }}"
-        {{ 'selected' if order.rider_user_id == rider.id else '' }}>
-        {{ rider.first_name }} {{ rider.last_name }}
-      </option>
-      {% endfor %}
-    </select>
-    <button type="submit" class="btn">
-        {{ 'Update Rider' if order.rider_user_id
-           else 'Assign Rider' }}
-    </button>
-</form>
-
-{% else %}
-    <span class="status">Ready for Pickup</span>
-{% endif %}
-</div>
-</td>
-</tr>
-{% else %}
-<tr><td colspan="5" class="empty">No orders found.</td></tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-
-<div class="pagination">
-    <span>{{ total }} orders · Page {{ page }} of {{ pages }}</span>
-    <div>
-    {% if page > 1 %}
-    <a class="btn btn-light"
-       href="{{ url_for('staff_extras.queue',
-                        status=selected,page=page-1) }}">
-       Previous
-    </a>
-    {% endif %}
-    {% if page < pages %}
-    <a class="btn"
-       href="{{ url_for('staff_extras.queue',
-                        status=selected,page=page+1) }}">
-       Next
-    </a>
-    {% endif %}
-    </div>
-</div>
-</section>
-""" + LAYOUT_END
+    orders = db_all("""
+        SELECT
+            o.order_number,
+            o.recipient_name,
+            o.delivery_address_snapshot,
+            o.total_amount,
+            o.created_at
+        FROM orders o
+        JOIN delivery_assignments d
+            ON d.order_id = o.id
+        WHERE d.rider_user_id = %s
+          AND o.order_type = 'delivery'
+          AND o.status = 'completed'
+        ORDER BY o.created_at DESC, o.id DESC
+        LIMIT %s OFFSET %s
+    """, (user["id"], PER_PAGE, offset))
 
     return render_template_string(
-        html,
-        title="Bakery Order Queue",
-        subtitle="Manage customer orders and rider assignments.",
-        orders=orders,
-        riders=riders,
-        totals=totals,
+        PAGE,
+        title="Delivery History",
+        subtitle="Your completed delivery records.",
+        page_type="history",
+        role="rider",
+        rows=orders,
         total=total,
-        pages=pages,
         page=page,
-        selected=selected
+        pages=pages
     )

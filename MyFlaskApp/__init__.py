@@ -41,8 +41,8 @@ def reg_app():
     app.config["MAIL_SERVER"]   = "smtp.gmail.com"
     app.config["MAIL_PORT"]     = 587
     app.config["MAIL_USE_TLS"]  = True
-    app.config["MAIL_USERNAME"] = "zyonley28@gmail.com"
-    app.config["MAIL_PASSWORD"] = "qzlv tzwu pbgg mkjh"
+    app.config["MAIL_USERNAME"] = "venalvarez5@gmail.com"
+    app.config["MAIL_PASSWORD"] = "wxwp txje fnaz qywk"
     mail.init_app(app)
 
     # Import Blueprints

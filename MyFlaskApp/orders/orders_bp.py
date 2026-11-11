@@ -1,20 +1,25 @@
+
+import re
+from decimal import Decimal
+
 from flask import (
     Blueprint,
+    abort,
+    current_app,
+    flash,
     redirect,
     render_template,
+    request,
     url_for,
-    abort,
-    flash,
 )
 
 from MySQLdb.cursors import DictCursor
 
-from flask import request
 from MyFlaskApp import mysql
 from MyFlaskApp.auth.auth_bp import current_user
-import re
-from decimal import Decimal
-
+from MyFlaskApp.production.stock_ops import (
+    deduct_order_recipe_stock,
+)
 
 
 orders_bp = Blueprint(
@@ -24,8 +29,11 @@ orders_bp = Blueprint(
 )
 
 
-def get_user_id():
+# ==========================================
+# DATABASE HELPERS
+# ==========================================
 
+def get_user_id():
     user = current_user()
 
     if isinstance(user, dict):
@@ -35,33 +43,41 @@ def get_user_id():
 
 
 def rows(sql, args=()):
-
     cur = mysql.connection.cursor(DictCursor)
 
     try:
         cur.execute(sql, args)
         return cur.fetchall()
-
     finally:
         cur.close()
 
 
-@orders_bp.route("/")
-def order_list():
+def detail_redirect(order_id):
+    return redirect(
+        url_for(
+            "orders.order_detail",
+            order_id=order_id,
+        )
+    )
 
+
+# ==========================================
+# CUSTOMER ORDER HISTORY
+# ==========================================
+
+@orders_bp.get("/")
+def order_list():
     user_id = get_user_id()
 
     if not user_id:
-
         flash(
             "Log in to view your orders.",
-            "warning"
+            "warning",
         )
-
         return redirect(
             url_for(
                 "auth.login",
-                next=url_for("orders.order_list")
+                next=url_for("orders.order_list"),
             )
         )
 
@@ -76,7 +92,7 @@ def order_list():
             created_at
         FROM orders
         WHERE user_id = %s
-        ORDER BY created_at DESC
+        ORDER BY created_at DESC, id DESC
         LIMIT 100
         """,
         (user_id,),
@@ -90,21 +106,15 @@ def order_list():
 
 
 # ==========================================
-# CUSTOMER - SUBMIT PICKUP DEPOSIT REFERENCE
+# ORIGINAL PICKUP DEPOSIT SUBMISSION
 # ==========================================
 
-@orders_bp.route(
-    "/<int:order_id>/pickup-deposit",
-    methods=["POST"]
-)
+@orders_bp.post("/<int:order_id>/pickup-deposit")
 def submit_pickup_deposit(order_id):
-
     user_id = get_user_id()
 
     if not user_id:
-        return redirect(
-            url_for("auth.login")
-        )
+        return redirect(url_for("auth.login"))
 
     reference = request.form.get(
         "payment_reference", ""
@@ -112,21 +122,15 @@ def submit_pickup_deposit(order_id):
 
     if not re.fullmatch(
         r"[A-Z0-9-]{6,100}",
-        reference
+        reference,
     ):
         flash(
             "Enter a valid payment reference "
-            "containing 6 to 100 letters, numbers "
-            "or hyphens.",
-            "danger"
+            "containing 6 to 100 letters, "
+            "numbers or hyphens.",
+            "danger",
         )
-
-        return redirect(
-            url_for(
-                "orders.order_detail",
-                order_id=order_id
-            )
-        )
+        return detail_redirect(order_id)
 
     conn = mysql.connection
     cur = conn.cursor(DictCursor)
@@ -147,7 +151,7 @@ def submit_pickup_deposit(order_id):
               AND user_id = %s
             FOR UPDATE
             """,
-            (order_id, user_id)
+            (order_id, user_id),
         )
 
         order = cur.fetchone()
@@ -158,10 +162,12 @@ def submit_pickup_deposit(order_id):
         if (
             order["order_type"] != "pickup"
             or order["status"] not in (
-                "pending_verification", "pending"
+                "pending_verification",
+                "pending",
             )
             or order["payment_method"] not in (
-                "gcash", "bank_transfer"
+                "gcash",
+                "bank_transfer",
             )
         ):
             raise ValueError(
@@ -175,21 +181,23 @@ def submit_pickup_deposit(order_id):
 
         if deposit <= 0:
             raise ValueError(
-                "The required deposit is not configured."
+                "The required deposit is "
+                "not configured."
             )
 
-        # Do not permit another submission while
-        # a reference is being reviewed or after payment.
         cur.execute(
             """
             SELECT id, status
             FROM payments
             WHERE order_id = %s
               AND payment_purpose = 'pickup_deposit'
-              AND status IN ('pending_review', 'paid')
+              AND status IN (
+                  'pending_review',
+                  'paid'
+              )
             FOR UPDATE
             """,
-            (order_id,)
+            (order_id,),
         )
 
         if cur.fetchone():
@@ -208,14 +216,14 @@ def submit_pickup_deposit(order_id):
             """,
             (
                 order["payment_method"],
-                reference
-            )
+                reference,
+            ),
         )
 
         if cur.fetchone():
             raise ValueError(
-                "That payment reference has already "
-                "been submitted."
+                "That payment reference "
+                "has already been submitted."
             )
 
         cur.execute(
@@ -229,20 +237,18 @@ def submit_pickup_deposit(order_id):
                 payment_purpose,
                 payment_reference
             )
-            VALUES
-            (
+            VALUES (
                 %s, %s, %s,
                 'pending_review',
-                'pickup_deposit',
-                %s
+                'pickup_deposit', %s
             )
             """,
             (
                 order_id,
                 order["payment_method"],
                 deposit,
-                reference
-            )
+                reference,
+            ),
         )
 
         conn.commit()
@@ -251,7 +257,7 @@ def submit_pickup_deposit(order_id):
             "Payment reference submitted. "
             "The bakery will verify it before "
             "preparing your order.",
-            "success"
+            "success",
         )
 
     except ValueError as exc:
@@ -260,36 +266,384 @@ def submit_pickup_deposit(order_id):
 
     except Exception:
         conn.rollback()
-        raise
+        current_app.logger.exception(
+            "Pickup deposit submission failed"
+        )
+        flash(
+            "Unable to submit payment reference.",
+            "danger",
+        )
 
     finally:
         cur.close()
 
-    return redirect(
-        url_for(
-            "orders.order_detail",
-            order_id=order_id
-        )
-    )
+    return detail_redirect(order_id)
 
-@orders_bp.route("/<int:order_id>", methods=["GET"])
+
+# ==========================================
+# MOCK GCASH PAYMENT
+# LOCAL DEMONSTRATION ONLY
+# ==========================================
+
+@orders_bp.post("/<int:order_id>/mock-gcash")
+def mock_gcash_payment(order_id):
+    # IMPORTANT:
+    # This route does not send, receive, or
+    # verify any actual GCash transaction.
+    #
+    # It is deliberately disabled outside
+    # Flask debug mode.
+
+    if not current_app.debug:
+        abort(404)
+
+    user_id = get_user_id()
+
+    if not user_id:
+        return redirect(url_for("auth.login"))
+
+    raw_reference = request.form.get(
+        "payment_reference", ""
+    ).strip().upper()
+
+    if not re.fullmatch(
+        r"[A-Z0-9-]{6,40}",
+        raw_reference,
+    ):
+        flash(
+            "Enter a demo reference containing "
+            "6 to 40 letters, numbers, "
+            "or hyphens.",
+            "danger",
+        )
+        return detail_redirect(order_id)
+
+    # Prefix clearly distinguishes simulated
+    # payments from real GCash references.
+    reference = "DEMO-" + raw_reference
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        # Lock customer's order.
+        cur.execute(
+            """
+            SELECT
+                id,
+                order_number,
+                user_id,
+                order_type,
+                payment_method,
+                status,
+                total_amount,
+                pickup_deposit_due
+            FROM orders
+            WHERE id = %s
+              AND user_id = %s
+            FOR UPDATE
+            """,
+            (order_id, user_id),
+        )
+
+        order = cur.fetchone()
+
+        if not order:
+            raise ValueError(
+                "Order not found or access denied."
+            )
+
+        if order["payment_method"] != "gcash":
+            raise ValueError(
+                "Mock payment is available "
+                "only for GCash orders."
+            )
+
+        if order["status"] not in (
+            "pending_verification",
+            "pending",
+        ):
+            raise ValueError(
+                "This order has already moved "
+                "past the payment stage."
+            )
+
+        # A reference can be used only once.
+        cur.execute(
+            """
+            SELECT id
+            FROM payments
+            WHERE payment_reference = %s
+            LIMIT 1
+            """,
+            (reference,),
+        )
+
+        if cur.fetchone():
+            raise ValueError(
+                "This demo reference was already used. "
+                "Enter a different reference."
+            )
+
+        # Check existing payments before
+        # applying the mock transaction.
+        cur.execute(
+            """
+            SELECT
+                id,
+                payment_method,
+                payment_purpose,
+                status,
+                amount
+            FROM payments
+            WHERE order_id = %s
+            FOR UPDATE
+            """,
+            (order_id,),
+        )
+
+        existing = cur.fetchall()
+
+        if any(
+            p["status"] in (
+                "paid",
+                "pending_review",
+            )
+            for p in existing
+        ):
+            raise ValueError(
+                "This order already has a paid "
+                "or pending-review payment."
+            )
+
+        if order["order_type"] == "delivery":
+            amount = Decimal(
+                str(order["total_amount"] or 0)
+            ).quantize(Decimal("0.01"))
+
+            unpaid = next(
+                (
+                    p for p in existing
+                    if p["payment_method"] == "gcash"
+                    and p["status"] == "unpaid"
+                ),
+                None,
+            )
+
+            if amount <= 0:
+                raise ValueError(
+                    "Invalid order payment amount."
+                )
+
+            if unpaid:
+                cur.execute(
+                    """
+                    UPDATE payments
+                    SET
+                        status = 'paid',
+                        payment_reference = %s,
+                        paid_at = NOW()
+                    WHERE id = %s
+                      AND status = 'unpaid'
+                    """,
+                    (reference, unpaid["id"]),
+                )
+
+                if cur.rowcount != 1:
+                    raise ValueError(
+                        "Payment changed. "
+                        "Please refresh the page."
+                    )
+
+            else:
+                cur.execute(
+                    """
+                    INSERT INTO payments
+                    (
+                        order_id,
+                        payment_method,
+                        amount,
+                        status,
+                        payment_reference,
+                        paid_at
+                    )
+                    VALUES (
+                        %s, 'gcash', %s,
+                        'paid', %s, NOW()
+                    )
+                    """,
+                    (
+                        order_id,
+                        amount,
+                        reference,
+                    ),
+                )
+
+        elif order["order_type"] == "pickup":
+            # Pickup payment is the deposit only.
+            # Remaining balance stays due at pickup.
+            amount = Decimal(
+                str(
+                    order["pickup_deposit_due"] or 0
+                )
+            ).quantize(Decimal("0.01"))
+
+            if amount <= 0:
+                raise ValueError(
+                    "Pickup deposit is not configured."
+                )
+
+            cur.execute(
+                """
+                INSERT INTO payments
+                (
+                    order_id,
+                    payment_method,
+                    amount,
+                    status,
+                    payment_purpose,
+                    payment_reference,
+                    paid_at
+                )
+                VALUES (
+                    %s,
+                    'gcash',
+                    %s,
+                    'paid',
+                    'pickup_deposit',
+                    %s,
+                    NOW()
+                )
+                """,
+                (
+                    order_id,
+                    amount,
+                    reference,
+                ),
+            )
+
+        else:
+            raise ValueError(
+                "Unsupported order type."
+            )
+
+        # Reuse the EXISTING inventory logic.
+        # Same recipe deduction normally used
+        # by the bakery staff on confirmation.
+        #
+        # If stock or recipe validation fails,
+        # the entire transaction rolls back.
+        deduct_order_recipe_stock(
+            cur=cur,
+            order_id=order_id,
+            actor_id=user_id,
+        )
+
+        # Automatically confirm the order.
+        cur.execute(
+            """
+            UPDATE orders
+            SET status = 'confirmed'
+            WHERE id = %s
+              AND status IN (
+                  'pending_verification',
+                  'pending'
+              )
+            """,
+            (order_id,),
+        )
+
+        if cur.rowcount != 1:
+            raise ValueError(
+                "Order status changed. "
+                "Please refresh."
+            )
+
+        # Distinct demo audit record.
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id,
+                action,
+                entity_name,
+                entity_id,
+                details
+            )
+            VALUES (
+                %s,
+                'mock_gcash_payment',
+                'orders',
+                %s,
+                %s
+            )
+            """,
+            (
+                user_id,
+                order_id,
+                (
+                    "DEMO ONLY - No actual money "
+                    "received. Simulated GCash "
+                    f"reference {reference}; "
+                    "order automatically confirmed "
+                    "with recipe stock deduction."
+                ),
+            ),
+        )
+
+        conn.commit()
+
+        flash(
+            "DEMO PAYMENT SUCCESSFUL. "
+            "No real GCash payment was made. "
+            "Your order is now Confirmed.",
+            "success",
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+        current_app.logger.exception(
+            "Mock GCash payment failed"
+        )
+        flash(
+            "Mock payment failed. "
+            "Check the recipe, inventory stock, "
+            "or payment record.",
+            "danger",
+        )
+
+    finally:
+        cur.close()
+
+    return detail_redirect(order_id)
+
+
+# ==========================================
+# CUSTOMER ORDER DETAILS
+# ==========================================
+
+@orders_bp.get("/<int:order_id>")
 def order_detail(order_id):
     user_id = get_user_id()
 
     if not user_id:
-
         flash(
             "Log in to view your orders.",
-            "warning"
+            "warning",
         )
-
         return redirect(
             url_for(
                 "auth.login",
                 next=url_for(
                     "orders.order_detail",
-                    order_id=order_id
-                )
+                    order_id=order_id,
+                ),
             )
         )
 
@@ -319,11 +673,12 @@ def order_detail(order_id):
         """,
         (order_id,),
     )
+
     payments = rows(
-         """
-         SELECT
-             id,
-             payment_purpose,
+        """
+        SELECT
+            id,
+            payment_purpose,
             payment_method,
             payment_reference,
             amount,
@@ -332,13 +687,13 @@ def order_detail(order_id):
         WHERE order_id = %s
         ORDER BY created_at DESC, id DESC
         """,
-        (order_id,)
+        (order_id,),
     )
 
     return render_template(
-    "order_detail.html",
-    order=orders[0],
-    items=items,
-    payments=payments,
-    title="Order Details",
-)
+        "order_detail.html",
+        order=orders[0],
+        items=items,
+        payments=payments,
+        title="Order Details",
+    )

@@ -4,7 +4,181 @@
 {% block content %}
 
 <section class="container"
-         style="max-width:900px; padding:40px 20px;">
+         style="max-width:920px;padding:35px 18px 65px;">
+
+<style>
+.demo-order {
+    color:#392d42;
+}
+.demo-order a {
+    color:#76518e;
+}
+.demo-order h1 {
+    font-size:27px;
+    margin:18px 0;
+}
+.demo-order h2 {
+    font-size:18px;
+    margin:0 0 18px;
+}
+.demo-card {
+    background:#fff;
+    border:1px solid #e8e0ed;
+    border-radius:12px;
+    padding:24px;
+    margin-top:20px;
+}
+.demo-card p {
+    line-height:1.7;
+}
+.demo-details {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+}
+.demo-label {
+    color:#85768e;
+    font-size:12px;
+}
+.demo-value {
+    display:block;
+    font-weight:600;
+    margin-top:5px;
+    overflow-wrap:anywhere;
+}
+.demo-table-scroll {
+    overflow-x:auto;
+}
+.demo-table {
+    border-collapse:collapse;
+    width:100%;
+    min-width:550px;
+}
+.demo-table th,
+.demo-table td {
+    padding:13px 10px;
+    text-align:left;
+    border-bottom:1px solid #eee8f2;
+    font-size:12px;
+}
+.demo-table th {
+    background:#f9f6fb;
+    color:#756680;
+}
+.demo-total {
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    margin-top:12px;
+}
+.demo-total strong {
+    font-size:16px;
+}
+.demo-payment {
+    border:1px solid #d9c8e7;
+    background:#fbf8fd;
+    border-radius:12px;
+    padding:24px;
+    margin-top:22px;
+}
+.demo-banner {
+    background:#f2eaf8;
+    border:1px solid #d9c7e8;
+    color:#624379;
+    border-radius:8px;
+    padding:12px 14px;
+    font-weight:700;
+    font-size:12px;
+    margin-bottom:18px;
+}
+.demo-note {
+    color:#74657e;
+    line-height:1.7;
+    font-size:12px;
+}
+.demo-payment label {
+    display:block;
+    font-weight:600;
+    font-size:12px;
+    margin:18px 0 8px;
+}
+.demo-input {
+    display:block;
+    width:100%;
+    padding:13px;
+    border:1px solid #d9cde3;
+    border-radius:8px;
+    background:white;
+    font-size:14px;
+}
+.demo-input:focus {
+    outline:2px solid #b49bc7;
+    outline-offset:2px;
+}
+.demo-button {
+    display:inline-block;
+    border:0;
+    border-radius:8px;
+    background:#76518e;
+    color:white;
+    padding:13px 22px;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:16px;
+}
+.demo-button:hover {
+    background:#62417b;
+}
+.demo-success {
+    padding:15px;
+    background:#eaf7ee;
+    border:1px solid #cde7d6;
+    color:#286d43;
+    border-radius:9px;
+    line-height:1.7;
+}
+.demo-pending {
+    padding:15px;
+    background:#fff7e9;
+    border:1px solid #f1e1bf;
+    color:#85601b;
+    border-radius:9px;
+}
+.demo-reference {
+    display:block;
+    margin-top:8px;
+    font-family:monospace;
+    font-size:13px;
+    overflow-wrap:anywhere;
+}
+.demo-muted {
+    color:#81718b;
+    font-size:12px;
+}
+.demo-divider {
+    border:0;
+    border-top:1px solid #ece5f0;
+    margin:20px 0;
+}
+@media(max-width:600px) {
+    .demo-card,
+    .demo-payment {
+        padding:18px;
+    }
+    .demo-details {
+        grid-template-columns:1fr;
+    }
+    .demo-order h1 {
+        font-size:22px;
+    }
+    .demo-button {
+        width:100%;
+    }
+}
+</style>
+
+<div class="demo-order">
 
     <a href="{{ url_for('orders.order_list') }}">
         ← My Orders
@@ -12,203 +186,159 @@
 
     <h1>Order {{ order.order_number }}</h1>
 
-    <p>
-        <strong>Status:</strong>
-        {{ order.status|replace('_', ' ')|title }}
-    </p>
+    <div class="demo-card">
 
-    <p>
-        <strong>Placed:</strong>
-        {{ order.created_at }}
-    </p>
+        <h2>Order Information</h2>
 
-    <p>
-        <strong>Order Type:</strong>
-        {{ order.order_type|title }}
-    </p>
+        <div class="demo-details">
+            <div>
+                <span class="demo-label">
+                    Order Status
+                </span>
+                <strong class="demo-value">
+                    {{ order.status|replace('_',' ')|title }}
+                </strong>
+            </div>
 
-    {% if order.order_type == 'pickup' %}
+            <div>
+                <span class="demo-label">
+                    Date Placed
+                </span>
+                <strong class="demo-value">
+                    {{ order.created_at }}
+                </strong>
+            </div>
 
-    <p>
-        <strong>Pickup Date:</strong>
-        {{ order.requested_date or 'Not specified' }}
-    </p>
+            <div>
+                <span class="demo-label">
+                    Order Type
+                </span>
+                <strong class="demo-value">
+                    {{ order.order_type|title }}
+                </strong>
+            </div>
 
-    <p>
-        <strong>Pickup Time:</strong>
-        {{ order.requested_time or 'Not specified' }}
-    </p>
+            <div>
+                <span class="demo-label">
+                    Payment Method
+                </span>
+                <strong class="demo-value">
+                    {{ order.payment_method|upper }}
+                </strong>
+            </div>
 
-    {% else %}
+            {% if order.order_type == 'pickup' %}
+            <div>
+                <span class="demo-label">
+                    Pickup Date
+                </span>
+                <strong class="demo-value">
+                    {{ order.requested_date or 'Not specified' }}
+                </strong>
+            </div>
 
-    <p>
-        <strong>Delivery Address:</strong>
-        {{ order.delivery_address_snapshot }}
-    </p>
+            <div>
+                <span class="demo-label">
+                    Pickup Time
+                </span>
+                <strong class="demo-value">
+                    {{ order.requested_time or 'Not specified' }}
+                </strong>
+            </div>
+            {% else %}
+            <div style="grid-column:1/-1;">
+                <span class="demo-label">
+                    Delivery Address
+                </span>
+                <strong class="demo-value">
+                    {{ order.delivery_address_snapshot }}
+                </strong>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-    {% endif %}
+    <div class="demo-card">
+        <h2>Ordered Products</h2>
 
-    <p>
-        <strong>Payment:</strong>
-        {{ order.payment_method|upper }}
-    </p>
+        <div class="demo-table-scroll">
+            <table class="demo-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
 
-    <h2>Order Items</h2>
-
-    <div style="overflow-x:auto;">
-
-        <table style="width:100%; border-collapse:collapse;">
-
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-
-            <tbody>
+                <tbody>
                 {% for item in items %}
-
                 <tr>
-                    <td>{{ item.product_name_snapshot }}</td>
+                    <td>
+                        {{ item.product_name_snapshot }}
+                    </td>
                     <td>{{ item.quantity }}</td>
-
                     <td>
                         ₱{{ '%.2f'|format(item.unit_price) }}
                     </td>
-
                     <td>
                         ₱{{ '%.2f'|format(item.line_total) }}
                     </td>
                 </tr>
-
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
 
-    </div>
+        <div class="demo-total">
+            <span>Subtotal</span>
+            <span>
+                ₱{{ '%.2f'|format(order.subtotal) }}
+            </span>
+        </div>
 
-    <p>
-        Subtotal:
-        ₱{{ '%.2f'|format(order.subtotal) }}
-    </p>
+        <div class="demo-total">
+            <span>Delivery Fee</span>
+            <span>
+                ₱{{ '%.2f'|format(order.delivery_fee or 0) }}
+            </span>
+        </div>
 
-    <p>
-        Delivery Fee:
-        ₱{{ '%.2f'|format(order.delivery_fee) }}
-    </p>
+        <hr class="demo-divider">
 
-    <h2>
-        Total:
-        ₱{{ '%.2f'|format(order.total_amount) }}
-    </h2>
-
-    <!-- DELIVERY GCASH PAYMENT -->
-
-    {% if order.order_type == 'delivery'
-          and order.payment_method == 'gcash' %}
-
-    <section style="padding:20px; margin-top:24px;
-                    background:#faf7fc;
-                    border:1px solid #e5dcec;
-                    border-radius:12px;">
-
-        <h2>GCash Payment</h2>
-
-        <p>
-            Amount to Pay:
+        <div class="demo-total">
+            <strong>Total Amount</strong>
             <strong>
                 ₱{{ '%.2f'|format(order.total_amount) }}
             </strong>
-        </p>
+        </div>
+    </div>
 
-        {% set paid_payments = payments
-            | selectattr('status', 'equalto', 'paid')
-            | list %}
+    {% if order.payment_method == 'gcash' %}
 
-        {% set pending_payments = payments
-            | selectattr('status', 'equalto', 'pending_review')
-            | list %}
+    {% set demo_paid = payments
+        | selectattr('status','equalto','paid')
+        | selectattr(
+            'payment_reference','defined'
+          )
+        | list %}
 
-        {% if paid_payments %}
+    {% set pending_payments = payments
+        | selectattr('status','equalto','pending_review')
+        | list %}
 
+    {% set actual_paid = payments
+        | selectattr('status','equalto','paid')
+        | list %}
+
+    <section class="demo-payment">
+
+        <h2>GCash Payment</h2>
+
+        {% if order.order_type == 'pickup' %}
         <p>
-            Your GCash payment has been verified.
-        </p>
-
-        {% elif pending_payments %}
-
-        <p>
-            Your payment reference is pending
-            Admin verification.
-        </p>
-
-        {% elif order.status in [
-            'pending_verification', 'pending'
-        ] %}
-
-        <p>
-            Pay using the bakery's confirmed official
-            GCash account details. Submit the reference
-            only after making the payment.
-        </p>
-
-        <form method="post"
-              action="{{ url_for(
-                  'cart.submit_delivery_gcash_reference',
-                  order_id=order.id
-              ) }}">
-
-            <input type="hidden"
-                   name="csrf_token"
-                   value="{{ csrf_token() }}">
-
-            <label for="delivery-reference">
-                GCash Reference Number
-            </label>
-
-            <input id="delivery-reference"
-                   type="text"
-                   name="payment_reference"
-                   minlength="6"
-                   maxlength="100"
-                   pattern="[A-Za-z0-9-]{6,100}"
-                   required>
-
-            <button type="submit">
-                Submit Reference for Verification
-            </button>
-
-        </form>
-
-        {% else %}
-
-        <p>
-            This order is not accepting new
-            payment references.
-        </p>
-
-        {% endif %}
-
-    </section>
-
-    {% endif %}
-
-    <!-- STORE PICKUP GCASH DEPOSIT -->
-
-    {% if order.order_type == 'pickup' %}
-
-    <section style="padding:20px; margin-top:24px;
-                    background:#faf7fc;
-                    border:1px solid #e5dcec;
-                    border-radius:12px;">
-
-        <h2>Store Pickup Payment</h2>
-
-        <p>
-            Required GCash Downpayment:
+            Required Downpayment:
             <strong>
                 ₱{{ '%.2f'|format(
                     order.pickup_deposit_due or 0
@@ -216,97 +346,260 @@
             </strong>
         </p>
 
+        <p class="demo-note">
+            Remaining balance upon pickup:
+            ₱{{ '%.2f'|format(
+                order.pickup_balance_due or 0
+            ) }}
+        </p>
+        {% else %}
         <p>
-            Remaining Balance Upon Pickup:
+            Amount:
             <strong>
-                ₱{{ '%.2f'|format(
-                    order.pickup_balance_due or 0
-                ) }}
+                ₱{{ '%.2f'|format(order.total_amount) }}
             </strong>
         </p>
+        {% endif %}
 
-        {% set deposit_paid = payments
-            | selectattr('payment_purpose',
-                         'equalto', 'pickup_deposit')
-            | selectattr('status', 'equalto', 'paid')
-            | list %}
+        {% if actual_paid %}
 
-        {% set deposit_pending = payments
-            | selectattr('payment_purpose',
-                         'equalto', 'pickup_deposit')
-            | selectattr('status', 'equalto', 'pending_review')
-            | list %}
+            {% set payment = actual_paid[0] %}
 
-        {% if deposit_paid %}
+            {% if payment.payment_reference
+                  and payment.payment_reference.startswith('DEMO-') %}
 
-        <p>
-            Downpayment verified.
-            The bakery can now process your order.
-        </p>
+            <div class="demo-banner">
+                DEMO PAYMENT — NO REAL MONEY TRANSFERRED
+            </div>
 
-        {% elif deposit_pending %}
+            <div class="demo-success">
+                <strong>
+                    Mock payment successful!
+                </strong>
 
-        <p>
-            Your downpayment is under review.
-            Please wait for Admin verification.
-        </p>
+                <p>
+                    The simulated payment was
+                    saved to the database.
+                    Your order has been confirmed
+                    and is ready for bakery processing.
+                </p>
 
-        {% elif order.status in [
-            'pending_verification', 'pending'
-        ] and order.pickup_deposit_due %}
+                <span class="demo-reference">
+                    {{ payment.payment_reference }}
+                </span>
+            </div>
 
-        <p>
-            Pay the required downpayment to
-            the bakery's confirmed official GCash account,
-            then submit your transaction reference.
-        </p>
+            {% else %}
 
-        <form method="post"
-              action="{{ url_for(
-                  'orders.submit_pickup_deposit',
-                  order_id=order.id
-              ) }}">
+            <div class="demo-success">
+                A paid GCash record is associated
+                with this order.
+            </div>
 
-            <input type="hidden"
-                   name="csrf_token"
-                   value="{{ csrf_token() }}">
+            {% endif %}
 
-            <label for="pickup-reference">
-                GCash Reference Number
-            </label>
+        {% elif pending_payments %}
 
-            <input id="pickup-reference"
-                   type="text"
-                   name="payment_reference"
-                   minlength="6"
-                   maxlength="100"
-                   pattern="[A-Za-z0-9-]{6,100}"
-                   required>
+        <div class="demo-pending">
+            Your submitted payment reference
+            is pending administrator verification.
+        </div>
 
-            <button type="submit">
-                Submit Downpayment Reference
-            </button>
+        {% elif order.status in
+            ['pending_verification','pending'] %}
 
-        </form>
+            {% if config.DEBUG %}
+
+            <div class="demo-banner">
+                GCASH MOCK PAYMENT — DEMO ONLY
+            </div>
+
+            <p>
+                This is a simulated payment
+                for InventoryPro testing.
+            </p>
+
+            <p class="demo-note">
+                Enter any unused reference number
+                with at least 6 characters.
+                The system will simulate a successful
+                GCash payment, save it to MySQL,
+                deduct the recipe ingredients,
+                and automatically confirm the order.
+            </p>
+
+            <p class="demo-note">
+                No actual money will be sent
+                or received.
+            </p>
+
+            <form method="post"
+                  action="{{ url_for(
+                    'orders.mock_gcash_payment',
+                    order_id=order.id
+                  ) }}"
+                  data-demo-payment-form>
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label for="mock-payment-reference">
+                    Mock GCash Reference Number
+                </label>
+
+                <input
+                    id="mock-payment-reference"
+                    class="demo-input"
+                    type="text"
+                    name="payment_reference"
+                    placeholder="Example: 1234567890123"
+                    minlength="6"
+                    maxlength="40"
+                    pattern="[A-Za-z0-9-]{6,40}"
+                    autocomplete="off"
+                    required
+                >
+
+                <button type="submit"
+                        class="demo-button">
+                    Complete Mock GCash Payment
+                </button>
+            </form>
+
+            {% else %}
+
+            <p class="demo-note">
+                Submit your actual GCash reference
+                for administrator verification.
+            </p>
+
+            {% if order.order_type == 'delivery' %}
+            <form method="post"
+                  action="{{ url_for(
+                    'cart.submit_delivery_gcash_reference',
+                    order_id=order.id
+                  ) }}">
+            {% else %}
+            <form method="post"
+                  action="{{ url_for(
+                    'orders.submit_pickup_deposit',
+                    order_id=order.id
+                  ) }}">
+            {% endif %}
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label for="real-reference">
+                    GCash Reference Number
+                </label>
+
+                <input
+                    id="real-reference"
+                    class="demo-input"
+                    type="text"
+                    name="payment_reference"
+                    minlength="6"
+                    maxlength="100"
+                    pattern="[A-Za-z0-9-]{6,100}"
+                    required
+                >
+
+                <button type="submit"
+                        class="demo-button">
+                    Submit Reference for Verification
+                </button>
+            </form>
+
+            {% endif %}
 
         {% else %}
 
-        <p>
-            No new deposit submission is available
-            for this order.
+        <p class="demo-muted">
+            This order is no longer accepting
+            new payment submissions.
         </p>
 
         {% endif %}
-
     </section>
 
     {% endif %}
 
-    <p>
-        The bakery will update your order status
-        after reviewing your order and payment.
-    </p>
+    {% if order.payment_method == 'cod' %}
+    <div class="demo-card">
+        <h2>Cash on Delivery</h2>
+        <p class="demo-note">
+            The bakery will review your order.
+            Payment is collected according to
+            the existing COD process.
+        </p>
+    </div>
+    {% endif %}
 
+    <div class="demo-card">
+        <h2>Order Progress</h2>
+
+        {% if order.status == 'confirmed' %}
+        <p>
+            Your order is confirmed.
+            The bakery can now begin preparation.
+        </p>
+
+        {% elif order.status == 'preparing' %}
+        <p>
+            The bakery is preparing your order.
+        </p>
+
+        {% elif order.status == 'ready' %}
+        <p>
+            Your order is ready for the next step.
+        </p>
+
+        {% elif order.status == 'out_for_delivery' %}
+        <p>
+            Your order is out for delivery.
+        </p>
+
+        {% elif order.status == 'completed' %}
+        <p>
+            Your order has been completed.
+        </p>
+
+        {% else %}
+        <p>
+            Your order is awaiting payment
+            or bakery review.
+        </p>
+        {% endif %}
+    </div>
+
+</div>
 </section>
+
+<script>
+(() => {
+    const form = document.querySelector(
+        "[data-demo-payment-form]"
+    );
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener("submit", () => {
+        const button = form.querySelector(
+            'button[type="submit"]'
+        );
+
+        if (button && form.checkValidity()) {
+            button.disabled = true;
+            button.textContent =
+                "Processing Demo Payment...";
+        }
+    });
+})();
+</script>
 
 {% endblock %}

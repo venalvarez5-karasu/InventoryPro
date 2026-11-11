@@ -531,7 +531,6 @@
             </a>
             <a href="#staff-orders">Orders</a>
             <a href="#staff-orders">Assign Riders</a>
-            <a href="#staff-settings">Account Settings</a>
         </nav>
 
         <div class="staff-side-footer">
@@ -840,7 +839,8 @@
                                                 )
                                             ) %}
 
-                                        <div class="staff-rider-assignment">
+                                        <div class="staff-rider-assignment"
+                                             id="rider-assignments">
 
                                             {% if o.rider_user_id %}
 
@@ -1047,7 +1047,10 @@
              PASSWORD SETTINGS
         ====================================== -->
 
-        <section class="staff-panel" id="staff-settings">
+        <section class="staff-panel"
+                 id="staff-settings"
+                 hidden
+                 style="display:none;">
             <div class="staff-panel-heading">
                 <h2>Change My Password</h2>
             </div>
