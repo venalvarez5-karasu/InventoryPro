@@ -1,154 +1,627 @@
-
 {% extends "store_base.html" %}
-
 {% block content %}
 
-<section
-    class="container"
-    style="padding: 48px 0; min-height: 65vh;"
->
+<section class="container ip-cart-page">
 
-    <h1>Your Cart</h1>
+    <nav class="ip-cart-breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('index.home') }}">Home</a>
+        <span>/</span>
+        <a href="{{ url_for('products.browse') }}">Products</a>
+        <span>/</span>
+        <strong>Shopping Cart</strong>
+    </nav>
 
-    <p>
-        Review your products and quantities
-        before checkout.
-    </p>
+    <div class="ip-cart-heading">
+        <h1>Shopping Cart</h1>
+        <p>Review your bakery favorites before checkout.</p>
+        <p id="ip-cart-save-status"
+   role="status"
+   aria-live="polite"
+   hidden></p>
+    </div>
 
     {% if items %}
 
-    <div style="overflow-x: auto;">
+    <div class="ip-cart-layout">
 
-        <table
-            style="width: 100%; border-collapse: collapse; text-align: left;"
-        >
+        <!-- LEFT: CART PRODUCTS -->
 
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
+        <div class="ip-cart-products">
 
-            <tbody>
+            <div class="ip-cart-table-head">
+                <span>Product</span>
+                <span>Price</span>
+                <span>Quantity</span>
+                <span>Subtotal</span>
+                <span></span>
+            </div>
 
-                {% for item in items %}
+            {% for item in items %}
 
-                <tr style="border-bottom: 1px solid #eae4ee;">
+            <article class="ip-cart-item">
 
-                    <td style="padding: 15px 5px;">
+                <div class="ip-cart-product">
 
-                        <a href="{{ url_for('products.product_detail', slug=item.slug) }}">
+                    <a
+                        href="{{ url_for('products.product_detail', slug=item.slug) }}"
+                        class="ip-cart-product-image">
+
+                        {% if item.image_path %}
+                        <img
+                            src="{{ url_for('products.static', filename='images/' ~ item.image_path) }}"
+                            alt="{{ item.name }}"
+                            loading="lazy">
+                        {% else %}
+                        <span aria-hidden="true">
+                            {{ item.name[:1] }}
+                        </span>
+                        {% endif %}
+
+                    </a>
+
+                    <div class="ip-cart-product-info">
+
+                        <a
+                            href="{{ url_for('products.product_detail', slug=item.slug) }}">
                             {{ item.name }}
                         </a>
 
-                        {% if not item.is_active or not item.is_available %}
-
-                        <span
-                            style="color: #a33; display: block;"
-                        >
+                        {% if item.is_active and item.is_available %}
+                        <small class="ip-cart-available">
+                            Available
+                        </small>
+                        {% else %}
+                        <small class="ip-cart-unavailable">
                             Currently unavailable
-                            remove before checkout.
-                        </span>
-
+                        </small>
                         {% endif %}
 
-                    </td>
+                    </div>
 
-                    <td>
-                        &#8369;{{ "%.2f"|format(item.price) }}
-                    </td>
+                </div>
 
-                    <td>
+                <span class="ip-cart-price">
+                    &#8369;{{ "%.2f"|format(item.price) }}
+                </span>
 
-                        <form
-                            method="post"
-                            action="{{ url_for('cart.update_cart') }}"
-                            style="display: flex; gap: 8px; align-items: center;"
-                        >
+                <!-- EXISTING UPDATE ROUTE -->
 
-                            <input
-                                type="hidden"
-                                name="csrf_token"
-                                value="{{ csrf_token() }}"
-                            >
+                <form
+                    method="post"
+                    action="{{ url_for('cart.update_cart') }}"
+                    class="ip-cart-quantity-form"
+                    data-cart-quantity-form
+                    data-unit-price="{{ '%.2f'|format(item.price) }}"
+                    ></form>
 
-                            <input
-                                type="hidden"
-                                name="product_id"
-                                value="{{ item.id }}"
-                            >
+                    <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
 
-                            <input
-                                type="number"
-                                name="quantity"
-                                min="0"
-                                max="99"
-                                value="{{ item.quantity }}"
-                                aria-label="Quantity for {{ item.name }}"
-                                style="width: 65px; padding: 7px;"
-                            >
+                    <input
+                        type="hidden"
+                        name="product_id"
+                        value="{{ item.id }}">
 
-                            <button type="submit">
-                                Update
-                            </button>
+                    <div class="ip-cart-quantity-control">
 
-                        </form>
+                        <button
+                            type="button"
+                            data-cart-step="-1"
+                            aria-label="Decrease {{ item.name }} quantity">
+                            &minus;
+                        </button>
 
-                    </td>
+                        <input
+                            type="number"
+                            name="quantity"
+                            min="1"
+                            max="99"
+                            step="1"
+                            value="{{ item.quantity }}"
+                            aria-label="Quantity for {{ item.name }}"
+                            required>
 
-                    <td>
-                        &#8369;{{ "%.2f"|format(item.line_total) }}
-                    </td>
+                        <button
+                            type="button"
+                            data-cart-step="1"
+                            aria-label="Increase {{ item.name }} quantity">
+                            +
+                        </button>
 
-                </tr>
+                    </div>
 
-                {% endfor %}
+                </form>
 
-            </tbody>
+                <<strong class="ip-cart-line-total" data-cart-line-total>
+                    &#8369;{{ "%.2f"|format(item.line_total) }}
+                </strong>
 
-        </table>
+                <!-- REMOVE USING EXISTING ROUTE -->
 
-    </div>
+                <form
+                    method="post"
+                    action="{{ url_for('cart.update_cart') }}"
+                    class="ip-cart-remove-form">
 
-    <p style="text-align: right; font-weight: bold; margin-top: 20px;">
-        Subtotal: &#8369;{{ "%.2f"|format(subtotal) }}
-    </p>
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
 
-    <p style="text-align: right; color: #75677c;">
-        Delivery fee is calculated from your
-        approved address during checkout.
-    </p>
+                    <input
+                        type="hidden"
+                        name="product_id"
+                        value="{{ item.id }}">
 
-    <div
-        style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;"
-    >
+                    <input
+                        type="hidden"
+                        name="quantity"
+                        value="0">
 
-        <a href="{{ url_for('products.browse') }}">
-            Continue Shopping
-        </a>
+                    <button
+                        type="submit"
+                        class="ip-cart-remove"
+                        aria-label="Remove {{ item.name }}"
+                        title="Remove product">
+                        &times;
+                    </button>
 
-        <a
-            href="{{ url_for('cart.checkout') }}"
-            style="background: #69508d; color: white; padding: 11px 20px; border-radius: 8px;"
-        >
-            Proceed to Checkout
-        </a>
+                </form>
+
+            </article>
+
+            {% endfor %}
+
+            <div class="ip-cart-bottom-action">
+                <a href="{{ url_for('products.browse') }}">
+                    &larr; Continue Shopping
+                </a>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: ORDER SUMMARY -->
+
+        <aside class="ip-cart-summary">
+
+            <h2>Order Summary</h2>
+
+            <div class="ip-cart-summary-body">
+
+                <div class="ip-cart-summary-row">
+                    <span>Subtotal</span>
+                    <strong>
+                        &#8369;{{ "%.2f"|format(subtotal) }}
+                    </strong>
+                </div>
+
+                <div class="ip-cart-summary-row">
+                    <span>Delivery Fee</span>
+                    <span class="ip-cart-pending">
+                        At checkout
+                    </span>
+                </div>
+
+                <div class="ip-cart-summary-total">
+                    <span>Current Subtotal</span>
+                    <strong>
+                        &#8369;{{ "%.2f"|format(subtotal) }}
+                    </strong>
+                </div>
+
+                <p class="ip-cart-summary-note">
+                    Your final total will include the delivery
+                    fee for your approved delivery address.
+                </p>
+
+                <a
+                    href="{{ url_for('cart.checkout') }}"
+                    class="ip-cart-checkout-button">
+                    Proceed to Checkout
+                    <span aria-hidden="true">&rarr;</span>
+                </a>
+
+                <!-- COD ONLY: REPLACES OTHER PAYMENT ICONS -->
+
+                <div class="ip-cart-payment-method">
+
+                    <div class="ip-cart-payment-icon"
+                        aria-hidden="true">
+                        <svg
+                            width="22"
+                            height="22"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="2" y="6" width="20" height="13" rx="2" />
+                            <circle cx="12" cy="12.5" r="3" />
+                            <path d="M6 3h12M7 9H5M19 16h-2" />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <strong>Cash on Delivery</strong>
+                        <small>
+                            Pay upon receiving your order.
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+        </aside>
 
     </div>
 
     {% else %}
 
-    <p>Your cart is empty.</p>
+    <!-- EMPTY CART -->
 
-    <a href="{{ url_for('products.browse') }}">
-        Browse Products &rarr;
-    </a>
+    <div class="ip-cart-empty">
+
+        <div class="ip-cart-empty-icon" aria-hidden="true">
+            <svg
+                width="42"
+                height="42"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path
+                    d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
+            </svg>
+        </div>
+
+        <h2>Your cart is empty</h2>
+
+        <p>
+            Your next bakery favorite is waiting.
+        </p>
+
+        <a
+            href="{{ url_for('products.browse') }}"
+            class="ip-cart-checkout-button">
+            Explore Our Menu
+        </a>
+
+    </div>
 
     {% endif %}
 
 </section>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const forms = Array.from(
+        document.querySelectorAll("[data-cart-quantity-form]")
+    );
+
+    const status = document.getElementById(
+        "ip-cart-save-status"
+    );
+
+    const confirmed = new WeakMap();
+    const timers = new WeakMap();
+
+    // Save requests one at a time so Flask's
+    // session cart does not lose simultaneous changes.
+    let saveQueue = Promise.resolve();
+
+    const peso = (value) => {
+        return new Intl.NumberFormat("en-PH", {
+            style: "currency",
+            currency: "PHP"
+        }).format(value);
+    };
+
+    function showError(message = "") {
+        if (!status) return;
+
+        status.textContent = message;
+        status.hidden = !message;
+        status.style.color = "#b54747";
+        status.style.fontSize = "12px";
+        status.style.margin = "8px 0";
+    }
+
+    function quantityOf(form) {
+        const input = form.querySelector(
+            'input[name="quantity"]'
+        );
+
+        return Number(input.value);
+    }
+
+    function refreshAmounts() {
+        let subtotal = 0;
+        let count = 0;
+
+        forms.forEach((form) => {
+            const quantity = quantityOf(form);
+            const price = Number(
+                form.dataset.unitPrice
+            );
+
+            if (
+                !Number.isFinite(quantity) ||
+                !Number.isFinite(price)
+            ) return;
+
+            const lineTotal = quantity * price;
+            subtotal += lineTotal;
+            count += quantity;
+
+            const row = form.closest(".ip-cart-item");
+
+            const lineAmount = row?.querySelector(
+                "[data-cart-line-total]"
+            );
+
+            if (lineAmount) {
+                lineAmount.textContent = peso(lineTotal);
+            }
+        });
+
+        // Update both subtotal figures.
+        document.querySelectorAll(
+            "[data-cart-subtotal]"
+        ).forEach((element) => {
+            element.textContent = peso(subtotal);
+        });
+
+        // Update header cart badge if it exists.
+        const badge = document.querySelector(
+            ".ip-cart-badge"
+        );
+
+        if (badge) {
+            badge.textContent = count > 99
+                ? "99+"
+                : String(count);
+        }
+
+        const headerSubtotal = document.querySelector(
+            ".ip-cart-subtotal strong"
+        );
+
+        if (headerSubtotal) {
+            headerSubtotal.textContent = peso(subtotal);
+        }
+
+        const headerCount = document.querySelector(
+            ".ip-panel-heading small"
+        );
+
+        if (headerCount) {
+            headerCount.textContent =
+                `${count} ${count === 1 ? "item" : "items"}`;
+        }
+
+        // Keep visible mini-cart lines synchronized.
+        document.querySelectorAll(
+            ".ip-mini-cart-item"
+        ).forEach((miniItem) => {
+            const miniName = miniItem.querySelector(
+                ".ip-mini-cart-info strong"
+            )?.textContent.trim();
+
+            const matchingRow = forms.find((form) => {
+                return form.closest(".ip-cart-item")
+                    ?.querySelector(".ip-cart-product-info a")
+                    ?.textContent.trim() === miniName;
+            });
+
+            if (!matchingRow) return;
+
+            const qty = quantityOf(matchingRow);
+            const price = Number(
+                matchingRow.dataset.unitPrice
+            );
+
+            const description = miniItem.querySelector(
+                ".ip-mini-cart-info small"
+            );
+
+            const amount = miniItem.querySelector(
+                ".ip-mini-cart-price"
+            );
+
+            if (description) {
+                description.textContent =
+                    `${qty} × ${peso(price)}`;
+            }
+
+            if (amount) {
+                amount.textContent = peso(qty * price);
+            }
+        });
+    }
+
+    function normalizeQuantity(input) {
+        const raw = Number(input.value);
+
+        const value = Number.isFinite(raw)
+            ? Math.trunc(raw)
+            : 1;
+
+        const next = Math.max(
+            1,
+            Math.min(99, value)
+        );
+
+        input.value = String(next);
+
+        return next;
+    }
+
+    function scheduleSave(form) {
+        clearTimeout(timers.get(form));
+
+        const timer = setTimeout(() => {
+            saveQueue = saveQueue
+                .catch(() => {})
+                .then(async () => {
+                    const input = form.querySelector(
+                        'input[name="quantity"]'
+                    );
+
+                    const requested = normalizeQuantity(
+                        input
+                    );
+
+                    if (
+                        requested === confirmed.get(form)
+                    ) return;
+
+                    const formData = new FormData(form);
+                    formData.set(
+                        "quantity",
+                        String(requested)
+                    );
+
+                    try {
+                        const response = await fetch(
+                            form.getAttribute("action"),
+                            {
+                                method: "POST",
+                                body: formData,
+                                credentials: "same-origin",
+                                headers: {
+                                    "X-Requested-With": "XMLHttpRequest",
+                                    "Accept": "application/json"
+                                }
+                            }
+                        );
+
+                        const result = await response.json();
+
+                        if (
+                            !response.ok ||
+                            !result.ok ||
+                            result.quantity < 1
+                        ) {
+                            throw new Error(
+                                result.error ||
+                                "Could not update quantity."
+                            );
+                        }
+
+                        confirmed.set(
+                            form,
+                            Number(result.quantity)
+                        );
+
+                        form.dataset.unitPrice =
+                            result.unit_price;
+
+                        // Do not overwrite newer clicks.
+                        if (
+                            Number(input.value) === requested
+                        ) {
+                            input.value = result.quantity;
+                        }
+
+                        refreshAmounts();
+                        showError();
+
+                        // Save another change if the customer
+                        // clicked while the request was running.
+                        if (
+                            Number(input.value) !==
+                            Number(result.quantity)
+                        ) {
+                            scheduleSave(form);
+                        }
+
+                    } catch (error) {
+                        if (
+                            Number(input.value) === requested
+                        ) {
+                            input.value = String(
+                                confirmed.get(form)
+                            );
+                        }
+
+                        refreshAmounts();
+
+                        showError(
+                            "Unable to save quantity. " +
+                            "Please try again."
+                        );
+                    }
+                });
+
+        }, 250);
+
+        timers.set(form, timer);
+    }
+
+    forms.forEach((form) => {
+        const input = form.querySelector(
+            'input[name="quantity"]'
+        );
+
+        confirmed.set(
+            form,
+            normalizeQuantity(input)
+        );
+
+        // Prevent traditional form submission.
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            normalizeQuantity(input);
+            refreshAmounts();
+            scheduleSave(form);
+        });
+
+        // Plus and minus buttons.
+        form.querySelectorAll(
+            "[data-cart-step]"
+        ).forEach((button) => {
+            button.addEventListener("click", () => {
+                const step = Number(
+                    button.dataset.cartStep
+                );
+
+                const current = normalizeQuantity(input);
+
+                const next = Math.max(
+                    1,
+                    Math.min(99, current + step)
+                );
+
+                if (next === current) return;
+
+                input.value = String(next);
+
+                // Instant visual update.
+                refreshAmounts();
+
+                // Automatic save without refreshing.
+                scheduleSave(form);
+            });
+        });
+
+        // Also support manually typing a quantity.
+        input.addEventListener("change", () => {
+            normalizeQuantity(input);
+            refreshAmounts();
+            scheduleSave(form);
+        });
+    });
+});
+</script>
+
 
 {% endblock %}

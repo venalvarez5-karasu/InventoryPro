@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from secrets import token_hex, token_urlsafe
-
+from flask import jsonify
 from flask import (
     Blueprint,
     flash,
@@ -145,6 +145,43 @@ def get_lines():
         subtotal += line_total
 
     return items, subtotal
+
+
+# ==========================================
+# CUSTOMER HEADER - MINI CART
+# ==========================================
+
+@cart_bp.app_context_processor
+def inject_store_header_cart():
+    """
+    Makes cart preview data available to
+    customer-facing templates.
+
+    No additional route required.
+    """
+
+    if request.blueprint not in {
+        "index",
+        "products",
+        "cart",
+        "orders",
+    }:
+        return {}
+
+    items, subtotal = get_lines()
+
+    return {
+        "mini_cart_items": items[:5],
+        "mini_cart_count": sum(
+            int(item["quantity"])
+            for item in items
+        ),
+        "mini_cart_subtotal": subtotal,
+        "mini_cart_more": max(
+            0,
+            len(items) - 5
+        ),
+    }
 
 # APPROVED COD ADDRESSES
 
@@ -313,6 +350,7 @@ def add_to_cart():
 # UPDATE OR REMOVE CART ITEM
 
 @cart_bp.route("/update", methods=["POST"])
+
 def update_cart():
 
     product_id = request.form.get(
@@ -323,11 +361,22 @@ def update_cart():
         "quantity", type=int
     )
 
+    is_ajax = (
+        request.headers.get("X-Requested-With")
+        == "XMLHttpRequest"
+    )
+
     if (
         not product_id
         or qty is None
         or not 0 <= qty <= MAX_QUANTITY
     ):
+        if is_ajax:
+            return jsonify({
+                "ok": False,
+                "error": "Invalid product or quantity."
+            }), 400
+
         abort(400)
 
     cart = dict(
@@ -343,11 +392,45 @@ def update_cart():
     session["shop_cart"] = cart
     session.modified = True
 
+    # Automatic updates without redirecting.
+    if is_ajax:
+
+        items, subtotal = get_lines()
+
+        updated_item = next(
+            (
+                item for item in items
+                if int(item["id"]) == product_id
+            ),
+            None
+        )
+
+        return jsonify({
+            "ok": True,
+            "quantity": (
+                int(updated_item["quantity"])
+                if updated_item else 0
+            ),
+            "unit_price": (
+                str(updated_item["price"])
+                if updated_item else "0.00"
+            ),
+            "line_total": (
+                str(updated_item["line_total"])
+                if updated_item else "0.00"
+            ),
+            "subtotal": str(subtotal),
+            "cart_count": sum(
+                int(item["quantity"])
+                for item in items
+            )
+        })
+
+    # Existing behavior for normal forms.
     return redirect(
         url_for("cart.view_cart")
     )
 
-# CHECKOUT
 
 @cart_bp.route(
     "/checkout",
