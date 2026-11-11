@@ -24,6 +24,7 @@ cart_bp = Blueprint(
     "cart",
     __name__,
     template_folder="templates",
+    static_folder="static",
 )
 
 MAX_DISTINCT = 25
@@ -474,6 +475,34 @@ def checkout():
     # SUBMIT ORDER
 
     if request.method == "POST":
+        
+        # Only Delivery COD is currently active.
+        # Prevent submitting an unfinished pickup
+        # checkout or changing the order type
+        # through browser developer tools.
+
+        requested_type = request.form.get(
+            "order_type", "delivery"
+        )
+
+        payment_method = request.form.get(
+            "payment_method", "cod"
+        )
+
+        if (
+            requested_type != "delivery"
+            or payment_method != "cod"
+        ):
+            flash(
+                "This payment or fulfillment method "
+                "is not available yet.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("cart.checkout")
+            )
+
 
         checkout_token = request.form.get(
             "checkout_token", ""
@@ -821,7 +850,7 @@ def checkout():
 
                 return redirect(
                     url_for(
-                        "orders.order_detai",
+                        "orders.order_detail",
                         order_id=matched[0]["id"]
                     )
                 )

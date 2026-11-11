@@ -4,14 +4,24 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const dialog = document.getElementById("adm-edit-dialog");
-    if (!dialog || typeof dialog.showModal !== "function") return;
-
     const title = document.getElementById("adm-edit-title");
     const subtitle = document.getElementById("adm-edit-subtitle");
     const content = document.getElementById("adm-edit-content");
     const errorBox = document.getElementById("adm-edit-error");
 
-    if (!title || !subtitle || !content || !errorBox) return;
+    if (
+        !dialog ||
+        !title ||
+        !subtitle ||
+        !content ||
+        !errorBox ||
+        typeof dialog.showModal !== "function"
+    ) {
+        console.error(
+            "Admin modal elements are missing or unsupported."
+        );
+        return;
+    }
 
     const CLOSE_SELECTOR =
         "[data-adm-edit-close], [data-modal-close]";
@@ -19,454 +29,499 @@ document.addEventListener("DOMContentLoaded", () => {
     let opener = null;
     let saving = false;
     let loadingController = null;
-    let photoURL = null;
+    let previewURL = null;
 
-    // BASIC HELPERS
+    // ==========================================
+    // HELPERS
+    // ==========================================
 
-    function showError(message) {
+    function actionURL(form) {
+        return new URL(
+            form.getAttribute("action") || location.href,
+            location.href
+        );
+    }
+
+    function setError(message) {
         errorBox.textContent = message;
-        errorBox.hidden = false;
+        errorBox.hidden = !message;
     }
 
-    function clearError() {
-        errorBox.textContent = "";
-        errorBox.hidden = true;
-    }
-
-    function releasePhoto() {
-        if (photoURL) {
-            URL.revokeObjectURL(photoURL);
-            photoURL = null;
+    function clearPreview() {
+        if (previewURL) {
+            URL.revokeObjectURL(previewURL);
         }
+
+        previewURL = null;
     }
 
-    function makeCancelButton() {
+    function cancelButton() {
         const button = document.createElement("button");
+
         button.type = "button";
         button.className = "adm-secondary-btn";
-        button.setAttribute("data-adm-edit-close", "");
+        button.dataset.admEditClose = "";
         button.textContent = "Cancel";
+
         return button;
     }
 
-    // OPEN / CLOSE
+    // ==========================================
+    // OPEN / CLOSE MODAL
+    // ==========================================
 
-    function openModal(name, description, trigger, kind = "standard") {
-
+    function openModal(
+        heading,
+        description,
+        source,
+        kind = "standard"
+    ) {
         if (loadingController) {
             loadingController.abort();
-            loadingController = null;
         }
 
-        releasePhoto();
-        clearError();
+        loadingController = null;
 
-        opener = trigger || document.activeElement;
+        clearPreview();
+        setError("");
+
+        opener = source || document.activeElement;
 
         dialog.dataset.modalKind = kind;
 
-        title.textContent = name;
+        title.textContent = heading;
         subtitle.textContent = description || "";
 
         content.replaceChildren();
-        
-        // Remove the previous product footer, if any.
+
         dialog.querySelector(
             ".adm-product-fixed-footer"
         )?.remove();
-
-        content.replaceChildren();
-
 
         if (!dialog.open) {
             dialog.showModal();
         }
 
-        document.body.classList.add("adm-modal-active");
+        document.body.classList.add(
+            "adm-modal-active"
+        );
+
         content.scrollTop = 0;
     }
 
     function closeModal() {
-
         if (saving) {
-            showError(
-                "Your changes are being saved. " +
-                "The editor can close when saving finishes."
+            setError(
+                "Please finish saving before closing this editor."
             );
             return;
         }
 
         if (loadingController) {
             loadingController.abort();
-            loadingController = null;
         }
+
+        loadingController = null;
 
         if (dialog.open) {
             dialog.close();
         }
     }
 
-    // IMPORTANT:
-    // Supports BOTH attributes found in your templates.
-    // Capture phase also prevents another click listener
-    // from interfering with the close button.
+    dialog.addEventListener("click", event => {
 
-    dialog.addEventListener("click", (event) => {
+        const element =
+            event.target instanceof Element
+                ? event.target
+                : null;
 
-        const element = event.target instanceof Element
-            ? event.target
-            : null;
-
-        if (!element) return;
-
-        if (element.closest(CLOSE_SELECTOR)) {
+        if (element?.closest(CLOSE_SELECTOR)) {
             event.preventDefault();
             event.stopPropagation();
             closeModal();
-            return;
-        }
 
-        if (event.target === dialog) {
+        } else if (event.target === dialog) {
             closeModal();
         }
 
     }, true);
 
-    // Escape key
-    dialog.addEventListener("cancel", (event) => {
+    dialog.addEventListener("cancel", event => {
         event.preventDefault();
         closeModal();
     });
 
-    // Cleanup
     dialog.addEventListener("close", () => {
 
-        document.body.classList.remove("adm-modal-active");
-        dialog.querySelector(".adm-product-fixed-footer")?.remove();
+        document.body.classList.remove(
+            "adm-modal-active"
+        );
+
+        dialog.querySelector(
+            ".adm-product-fixed-footer"
+        )?.remove();
 
         content.replaceChildren();
-        clearError();
-        releasePhoto();
+
+        setError("");
+        clearPreview();
 
         delete dialog.dataset.modalKind;
 
-        if (opener && opener.isConnected) {
-            opener.focus({ preventScroll: true });
+        if (opener?.isConnected) {
+            opener.focus({
+                preventScroll: true
+            });
         }
 
         opener = null;
     });
 
-    // PREPARE FORM FOR MODAL
+    // ==========================================
+    // PREPARE FORM INSIDE MODAL
+    // ==========================================
 
     function installForm(
         original,
-        name,
+        heading,
         description,
         trigger,
-        recipeTemplate = null
+        template = null
     ) {
-
         let kind = "standard";
+
+        const path = actionURL(original).pathname;
 
         if (original.matches(".adm-product-form")) {
             kind = "product";
+
         } else if (
-            original.matches(".adm-mini-form") &&
-            /delivery-areas/.test(original.getAttribute("action") || location.href)
-        ) {
-            kind = "delivery";
-        } else if (original.matches(".adm-mini-form")) {
-            kind = "compact";
-        } else if (
-            /delivery-areas/.test(original.getAttribute("action") || location.href) ||
+            path.includes("delivery-areas") ||
             original.id === "delivery-area-form"
         ) {
             kind = "delivery";
+
+        } else if (original.matches(".adm-mini-form")) {
+            kind = "compact";
         }
 
-        openModal(name, description, trigger, kind);
+        openModal(
+            heading,
+            description,
+            trigger,
+            kind
+        );
 
         const form = original.cloneNode(true);
 
-        // Normalize existing Cancel buttons.
-        form.querySelectorAll("[data-modal-close]").forEach((button) => {
+        form.querySelectorAll(
+            "[data-modal-close]"
+        ).forEach(button => {
             button.type = "button";
-            button.setAttribute("data-adm-edit-close", "");
+            button.dataset.admEditClose = "";
         });
 
-        // Convert full-page Cancel links into buttons.
         form.querySelectorAll(
             ".adm-form-actions a.adm-secondary-btn"
-        ).forEach((link) => {
-            link.replaceWith(makeCancelButton());
+        ).forEach(link => {
+            link.replaceWith(cancelButton());
         });
-
-        // Supply a Cancel button only if missing.
-        if (!form.querySelector(CLOSE_SELECTOR)) {
-
-            const actions = form.querySelector(".adm-form-actions");
-
-            if (actions) {
-                actions.prepend(makeCancelButton());
-            } else {
-                const footer = document.createElement("div");
-                footer.className = "adm-modal-actions";
-                footer.append(makeCancelButton());
-                form.append(footer);
-            }
-        }
 
         if (original.dataset.confirm) {
             const note = document.createElement("p");
+
             note.className = "adm-modal-note";
             note.textContent = original.dataset.confirm;
+
             content.append(note);
         }
 
         content.append(form);
 
-        // KEEP PRODUCT ACTIONS VISIBLE
-        // Works for both Add Product and Edit Product
+        // KEEP ACTIONS CONNECTED TO THEIR FORM
 
-        if (form.classList.contains("adm-product-form")) {
-
-            const footer = form.querySelector(
-                ".adm-form-actions"
-            );
-
-            const modalShell = dialog.querySelector(
-                ".adm-edit-shell"
-            );
-
-            if (footer && modalShell) {
-
-                // The form remains inside the scroll area.
-                // The buttons remain associated with it.
-                form.id = "adm-active-product-form";
-
-                footer.querySelectorAll(
-                    'button[type="submit"], input[type="submit"]'
-                ).forEach((button) => {
-
-                    button.setAttribute(
-                        "form",
-                        form.id
-                    );
-
-                });
-
-                footer.classList.add(
-                    "adm-product-fixed-footer"
-                );
-
-                // Move actions outside the scrolling content.
-                modalShell.append(footer);
-            }
-        }
-
-        // ORGANIZE MODAL ACTION BUTTONS
-        // Cancel beside Save / Add
-
-        const directSubmitButtons = Array.from(
-            form.querySelectorAll(
-                ':scope > button[type="submit"]'
-            )
+        const actions = form.querySelector(
+            ".adm-form-actions"
         );
 
-        if (directSubmitButtons.length > 0) {
-
-            let footer = form.querySelector(
-                ":scope > .adm-modal-actions"
-            );
-
-            if (!footer) {
-                footer = document.createElement("div");
-                form.append(footer);
+        if (actions) {
+            if (!actions.querySelector(CLOSE_SELECTOR)) {
+                actions.prepend(cancelButton());
             }
+
+        } else if (!form.querySelector(CLOSE_SELECTOR)) {
+
+            const footer = document.createElement("div");
 
             footer.className =
                 "adm-modal-actions adm-modal-bottom-actions";
 
-            let cancelButton = form.querySelector(
-                "[data-adm-edit-close], [data-modal-close]"
+            footer.append(cancelButton());
+
+            form.append(footer);
+        }
+
+        // ORGANIZE DIRECT SUBMIT BUTTONS
+
+        const directButtons = [
+            ...form.querySelectorAll(
+                ':scope > button[type="submit"]'
+            )
+        ];
+
+        if (directButtons.length) {
+
+            let footer = form.querySelector(
+                ":scope > .adm-modal-bottom-actions"
             );
 
-            if (!cancelButton) {
-                cancelButton = makeCancelButton();
+            if (!footer) {
+                footer = document.createElement("div");
+
+                footer.className =
+                    "adm-modal-actions adm-modal-bottom-actions";
+
+                form.append(footer);
             }
 
-            cancelButton.type = "button";
+            const left = document.createElement("div");
+            const right = document.createElement("div");
 
-            // Keep destructive/category-status actions
-            // separate from the primary Save button.
+            left.className = "adm-modal-actions-start";
+            right.className = "adm-modal-actions-end";
 
-            const secondaryActions = directSubmitButtons.filter(
-                button =>
-                    button.value === "disable" ||
-                    button.value === "enable" ||
-                    button.classList.contains("danger") ||
-                    button.classList.contains("restore")
-            );
+            directButtons.forEach(button => {
 
-            const primaryActions = directSubmitButtons.filter(
-                button => !secondaryActions.includes(button)
-            );
+                const destructive =
+                    button.matches(".danger, .restore") ||
+                    ["enable", "disable"].includes(
+                        button.value
+                    );
 
-            const leftActions = document.createElement("div");
-            leftActions.className = "adm-modal-actions-start";
+                (destructive ? left : right).append(button);
 
-            const rightActions = document.createElement("div");
-            rightActions.className = "adm-modal-actions-end";
-
-            secondaryActions.forEach(button => {
-                leftActions.append(button);
+                if (!destructive) {
+                    button.classList.add(
+                        "adm-primary-btn"
+                    );
+                }
             });
 
-            rightActions.append(cancelButton);
+            footer.replaceChildren(left, right);
 
-            primaryActions.forEach(button => {
-                button.classList.add("adm-primary-btn");
-                rightActions.append(button);
-            });
-
-            footer.replaceChildren(leftActions, rightActions);
+            right.prepend(cancelButton());
         }
 
+        // RECIPE INGREDIENT TEMPLATE
 
-        if (recipeTemplate) {
-            content.append(recipeTemplate.cloneNode(true));
+        if (template) {
+            content.append(
+                template.cloneNode(true)
+            );
         }
 
-        const textarea = form.querySelector("[data-description]");
-        const count = form.querySelector("[data-description-count]");
+        // PRODUCT DESCRIPTION COUNTER
 
-        if (textarea && count) {
-            count.textContent = textarea.value.length;
+        const descriptionField = form.querySelector(
+            "[data-description]"
+        );
+
+        const descriptionCount = form.querySelector(
+            "[data-description-count]"
+        );
+
+        if (descriptionField && descriptionCount) {
+            descriptionCount.textContent =
+                descriptionField.value.length;
         }
 
-        content.scrollTop = 0;
-
-        const firstField = form.querySelector(
+        const focusTarget = form.querySelector(
             'input:not([type="hidden"]):not([type="file"]):not([disabled]), ' +
             'select:not([disabled]), textarea:not([disabled])'
         );
 
-        if (firstField) {
-            firstField.focus({ preventScroll: true });
-        }
+        focusTarget?.focus({
+            preventScroll: true
+        });
     }
 
-    // INLINE EDIT FORMS
-    // Categories, Delivery and Inventory
+    // ==========================================
+    // INLINE EDIT MODALS
+    // ==========================================
 
-    document.querySelectorAll("details.adm-detail-toggle")
-        .forEach((details) => {
+    document.querySelectorAll(
+        "details.adm-detail-toggle"
+    ).forEach(details => {
 
-            const original = details.querySelector("form");
-            const summary = details.querySelector("summary");
+        const form = details.querySelector("form");
+        const summary = details.querySelector("summary");
 
-            if (!original || !summary) return;
+        if (!form || !summary) return;
 
-            const label = summary.textContent.trim();
-            const name = details.dataset.modalTitle || label;
+        const label = summary.textContent.trim();
 
-            const rowName = details.closest("tr")
-                ?.querySelector("td strong")
-                ?.textContent.trim();
+        const heading =
+            details.dataset.modalTitle || label;
 
-            const trigger = document.createElement("button");
-            trigger.type = "button";
-            trigger.className = "adm-action-button adm-modal-trigger";
-            trigger.textContent = label;
+        const rowName = details.closest("tr")
+            ?.querySelector("td strong")
+            ?.textContent.trim();
 
-            trigger.addEventListener("click", () => {
-                installForm(
-                    original,
-                    name,
-                    rowName
-                        ? "Selected record: " + rowName
-                        : "Update the details below, then save.",
-                    trigger
-                );
-            });
+        const trigger = document.createElement("button");
 
-            details.replaceWith(trigger);
+        trigger.type = "button";
+        trigger.className =
+            "adm-action-button adm-modal-trigger";
+
+        trigger.textContent = label;
+
+        trigger.addEventListener("click", () => {
+
+            installForm(
+                form,
+                heading,
+                rowName
+                    ? `Selected record: ${rowName}`
+                    : "Update the details below, then save.",
+                trigger
+            );
         });
 
+        details.replaceWith(trigger);
+    });
+
+    // ==========================================
     // ADD CATEGORY / DELIVERY AREA
+    // ==========================================
 
     document.querySelectorAll(
         'form input[name="action"][value="add"]'
-    ).forEach((input) => {
+    ).forEach(input => {
 
-        const original = input.closest("form");
-        if (!original) return;
+        const form = input.closest("form");
 
-        const isCategory = new URL(original.getAttribute("action") || location.href).pathname.endsWith("/categories");
+        if (!form) return;
 
-        const name = isCategory
+        const path = actionURL(form).pathname;
+
+        const label = path.endsWith("/categories")
             ? "Add Category"
             : "Add Delivery Area";
 
         const trigger = document.createElement("button");
 
         trigger.type = "button";
-        trigger.className = "adm-primary-btn adm-modal-trigger";
-        trigger.textContent = "+ " + name;
+
+        trigger.className =
+            "adm-primary-btn adm-modal-trigger";
+
+        trigger.textContent = "+ " + label;
 
         trigger.addEventListener("click", () => {
+
             installForm(
-                original,
-                name,
+                form,
+                label,
                 "Complete the required fields and save.",
                 trigger
             );
         });
 
-        original.replaceWith(trigger);
+        form.replaceWith(trigger);
     });
 
-    // OTHER ADMIN ACTIONS
+    // ==========================================
+    // OPTIONAL STAFF CREATE MODAL
+    // ==========================================
+
+    document.querySelectorAll(
+        "form[data-staff-modal]"
+    ).forEach(form => {
+
+        const kind = form.querySelector(
+            '[name="staff_type"]'
+        )?.value;
+
+        const label = kind === "rider"
+            ? "Add Delivery Rider"
+            : "Add Bakery Staff";
+
+        const trigger = document.createElement("button");
+
+        trigger.type = "button";
+        trigger.className =
+            "adm-primary-btn adm-modal-trigger";
+
+        trigger.textContent = "+ " + label;
+
+        trigger.addEventListener("click", () => {
+
+            installForm(
+                form,
+                label,
+                "Enter staff account information.",
+                trigger
+            );
+        });
+
+        form.replaceWith(trigger);
+    });
+
+    // ==========================================
+    // ADMIN STATUS ACTION MODALS
+    // ==========================================
 
     const actionPattern =
         /\/(products\/\d+\/(availability|archive|restore)|orders\/\d+\/(status|payment)|customers\/\d+\/status|production\/costs\/\d+)$/;
 
-    document.querySelectorAll("form[action]").forEach((original) => {
+    document.querySelectorAll(
+        "form[action]"
+    ).forEach(form => {
 
-        const path = new URL(original.getAttribute("action") || location.href).pathname;
+        if (!actionPattern.test(
+            actionURL(form).pathname
+        )) {
+            return;
+        }
 
-        if (!actionPattern.test(path)) return;
+        const submit = form.querySelector(
+            'button[type="submit"]'
+        );
 
-        const submit = original.querySelector('button[type="submit"]');
         if (!submit) return;
 
         const label = submit.textContent.trim();
 
         const trigger = document.createElement("button");
+
         trigger.type = "button";
-        trigger.className = submit.className || "adm-action-button";
+        trigger.className =
+            submit.className || "adm-action-button";
+
         trigger.textContent = label;
 
-        const record = original.closest("tr")
+        const record = form.closest("tr")
             ?.querySelector("td strong")
             ?.textContent.trim();
 
         trigger.addEventListener("click", () => {
+
             installForm(
-                original,
+                form,
                 label,
                 record
-                    ? "Selected record: " + record
-                    : "Review the action before continuing.",
+                    ? `Selected record: ${record}`
+                    : "Review this action before continuing.",
                 trigger
             );
         });
 
-        original.replaceWith(trigger);
+        form.replaceWith(trigger);
     });
 
-    // LOAD PRODUCT / RECIPE EDITOR
+    // ==========================================
+    // PRODUCT / RECIPE EDITOR
+    // ==========================================
 
     async function loadEditor(link) {
 
@@ -475,32 +530,55 @@ document.addEventListener("DOMContentLoaded", () => {
             location.href
         );
 
-        if (url.origin !== location.origin) return;
+        if (url.origin !== location.origin) {
+            return;
+        }
 
         const label =
             link.dataset.modalTitle ||
             link.textContent.trim() ||
             "Edit Details";
 
-        openModal(label, "Loading editor...", link, "product");
+        openModal(
+            label,
+            "Loading editor...",
+            link,
+            "product"
+        );
 
-        const loader = document.createElement("p");
-        loader.className = "adm-modal-loading";
-        loader.textContent = "Loading editor...";
-        content.append(loader);
+        const loading = document.createElement("p");
+
+        loading.className = "adm-modal-loading";
+        loading.textContent = "Loading editor...";
+
+        content.append(loading);
 
         const controller = new AbortController();
+
         loadingController = controller;
 
         try {
 
             const response = await fetch(url.href, {
                 credentials: "same-origin",
-                signal: controller.signal
+                signal: controller.signal,
+                headers: {
+                    "Accept": "text/html"
+                }
             });
 
-            if (!response.ok) {
-                throw new Error("Unable to load the editor.");
+            if (
+                !response.ok ||
+                (
+                    response.redirected &&
+                    new URL(response.url).pathname.startsWith(
+                        "/auth/"
+                    )
+                )
+            ) {
+                throw new Error(
+                    "The editor could not be loaded. Please sign in again if needed."
+                );
             }
 
             const page = new DOMParser().parseFromString(
@@ -508,47 +586,59 @@ document.addEventListener("DOMContentLoaded", () => {
                 "text/html"
             );
 
-            if (controller.signal.aborted || !dialog.open) return;
+            if (
+                controller.signal.aborted ||
+                !dialog.open
+            ) {
+                return;
+            }
 
             const form = page.querySelector(
                 ".adm-product-form, #recipe-form"
             );
 
             if (!form) {
-                throw new Error("Edit form was not found.");
+                throw new Error(
+                    "Edit form was not found on the server response."
+                );
             }
 
             if (!form.getAttribute("action")) {
-                form.setAttribute("action", url.href);
+                form.setAttribute(
+                    "action",
+                    url.href
+                );
             }
 
-            const pageTitle = page.querySelector(
+            const heading = page.querySelector(
                 ".adm-page-heading h1"
             )?.textContent.trim() || label;
 
-            // Recipe editor also needs its ingredient template.
-            const recipeTemplate = page.querySelector(
-                "#ingredient-template"
-            );
-
             installForm(
                 form,
-                pageTitle,
-                "Make changes and save without leaving this page.",
+                heading,
+                "Make changes and save.",
                 link,
-                recipeTemplate
+                page.querySelector(
+                    "#ingredient-template"
+                )
             );
 
         } catch (error) {
 
-            if (error.name === "AbortError") return;
+            if (error.name === "AbortError") {
+                return;
+            }
 
-            clearError();
             content.replaceChildren();
 
-            showError(error.message || "Unable to load the editor.");
+            setError(
+                error.message ||
+                "Could not load editor."
+            );
 
             const fallback = document.createElement("a");
+
             fallback.href = url.href;
             fallback.className = "adm-secondary-btn";
             fallback.textContent = "Open full editor";
@@ -556,158 +646,234 @@ document.addEventListener("DOMContentLoaded", () => {
             content.append(fallback);
 
         } finally {
+
             if (loadingController === controller) {
                 loadingController = null;
             }
         }
     }
 
-    document.addEventListener("click", (event) => {
+    document.addEventListener("click", event => {
 
-        const link = event.target instanceof Element
-            ? event.target.closest("a[data-modal-url]")
-            : null;
-
-        if (!link) return;
+        const link =
+            event.target instanceof Element
+                ? event.target.closest(
+                    "a[data-modal-url]"
+                )
+                : null;
 
         if (
+            !link ||
+            event.button !== 0 ||
             event.ctrlKey ||
             event.metaKey ||
-            event.shiftKey ||
             event.altKey ||
-            event.button !== 0
-        ) return;
+            event.shiftKey
+        ) {
+            return;
+        }
 
         event.preventDefault();
+
         loadEditor(link);
     });
 
-    // DESCRIPTION CHARACTER COUNTER
+    // ==========================================
+    // PRODUCT DESCRIPTION COUNTER
+    // ==========================================
 
-    content.addEventListener("input", (event) => {
+    content.addEventListener("input", event => {
 
-        if (!event.target.matches("[data-description]")) return;
+        if (!event.target.matches(
+            "[data-description]"
+        )) {
+            return;
+        }
 
-        const count = content.querySelector("[data-description-count]");
+        const counter = content.querySelector(
+            "[data-description-count]"
+        );
 
-        if (count) {
-            count.textContent = event.target.value.length;
+        if (counter) {
+            counter.textContent =
+                event.target.value.length;
         }
     });
 
+    // ==========================================
     // PRODUCT IMAGE PREVIEW
+    // ==========================================
 
-    content.addEventListener("change", (event) => {
+    content.addEventListener("change", event => {
 
         const input = event.target;
 
-        if (!input.matches('input[type="file"][name="image"]')) {
+        if (!input.matches(
+            'input[type="file"][name="image"]'
+        )) {
             return;
         }
 
-        const file = input.files && input.files[0];
+        const file = input.files?.[0];
+
         if (!file) return;
 
         if (
-            !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+            ![
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ].includes(file.type) ||
             file.size > 5 * 1024 * 1024
         ) {
             input.value = "";
-            showError("Upload a JPG, PNG or WEBP image up to 5 MB.");
+
+            setError(
+                "Upload a JPG, PNG, or WEBP image up to 5 MB."
+            );
             return;
         }
 
-        releasePhoto();
-        clearError();
+        clearPreview();
+        setError("");
 
-        photoURL = URL.createObjectURL(file);
+        previewURL = URL.createObjectURL(file);
 
-        const preview = content.querySelector("[data-image-preview]");
+        const preview = content.querySelector(
+            "[data-image-preview]"
+        );
 
         if (preview) {
+
             const img = document.createElement("img");
-            img.src = photoURL;
-            img.alt = "New product photograph";
+
+            img.src = previewURL;
+            img.alt = "Selected product photograph";
+
             preview.replaceChildren(img);
         }
     });
 
-    // RECIPE INGREDIENT ROWS
+    // ==========================================
+    // RECIPE INGREDIENT CONTROLS
+    // ==========================================
 
-    content.addEventListener("click", (event) => {
+    content.addEventListener("click", event => {
 
-        if (event.target.closest("#add-line")) {
+        const target =
+            event.target instanceof Element
+                ? event.target
+                : null;
 
-            const lines = content.querySelector("#recipe-lines");
-            const template = content.querySelector("#ingredient-template");
+        if (!target) return;
 
-            if (lines && template && lines.children.length < 50) {
-                lines.append(template.content.cloneNode(true));
+        if (target.closest("#add-line")) {
+
+            event.preventDefault();
+
+            const lines = content.querySelector(
+                "#recipe-lines"
+            );
+
+            const template = content.querySelector(
+                "#ingredient-template"
+            );
+
+            if (
+                lines &&
+                template &&
+                lines.children.length < 50
+            ) {
+                lines.append(
+                    template.content.cloneNode(true)
+                );
             }
         }
 
-        const remove = event.target.closest(".remove-line");
+        const remove = target.closest(
+            ".remove-line"
+        );
 
         if (remove) {
-            remove.closest(".recipe-line")?.remove();
+            event.preventDefault();
+
+            remove.closest(
+                ".recipe-line"
+            )?.remove();
         }
     });
 
-    // SAVE WITHOUT CHANGING PAGE URL
+    // ==========================================
+    // SAVE MODAL USING FLASK
+    // ==========================================
 
-    dialog.addEventListener("submit", async (event) => {
+    dialog.addEventListener("submit", async event => {
 
-        if (!(event.target instanceof HTMLFormElement)) return;
+        if (!(event.target instanceof HTMLFormElement)) {
+            return;
+        }
 
         event.preventDefault();
 
         if (saving) return;
 
         const form = event.target;
-        const button = event.submitter;
-
-        const url = new URL(
-            form.getAttribute("action") || location.href,
-            location.href
-        );
-
+        const submitter = event.submitter;
+        const url = actionURL(form);
 
         if (url.origin !== location.origin) {
-            showError("Invalid form destination.");
+            setError("Invalid form destination.");
+            return;
+        }
+
+        if (
+            !form.checkValidity() &&
+            !submitter?.formNoValidate
+        ) {
+            form.reportValidity();
             return;
         }
 
         const data = new FormData(form);
 
-        // Preserve Save / Disable / Enable button values.
-        if (button && button.name) {
-            data.set(button.name, button.value);
+        if (submitter?.name) {
+            data.set(
+                submitter.name,
+                submitter.value
+            );
         }
 
-        clearError();
         saving = true;
+        setError("");
 
         const buttons = [
-            ...form.querySelectorAll('button[type="submit"]')
+            ...form.querySelectorAll(
+                'button[type="submit"]'
+            )
         ];
 
-        buttons.forEach(item => item.disabled = true);
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
 
-        const previousSubtitle = subtitle.textContent;
+        const oldSubtitle = subtitle.textContent;
+
         subtitle.textContent = "Saving changes...";
 
         try {
 
             const response = await fetch(url.href, {
                 method: "POST",
-                body: data,
                 credentials: "same-origin",
+                body: data,
                 redirect: "follow"
             });
 
             if (
                 response.redirected &&
-                new URL(response.url).pathname.startsWith("/auth/")
+                new URL(response.url).pathname.startsWith(
+                    "/auth/"
+                )
             ) {
                 location.assign(response.url);
                 return;
@@ -720,42 +886,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const errors = [
                 ...page.querySelectorAll(
-                    ".adm-alert-danger, .adm-alert-error, .adm-alert-warning"
+                    ".adm-alert-danger, " +
+                    ".adm-alert-error, " +
+                    ".adm-alert-warning, " +
+                    ".staff-message-danger"
                 )
-            ].map(el => el.textContent.trim()).filter(Boolean);
+            ].map(item => item.textContent.trim())
+             .filter(Boolean);
 
-            if (!response.ok || errors.length > 0) {
-                showError(
+            if (
+                !response.ok ||
+                errors.length ||
+                !response.redirected
+            ) {
+                setError(
                     errors.join("\n") ||
-                    "Could not save. Please check the information."
+                    "Save not confirmed. Please check the form and server logs."
                 );
+
                 return;
             }
 
-            if (!response.redirected) {
-                showError(
-                    "The server did not confirm the save. " +
-                    "Please check the form."
-                );
-                return;
-            }
-
-            // Refresh the current listing, preserving its URL.
             location.reload();
 
         } catch (error) {
 
-            showError(
-                "Unable to connect to Flask. " +
-                "The save was not confirmed."
+            setError(
+                "Unable to contact Flask. Save was not confirmed."
             );
 
         } finally {
 
             saving = false;
-            subtitle.textContent = previousSubtitle;
 
-            buttons.forEach(item => item.disabled = false);
+            subtitle.textContent = oldSubtitle;
+
+            buttons.forEach(button => {
+                button.disabled = false;
+            });
         }
     });
 

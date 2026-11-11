@@ -3,460 +3,1035 @@
 
 {% block content %}
 
-<section
-    class="container"
-    style="padding: 45px 0; max-width: 900px; min-height: 65vh;">
+<style>
+/* INVENTORYPRO CUSTOMER CHECKOUT */
 
-    <!-- CHECKOUT HEADING -->
+.tc-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 35px 24px 80px;
+    color: #30263d;
+}
 
-    <h1>Checkout</h1>
+.tc-page *,
+.tc-page *::before,
+.tc-page *::after {
+    box-sizing: border-box;
+}
 
-    <p>
-        Cash on Delivery &middot; Orders are reviewed
-        before confirmation.
+.tc-page [hidden],
+.tc-dialog [hidden] {
+    display: none !important;
+}
+
+.tc-eyebrow {
+    color: #76518e;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.tc-heading {
+    margin: 7px 0 6px;
+    color: #30223d;
+    font-family: Georgia, serif;
+    font-size: 32px;
+}
+
+.tc-muted {
+    margin: 0;
+    color: #84788f;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.tc-section {
+    margin-top: 24px;
+    padding: 23px;
+    background: #fff;
+    border: 1px solid #e9e1ef;
+    border-radius: 13px;
+}
+
+.tc-section h2 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    color: #352843;
+}
+
+.tc-section h3 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.tc-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 19px;
+}
+
+.tc-choice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 20px;
+    border: 1px solid #e6dcea;
+    border-radius: 11px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.tc-choice:has(input:checked) {
+    border-color: #76518e;
+    background: #f7f2fa;
+}
+
+.tc-choice input {
+    margin: 3px 0 0;
+    accent-color: #76518e;
+}
+
+.tc-choice strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.tc-choice small {
+    display: block;
+    color: #81748c;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.tc-choice-disabled {
+    background: #faf9fb;
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.tc-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.tc-primary,
+.tc-secondary {
+    min-height: 43px;
+    padding: 11px 19px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.tc-primary {
+    background: #76518e;
+    color: #fff;
+    border: 1px solid #76518e;
+}
+
+.tc-primary:hover:not(:disabled) {
+    background: #5d3c74;
+}
+
+.tc-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tc-secondary {
+    background: #fff;
+    border: 1px solid #e5dceb;
+    color: #76518e;
+}
+
+.tc-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 25px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ebe4f0;
+    color: #897d94;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.tc-progress strong {
+    color: #76518e;
+}
+
+.tc-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 24px;
+    align-items: start;
+}
+
+.tc-left {
+    min-width: 0;
+}
+
+.tc-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 15px;
+}
+
+.tc-section-head h2 {
+    margin: 0;
+}
+
+.tc-link {
+    padding: 4px;
+    background: transparent;
+    border: 0;
+    color: #76518e;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.tc-address {
+    padding: 16px;
+    border: 1px solid #e7dfea;
+    border-radius: 10px;
+}
+
+.tc-address strong {
+    font-size: 13px;
+}
+
+.tc-address p {
+    margin: 7px 0 0;
+    color: #786d83;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.tc-tag {
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    color: #684c82;
+    background: #f2ecf8;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.tc-note {
+    display: block;
+    margin-top: 16px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.tc-textarea {
+    display: block;
+    width: 100%;
+    min-height: 80px;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid #e2d8e9;
+    border-radius: 9px;
+    background: #fff;
+    font: inherit;
+    font-size: 12px;
+    resize: vertical;
+}
+
+.tc-payment {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid #d9cbe5;
+    border-radius: 9px;
+    background: #f9f6fb;
+}
+
+.tc-payment input {
+    accent-color: #76518e;
+}
+
+.tc-payment strong {
+    display: block;
+    font-size: 13px;
+}
+
+.tc-payment small {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: #8a7c94;
+}
+
+.tc-item {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0eaf3;
+}
+
+.tc-item:last-child {
+    border-bottom: 0;
+}
+
+.tc-item-image {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f4eef8;
+}
+
+.tc-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tc-item strong {
+    font-size: 12px;
+}
+
+.tc-item small {
+    display: block;
+    margin-top: 4px;
+    font-size: 10px;
+    color: #887b93;
+}
+
+.tc-item-price {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tc-summary {
+    position: sticky;
+    top: 98px;
+}
+
+.tc-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 14px 0;
+    color: #756981;
+    font-size: 12px;
+}
+
+.tc-summary-row strong {
+    color: #392b48;
+    white-space: nowrap;
+}
+
+.tc-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 17px;
+    padding-top: 17px;
+    border-top: 1px solid #e8deed;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.tc-summary-total strong {
+    color: #76518e;
+    font-size: 22px;
+}
+
+.tc-summary .tc-primary {
+    width: 100%;
+    margin-top: 19px;
+}
+
+.tc-warning {
+    padding: 13px 15px;
+    border-radius: 9px;
+    background: #fff6ed;
+    color: #915923;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* SAVED ADDRESS MODAL */
+
+.tc-dialog {
+    width: min(570px, calc(100vw - 28px));
+    max-height: 85vh;
+    padding: 23px;
+    border: 1px solid #e5dbea;
+    border-radius: 14px;
+    background: #fff;
+    color: #30263d;
+}
+
+.tc-dialog::backdrop {
+    background: rgba(32, 21, 45, 0.48);
+}
+
+.tc-dialog h2 {
+    margin: 0 0 14px;
+    font-size: 19px;
+}
+
+.tc-address-option {
+    display: flex;
+    gap: 11px;
+    margin-bottom: 10px;
+    padding: 13px;
+    border: 1px solid #eae2ef;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.tc-address-option:has(input:checked) {
+    border-color: #76518e;
+    background: #f8f4fb;
+}
+
+.tc-address-option input {
+    align-self: flex-start;
+    margin-top: 3px;
+    accent-color: #76518e;
+}
+
+.tc-address-option strong {
+    display: block;
+    font-size: 12px;
+}
+
+.tc-address-option small {
+    display: block;
+    margin-top: 4px;
+    color: #807389;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+@media (max-width: 850px) {
+    .tc-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .tc-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 600px) {
+    .tc-page {
+        padding: 23px 15px 55px;
+    }
+
+    .tc-choices {
+        grid-template-columns: 1fr;
+    }
+
+    .tc-section {
+        padding: 17px;
+    }
+
+    .tc-heading {
+        font-size: 27px;
+    }
+}
+</style>
+
+<main class="tc-page"
+      id="tc-page"
+      data-subtotal="{{ '%.2f'|format(subtotal) }}">
+
+    <span class="tc-eyebrow">
+        Tali's Bread &amp; Pastries
+    </span>
+
+    <h1 class="tc-heading">Checkout</h1>
+
+    <p class="tc-muted">
+        Review your order and choose how you would
+        like to receive your bakery favorites.
     </p>
 
-    <div
-        style="
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-            gap: 24px;
-            align-items: start;
-        ">
+    <!-- STEP 1: FULFILLMENT SELECTION -->
 
-        <!--   DELIVERY ADDRESS -->
+    <section class="tc-section" id="tc-select-method">
 
-        <div
-            style="
-                border: 1px solid #e8dfee;
-                border-radius: 14px;
-                padding: 22px;
-                background: white;
-            ">
+        <h2>How would you like to receive your order?</h2>
 
-            <h2 style="font-size: 20px;">
-                Delivery Address
-            </h2>
+        <div class="tc-choices">
 
-            {% if not addresses %}
-
-            <p>
-                No saved address yet.
-
-                <a href="{{ url_for('auth.complete_profile') }}">
-                    Complete Your Address
-                </a>
-            </p>
-
-            {% elif not eligible %}
-
-            <p>
-                None of your saved addresses is
-                within an enabled COD delivery area.
-            </p>
-
-            <p>
-                Please contact the bakery to confirm
-                delivery coverage or update your address.
-            </p>
-
-            {% else %}
-
-            <!-- CHECKOUT FORM -->
-
-            <form
-                id="checkout-form"
-                method="post"
-                action="{{ url_for('cart.checkout') }}">
-
-                <!-- CSRF PROTECTION -->
-
+            <label class="tc-choice">
                 <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}">
+                    type="radio"
+                    name="tc-fulfillment"
+                    value="delivery">
 
-                <!-- DUPLICATE ORDER PROTECTION -->
+                <span>
+                    <strong>Delivery</strong>
+                    <small>
+                        Have your freshly baked favorites
+                        delivered to your preferred address.
+                    </small>
+                </span>
+            </label>
 
+            <label class="tc-choice tc-choice-disabled">
                 <input
-                    type="hidden"
-                    name="checkout_token"
-                    value="{{ checkout_token }}">
+                    type="radio"
+                    name="tc-fulfillment"
+                    value="pickup"
+                    disabled>
 
-                <!-- AVAILABLE DELIVERY ADDRESSES -->
-
-                {% for address in eligible %}
-
-                <label
-                    style="
-                                display: block;
-                                padding: 12px;
-                                margin-bottom: 10px;
-                                border: 1px solid #e9e0ef;
-                                border-radius: 10px;
-                                cursor: pointer;
-                            ">
-
-                    <input
-                        type="radio"
-                        name="address_id"
-                        value="{{ address.id }}"
-                        data-fee="{{ address.delivery_fee }}"
-                        {% if loop.first %}checked{% endif %}
-                        required>
-
-                    <strong>
-                        {{ address.recipient_name }}
-                    </strong>
-
-                    <span
-                        style="
-                                    display: block;
-                                    margin-left: 24px;
-                                    color: #71667d;
-                                ">
-                        {{ address.street_address }},
-                        {{ address.barangay }},
-                        {{ address.city_municipality }},
-                        {{ address.province }}
-                    </span>
-
-                    <span
-                        style="
-                                    display: block;
-                                    margin-left: 24px;
-                                    color: #69508d;
-                                ">
-                        Delivery fee:
-                        &#8369;{{ "%.2f"|format(address.delivery_fee) }}
-                    </span>
-
-                </label>
-
-                {% endfor %}
-
-                <!-- ORDER NOTES -->
-
-                <label
-                    for="customer_note"
-                    style="
-                            display: block;
-                            margin-top: 18px;
-                        ">
-                    Order Notes (Optional)
-                </label>
-
-                <textarea
-                    id="customer_note"
-                    name="customer_note"
-                    maxlength="500"
-                    rows="3"
-                    placeholder="Add special instructions for your order..."
-                    style="
-                            width: 100%;
-                            padding: 12px;
-                            border: 1px solid #ded3e8;
-                            border-radius: 9px;
-                            resize: vertical;
-                        "></textarea>
-
-                <!-- PLACE ORDER -->
-
-                <button
-                    id="place-order"
-                    type="submit"
-                    style="
-                            padding: 13px 18px;
-                            background: #69508d;
-                            color: white;
-                            border: 0;
-                            border-radius: 9px;
-                            margin-top: 14px;
-                            cursor: pointer;
-                            font-weight: 600;
-                        ">
-                    Place COD Order
-                </button>
-
-            </form>
-
-            {% endif %}
+                <span>
+                    <strong>Store Pickup</strong>
+                    <small>
+                        Pick up directly from Tali's.
+                        A down payment is required.
+                        Currently unavailable while
+                        payment verification is being completed.
+                    </small>
+                </span>
+            </label>
 
         </div>
 
-        <!-- ORDER SUMMARY-->
+        <div class="tc-actions">
+            <button type="button"
+                    class="tc-primary"
+                    id="tc-continue"
+                    disabled>
+                Continue to Checkout
+            </button>
+        </div>
 
-        <aside
-            style="
-                border: 1px solid #e8dfee;
-                border-radius: 14px;
-                padding: 22px;
-                background: #faf7fc;
-            ">
+    </section>
 
-            <h2 style="font-size: 20px;">
-                Order Summary
-            </h2>
+    <!-- STEP 2: DELIVERY CHECKOUT -->
 
-            <!-- ORDER ITEMS -->
+    <div id="tc-checkout-step" hidden>
 
-            {% for item in items %}
+        <div class="tc-progress">
+            <strong>Details</strong>
+            <span>›</span>
+            <span>Payment</span>
+            <span>›</span>
+            <span>Review Order</span>
+        </div>
 
-            <p
-                style="
-                        display: flex;
-                        justify-content: space-between;
-                        gap: 10px;
-                    ">
+        <div class="tc-layout">
 
-                <span>
-                    {{ item.quantity }} Ã {{ item.name }}
-                </span>
+            <div class="tc-left">
 
-                <strong>
-                    &#8369;{{ "%.2f"|format(item.line_total) }}
-                </strong>
+                <form
+                    id="tc-checkout-form"
+                    method="post"
+                    action="{{ url_for('cart.checkout') }}">
 
-            </p>
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
 
-            {% endfor %}
+                    <input type="hidden"
+                           name="checkout_token"
+                           value="{{ checkout_token }}">
 
-            <hr>
+                    <input type="hidden"
+                           name="order_type"
+                           value="delivery">
 
-            <!-- SUBTOTAL -->
+                    <input type="hidden"
+                           name="address_id"
+                           id="tc-address-id"
+                           value="{% if eligible %}{{ eligible[0].id }}{% endif %}">
 
-            <p>
-                Subtotal
+                    <!-- DELIVERY ADDRESS -->
 
-                <strong style="float: right;">
-                    &#8369;{{ "%.2f"|format(subtotal) }}
-                </strong>
-            </p>
+                    <section class="tc-section">
 
-            <!-- DELIVERY FEE -->
+                        <div class="tc-section-head">
+                            <h2>Delivery Address</h2>
 
-            <p>
-                Delivery
+                            {% if eligible %}
+                            <button type="button"
+                                    class="tc-link"
+                                    id="tc-change-address">
+                                Change
+                            </button>
+                            {% endif %}
+                        </div>
 
-                <strong
-                    id="fee-preview"
-                    style="float: right;">
-                    {% if eligible %}
-                    &#8369;{{ "%.2f"|format(eligible[0].delivery_fee) }}
-                    {% else %}
-                    {% endif %}
-                </strong>
-            </p>
+                        {% if eligible %}
 
-            <hr>
+                        <div class="tc-address">
+                            <strong id="tc-recipient">
+                                {{ eligible[0].recipient_name }}
+                                |
+                                {{ eligible[0].mobile_number }}
+                            </strong>
 
-            <!-- GRAND TOTAL -->
+                            <p id="tc-address-text">
+                                {{ eligible[0].street_address }},
+                                {{ eligible[0].barangay }},
+                                {{ eligible[0].city_municipality }},
+                                {{ eligible[0].province }},
+                                {{ eligible[0].postal_code }}
+                            </p>
 
-            <p>
-                <strong>
-                    Total Estimate
-                </strong>
+                            <span class="tc-tag">
+                                Approved Delivery Area
+                            </span>
+                        </div>
 
-                <strong
-                    id="total-preview"
-                    style="
-                        float: right;
-                        color: #69508d;
-                        font-size: 18px;
-                    ">
-                    {% if eligible %}
-                    &#8369;{{ "%.2f"|format(
-                    subtotal + eligible[0].delivery_fee
-                    ) }}
-                    {% else %}
+                        {% else %}
 
-                    {% endif %}
-                </strong>
-            </p>
+                        <div class="tc-warning">
+                            You do not have an approved delivery
+                            address yet. Add or update your
+                            address to continue.
+                        </div>
 
-            <small
-                style="
-                    display: block;
-                    margin-top: 15px;
-                    color: #81758d;
-                    line-height: 1.6;
-                ">
-                The server verifies current product prices
-                and delivery fees when the order is submitted.
-            </small>
+                        <p style="margin-top:14px">
+                            <a class="tc-link"
+                               href="{{ url_for('auth.complete_profile') }}">
+                                Manage My Address
+                            </a>
+                        </p>
 
-        </aside>
+                        {% endif %}
 
+                        <label class="tc-note"
+                               for="tc-customer-note">
+                            Order Notes (Optional)
+                        </label>
+
+                        <textarea
+                            id="tc-customer-note"
+                            class="tc-textarea"
+                            name="customer_note"
+                            maxlength="500"
+                            rows="3"
+                            placeholder="Delivery instructions or special requests..."></textarea>
+
+                    </section>
+
+                    <!-- PAYMENT -->
+
+                    <section class="tc-section">
+
+                        <h2>Payment Method</h2>
+
+                        <label class="tc-payment">
+                            <input type="radio"
+                                   name="payment_method"
+                                   value="cod"
+                                   checked
+                                   required>
+
+                            <span>
+                                <strong>Cash on Delivery</strong>
+                                <small>
+                                    Pay when your order arrives.
+                                </small>
+                            </span>
+                        </label>
+
+                        <p class="tc-muted"
+                           style="margin-top:11px">
+                            Payment options not yet integrated
+                            are not displayed.
+                        </p>
+
+                    </section>
+
+                    <!-- REVIEW -->
+
+                    <section class="tc-section">
+
+                        <h2>Review Order</h2>
+
+                        {% for item in items %}
+                        <div class="tc-item">
+
+                            <div class="tc-item-image">
+
+                                {% if item.image_path %}
+                                <img
+                                    src="{{ url_for('products.static', filename='images/' ~ item.image_path) }}"
+                                    alt="{{ item.name }}"
+                                    loading="lazy">
+                                {% else %}
+                                <span>
+                                    {{ item.name[:1] }}
+                                </span>
+                                {% endif %}
+
+                            </div>
+
+                            <div>
+                                <strong>{{ item.name }}</strong>
+
+                                <small>
+                                    {{ item.quantity }}
+                                    &times;
+                                    &#8369;{{ '%.2f'|format(item.price) }}
+                                </small>
+                            </div>
+
+                            <span class="tc-item-price">
+                                &#8369;{{ '%.2f'|format(item.line_total) }}
+                            </span>
+                        </div>
+                        {% endfor %}
+
+                        <p class="tc-muted"
+                           style="margin-top:14px">
+                            Product prices and delivery fees are
+                            verified again when you place the order.
+                        </p>
+
+                    </section>
+
+                </form>
+
+                <div class="tc-actions">
+                    <button type="button"
+                            class="tc-secondary"
+                            id="tc-change-method">
+                        Change Fulfillment Method
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- ORDER SUMMARY -->
+
+            <aside class="tc-section tc-summary">
+
+                <h2>Order Summary</h2>
+
+                <div class="tc-summary-row">
+                    <span>Fulfillment</span>
+                    <strong>Delivery</strong>
+                </div>
+
+                <div class="tc-summary-row">
+                    <span>Merchandise Subtotal</span>
+                    <strong>
+                        &#8369;{{ '%.2f'|format(subtotal) }}
+                    </strong>
+                </div>
+
+                <div class="tc-summary-row">
+                    <span>Delivery Fee</span>
+                    <strong id="tc-fee-preview">
+                        {% if eligible %}
+                            &#8369;{{ '%.2f'|format(eligible[0].delivery_fee) }}
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="tc-summary-total">
+                    <span>Total Payment</span>
+                    <strong id="tc-total-preview">
+                        {% if eligible %}
+                            &#8369;{{ '%.2f'|format(subtotal + eligible[0].delivery_fee) }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <p class="tc-muted"
+                   style="margin-top:12px">
+                    Pay the full amount upon delivery.
+                </p>
+
+                <button
+                    type="submit"
+                    form="tc-checkout-form"
+                    class="tc-primary"
+                    id="tc-place-order"
+                    {% if not eligible %}disabled{% endif %}>
+                    Place COD Order
+                </button>
+
+            </aside>
+
+        </div>
     </div>
 
-</section>
+    <!-- SAVED ADDRESSES MODAL -->
 
-PASS FLASK SUBTOTAL TO JAVASCRIPT
-This avoids Jinja syntax inside JS.
+    <dialog id="tc-address-dialog"
+            class="tc-dialog"
+            aria-labelledby="tc-dialog-title">
 
-<input
-    type="hidden"
-    id="checkout-subtotal"
-    value="{{ '%.2f'|format(subtotal) }}">
+        <h2 id="tc-dialog-title">My Addresses</h2>
 
-<!--CHECKOUT JAVASCRIPT-->
+        <p class="tc-muted"
+           style="margin-bottom:17px">
+            Select an address approved for delivery.
+        </p>
+
+        {% for address in eligible %}
+
+        <label class="tc-address-option">
+
+            <input type="radio"
+                   name="tc-modal-address"
+                   value="{{ address.id }}"
+                   data-fee="{{ address.delivery_fee }}"
+                   data-recipient="{{ address.recipient_name }} | {{ address.mobile_number }}"
+                   data-address="{{ address.street_address }}, {{ address.barangay }}, {{ address.city_municipality }}, {{ address.province }}, {{ address.postal_code }}"
+                   {% if loop.first %}checked{% endif %}>
+
+            <span>
+                <strong>
+                    {{ address.recipient_name }}
+                    {% if address.is_default %}
+                        · Default
+                    {% endif %}
+                </strong>
+
+                <small>
+                    {{ address.street_address }},
+                    {{ address.barangay }},
+                    {{ address.city_municipality }},
+                    {{ address.province }}
+                </small>
+            </span>
+
+        </label>
+
+        {% endfor %}
+
+        <p style="margin-top:18px">
+            <a class="tc-link"
+               href="{{ url_for('auth.complete_profile') }}">
+                + Manage Address
+            </a>
+        </p>
+
+        <div class="tc-actions">
+            <button type="button"
+                    class="tc-secondary"
+                    id="tc-address-cancel">
+                Cancel
+            </button>
+
+            <button type="button"
+                    class="tc-primary"
+                    id="tc-address-confirm">
+                Confirm
+            </button>
+        </div>
+
+    </dialog>
+
+</main>
 
 <script>
-"use strict";
-
 document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
 
-    // GET HTML ELEMENTS
+    const root = document.getElementById("tc-page");
+    if (!root) return;
 
-    const subtotalInput = document.getElementById(
-        "checkout-subtotal"
+    const methodPanel = document.getElementById(
+        "tc-select-method"
     );
 
-    const feePreview = document.getElementById(
-        "fee-preview"
+    const checkoutPanel = document.getElementById(
+        "tc-checkout-step"
     );
 
-    const totalPreview = document.getElementById(
-        "total-preview"
+    const continueButton = document.getElementById(
+        "tc-continue"
     );
 
-    const addressRadios = document.querySelectorAll(
-        'input[name="address_id"]'
+    const backButton = document.getElementById(
+        "tc-change-method"
     );
 
-    const checkoutForm = document.getElementById(
-        "checkout-form"
+    const form = document.getElementById(
+        "tc-checkout-form"
     );
 
     const placeOrderButton = document.getElementById(
-        "place-order"
+        "tc-place-order"
     );
 
-    // GET SUBTOTAL FROM HTML
-
-    const subtotal = subtotalInput
-        ? Number(subtotalInput.value)
-        : 0;
-
-    // PHILIPPINE PESO FORMATTER
-
-
-function formatMoney(amount) {
-    const value = Number(amount);
-
-    if (!Number.isFinite(value)) {
-        return "—";
-    }
-
-    return new Intl.NumberFormat("en-PH", {
-        style: "currency",
-        currency: "PHP",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(value);
-}
-
-function updateCheckoutTotal() {
-    const selectedAddress = document.querySelector(
-        'input[name="address_id"]:checked'
+    const dialog = document.getElementById(
+        "tc-address-dialog"
     );
 
-    if (!selectedAddress) {
-        if (feePreview) {
-            feePreview.textContent = "—";
+    const addressField = document.getElementById(
+        "tc-address-id"
+    );
+
+    const feePreview = document.getElementById(
+        "tc-fee-preview"
+    );
+
+    const totalPreview = document.getElementById(
+        "tc-total-preview"
+    );
+
+    const subtotal = Number(root.dataset.subtotal);
+
+    const formatter = new Intl.NumberFormat(
+        "en-PH",
+        {
+            style: "currency",
+            currency: "PHP",
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         }
+    );
 
-        if (totalPreview) {
+    function updateTotals() {
+        const selected = Array.from(
+            dialog.querySelectorAll(
+                'input[name="tc-modal-address"]'
+            )
+        ).find(
+            radio => radio.value === addressField.value
+        );
+
+        if (!selected) {
+            feePreview.textContent = "Not available";
             totalPreview.textContent = "—";
+            return;
         }
 
-        return;
-    }
+        const fee = Number(selected.dataset.fee);
 
-    const deliveryFee = Number(
-        selectedAddress.dataset.fee
-    );
-
-    if (
-        !Number.isFinite(deliveryFee) ||
-        deliveryFee < 0
-    ) {
-        if (feePreview) {
+        if (!Number.isFinite(fee) || fee < 0) {
             feePreview.textContent = "Invalid fee";
-        }
-
-        if (totalPreview) {
             totalPreview.textContent = "—";
+            return;
         }
 
-        return;
-    }
+        feePreview.textContent = formatter.format(fee);
 
-    const estimatedTotal = subtotal + deliveryFee;
-
-    if (feePreview) {
-        feePreview.textContent = formatMoney(
-            deliveryFee
-        );
-    }
-
-    if (totalPreview) {
-        totalPreview.textContent = formatMoney(
-            estimatedTotal
-        );
-    }
-}
-
-
-    // LISTEN FOR ADDRESS CHANGES
-
-    addressRadios.forEach((radio) => {
-
-        radio.addEventListener(
-            "change",
-            updateCheckoutTotal
+        totalPreview.textContent = formatter.format(
+            subtotal + fee
         );
 
+        document.getElementById(
+            "tc-recipient"
+        ).textContent = selected.dataset.recipient;
+
+        document.getElementById(
+            "tc-address-text"
+        ).textContent = selected.dataset.address;
+    }
+
+    document.querySelectorAll(
+        'input[name="tc-fulfillment"]'
+    ).forEach(radio => {
+        radio.addEventListener("change", () => {
+            continueButton.disabled = (
+                radio.value !== "delivery"
+            );
+        });
     });
 
-    // INITIAL CALCULATION
-
-    updateCheckoutTotal();
-
-    // PREVENT DUPLICATE SUBMISSIONS
-
-    if (checkoutForm && placeOrderButton) {
-
-        let isSubmitting = false;
-
-        checkoutForm.addEventListener(
-            "submit",
-            (event) => {
-
-                if (isSubmitting) {
-
-                    event.preventDefault();
-                    return;
-                }
-
-                // Browser validates required inputs
-                // before firing the submit event.
-                isSubmitting = true;
-
-                placeOrderButton.disabled = true;
-
-                placeOrderButton.textContent =
-                    "Submitting Order...";
-
-                placeOrderButton.style.opacity = "0.7";
-
-                placeOrderButton.style.cursor =
-                    "not-allowed";
-            }
+    continueButton.addEventListener("click", () => {
+        const selected = document.querySelector(
+            'input[name="tc-fulfillment"]:checked'
         );
+
+        if (!selected || selected.value !== "delivery") {
+            return;
+        }
+
+        methodPanel.hidden = true;
+        checkoutPanel.hidden = false;
+
+        updateTotals();
+    });
+
+    backButton.addEventListener("click", () => {
+        checkoutPanel.hidden = true;
+        methodPanel.hidden = false;
+    });
+
+    const openAddress = document.getElementById(
+        "tc-change-address"
+    );
+
+    if (openAddress && dialog) {
+        openAddress.addEventListener("click", () => {
+            const selected = dialog.querySelector(
+                'input[name="tc-modal-address"][value="' +
+                addressField.value +
+                '"]'
+            );
+
+            if (selected) selected.checked = true;
+
+            dialog.showModal();
+        });
+
+        document.getElementById(
+            "tc-address-cancel"
+        ).addEventListener("click", () => {
+            dialog.close();
+        });
+
+        document.getElementById(
+            "tc-address-confirm"
+        ).addEventListener("click", () => {
+            const selected = dialog.querySelector(
+                'input[name="tc-modal-address"]:checked'
+            );
+
+            if (!selected) return;
+
+            addressField.value = selected.value;
+
+            updateTotals();
+            dialog.close();
+        });
     }
 
+    if (form) {
+        form.addEventListener("submit", event => {
+            if (
+                !addressField.value ||
+                form.dataset.submitting === "1"
+            ) {
+                event.preventDefault();
+                return;
+            }
+
+            form.dataset.submitting = "1";
+
+            placeOrderButton.disabled = true;
+            placeOrderButton.textContent = "Placing Order...";
+        });
+    }
 });
 </script>
 

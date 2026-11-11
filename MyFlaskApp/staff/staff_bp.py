@@ -240,33 +240,162 @@ def change_password():
     return redirect(url_for("staff.dashboard"))
 
 
+
 @staff_bp.get("/manage")
 @role_required("admin")
 def manage():
+    tab = request.args.get("type", "bakery")
+
+    if tab not in ("bakery", "rider"):
+        tab = "bakery"
+
+    per_page = 10
+
+    # Count bakery and rider accounts separately.
+    counts = get_one(
+        """
+        SELECT
+            SUM(sp.staff_type = 'bakery') AS bakery_count,
+            SUM(sp.staff_type = 'rider') AS rider_count
+        FROM staff_profiles sp
+        JOIN users u ON u.id = sp.user_id
+        WHERE u.role = 'staff'
+        """
+    )
+
+    bakery_count = int(counts["bakery_count"] or 0)
+    rider_count = int(counts["rider_count"] or 0)
+
+    total = (
+        bakery_count if tab == "bakery"
+        else rider_count
+    )
+
+    pages = max(1, (total + per_page - 1) // per_page)
+
+    page = request.args.get(
+        "page", default=1, type=int
+    ) or 1
+
+    page = max(1, min(page, pages))
+    offset = (page - 1) * per_page
+
+    # Only load staff belonging to the selected tab.
     staff = get_all(
-        """SELECT u.id, u.first_name, u.last_name, u.email,
-                  sp.staff_type, sp.is_enabled
-           FROM users u JOIN staff_profiles sp ON sp.user_id=u.id
-           WHERE u.role='staff' ORDER BY u.id DESC"""
+        """
+        SELECT
+            u.id,
+            u.first_name,
+            u.last_name,
+            u.email,
+            sp.staff_type,
+            sp.is_enabled
+        FROM users u
+        JOIN staff_profiles sp
+            ON sp.user_id = u.id
+        WHERE u.role = 'staff'
+          AND sp.staff_type = %s
+        ORDER BY u.id DESC
+        LIMIT %s OFFSET %s
+        """,
+        (tab, per_page, offset)
     )
-    riders = [s for s in staff if s["staff_type"] == "rider" and s["is_enabled"]]
-    orders = get_all(
-        """SELECT o.id, o.order_number, o.status,
-                  d.rider_user_id
-           FROM orders o LEFT JOIN delivery_assignments d ON d.order_id=o.id
-           WHERE o.order_type='delivery'
-             AND o.status IN ('confirmed','preparing','ready','out_for_delivery')
-           ORDER BY o.created_at DESC LIMIT 100"""
+
+    # All active riders are available for assignment,
+    # not just the riders on the current page.
+    riders = get_all(
+        """
+        SELECT
+            u.id,
+            u.first_name,
+            u.last_name
+        FROM users u
+        JOIN staff_profiles sp
+            ON sp.user_id = u.id
+        WHERE u.role = 'staff'
+          AND u.account_status = 'active'
+          AND sp.staff_type = 'rider'
+          AND sp.is_enabled = 1
+        ORDER BY u.first_name, u.last_name
+        """
     )
+
+    # Paginate delivery assignments separately.
+    assignment_total = int(get_one(
+        """
+        SELECT COUNT(*) AS total
+        FROM orders
+        WHERE order_type = 'delivery'
+          AND status IN (
+              'confirmed',
+              'preparing',
+              'ready',
+              'out_for_delivery'
+          )
+        """
+    )["total"] or 0)
+
+    assignment_pages = max(
+        1,
+        (assignment_total + per_page - 1) // per_page
+    )
+
+    assignment_page = request.args.get(
+        "assignment_page", default=1, type=int
+    ) or 1
+
+    assignment_page = max(
+        1, min(assignment_page, assignment_pages)
+    )
+
+    assignment_offset = (
+        assignment_page - 1
+    ) * per_page
+
+    orders = []
+
+    if tab == "rider":
+        orders = get_all(
+            """
+            SELECT
+                o.id,
+                o.order_number,
+                o.status,
+                d.rider_user_id
+            FROM orders o
+            LEFT JOIN delivery_assignments d
+                ON d.order_id = o.id
+            WHERE o.order_type = 'delivery'
+              AND o.status IN (
+                  'confirmed',
+                  'preparing',
+                  'ready',
+                  'out_for_delivery'
+              )
+            ORDER BY o.created_at DESC, o.id DESC
+            LIMIT %s OFFSET %s
+            """,
+            (per_page, assignment_offset)
+        )
+
     return render_template(
-    "staff_dashboard.html",
-    view="admin",
-    user=current_user(),
-    staff=staff,
-    riders=riders,
-    orders=orders,
-    title="Staff Management"
-)
+        "staff_dashboard.html",
+        view="admin",
+        user=current_user(),
+        staff=staff,
+        riders=riders,
+        orders=orders,
+        title="Staff Management",
+        tab=tab,
+        page=page,
+        pages=pages,
+        total=total,
+        bakery_count=bakery_count,
+        rider_count=rider_count,
+        assignment_page=assignment_page,
+        assignment_pages=assignment_pages,
+        assignment_total=assignment_total
+    )
 
 
 @staff_bp.post("/manage/create")
@@ -289,7 +418,12 @@ def create_staff():
             and any(not c.isalnum() and not c.isspace() for c in password)
             and kind in ("bakery", "rider")):
         flash("Check the name, email, PH phone, password and staff type.", "danger")
-        return redirect(url_for("staff.manage"))
+        return redirect(
+            url_for(
+                "staff.manage",
+                type=kind if kind in ("bakery", "rider") else "bakery"
+                )
+            )
     conn = mysql.connection
     cur = conn.cursor(DictCursor)
     try:

@@ -139,7 +139,7 @@ def admin_notifications():
                 if placed_at else ""
             ),
             "url": url_for(
-                "admin.admin_order_detail",
+                "admin.admin_orderdetail",
                 order_id=order["id"]
             ),
         })
