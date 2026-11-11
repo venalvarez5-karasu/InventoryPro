@@ -2461,7 +2461,9 @@ def admin_pickup_settings():
         settings=settings
     )
 
+# ==========================================
 # INVENTORY OVERVIEW + MOVEMENT HISTORY
+# ==========================================
 
 @admin_bp.route("/stock-control")
 @role_required("admin")
@@ -2469,16 +2471,19 @@ def admin_inventory():
 
     per_page = 10
 
-    # --------------------------------------
-    # INVENTORY SEARCH
-    # --------------------------------------
-
     q = request.args.get(
         "q", ""
     ).strip()[:80]
 
-    where = "i.is_active = 1"
-    params = []
+    status = request.args.get(
+        "status", "active"
+    ).strip().lower()
+
+    if status not in ("active", "archived"):
+        status = "active"
+
+    where = "i.is_active = %s"
+    params = [1 if status == "active" else 0]
 
     if q:
         where += (
@@ -2489,11 +2494,7 @@ def admin_inventory():
         )
 
         keyword = f"%{q}%"
-        params = [keyword, keyword]
-
-    # --------------------------------------
-    # INVENTORY PAGINATION
-    # --------------------------------------
+        params.extend([keyword, keyword])
 
     total = int(db_one(
         f"""
@@ -2517,22 +2518,16 @@ def admin_inventory():
         SELECT
             i.*,
             c.name AS category_name
-
         FROM inventory_items i
-
         JOIN inventory_categories c
             ON c.id = i.category_id
-
         WHERE {where}
-
         ORDER BY i.item_name, i.id
-
         LIMIT %s OFFSET %s
         """,
         tuple(params + [per_page, offset])
     )
 
-    # All categories for Add/Edit dropdowns
     categories = db_all(
         """
         SELECT id, name
@@ -2540,11 +2535,6 @@ def admin_inventory():
         ORDER BY name, id
         """
     )
-
-    # --------------------------------------
-    # STOCK MOVEMENT HISTORY
-    # Separate pagination from inventory
-    # --------------------------------------
 
     movement_total = int(db_one(
         """
@@ -2584,22 +2574,14 @@ def admin_inventory():
             m.quantity_before,
             m.quantity_after,
             m.notes
-
         FROM stock_movements m
-
         JOIN inventory_items i
             ON i.id = m.inventory_item_id
-
         ORDER BY m.id DESC
-
         LIMIT %s OFFSET %s
         """,
         (per_page, movement_offset)
     )
-
-    # --------------------------------------
-    # RENDER INVENTORY PAGE
-    # --------------------------------------
 
     return console(
         "inventory",
@@ -2607,6 +2589,7 @@ def admin_inventory():
         rows=rows,
         categories=categories,
         q=q,
+        status=status,
         page=page,
         pages=pages,
         total=total,
@@ -2617,6 +2600,10 @@ def admin_inventory():
     )
 
 # ADD INVENTORY ITEM
+
+# ==========================================
+# ADD INVENTORY ITEM WITH OPENING STOCK
+# ==========================================
 
 @admin_bp.route(
     "/stock-control/add",
@@ -2636,7 +2623,7 @@ def admin_inventory_add():
 
         item_type = request.form.get(
             "item_type", ""
-        )
+        ).strip()
 
         unit = request.form.get(
             "unit", ""
@@ -2647,18 +2634,24 @@ def admin_inventory_add():
         ).strip() or None
 
         reorder = quantity(
-            request.form.get(
-                "reorder_level", "0"
-            ),
+            request.form.get("reorder_level") or "0",
             allow_zero=True
         )
 
-        if not (
-            2 <= len(name) <= 180
-            and 1 <= len(unit) <= 20
-        ):
+        opening_stock = quantity(
+            request.form.get("opening_stock") or "0",
+            allow_zero=True
+        )
+
+        # Basic validation
+        if not (2 <= len(name) <= 180):
             raise ValueError(
-                "Check the item name and unit."
+                "Item name must contain 2 to 180 characters."
+            )
+
+        if not (1 <= len(unit) <= 20):
+            raise ValueError(
+                "Enter a valid measurement unit."
             )
 
         if sku and len(sku) > 50:
@@ -2672,7 +2665,7 @@ def admin_inventory_add():
             "finished_product"
         ):
             raise ValueError(
-                "Select an inventory item type."
+                "Select a valid inventory item type."
             )
 
         category = db_one(
@@ -2681,15 +2674,45 @@ def admin_inventory_add():
             FROM inventory_categories
             WHERE id = %s
             """,
-            (category_id,),
+            (category_id,)
         ) if category_id else None
 
         if not category:
             raise ValueError(
-                "Select an inventory category."
+                "Select a valid inventory category."
             )
 
-        item_id = db_write(
+    except ValueError as exc:
+        flash(str(exc), "danger")
+        return redirect(
+            url_for("admin.admin_inventory")
+        )
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        # Check for duplicate SKU
+        if sku:
+            cur.execute(
+                """
+                SELECT id
+                FROM inventory_items
+                WHERE sku = %s
+                LIMIT 1
+                """,
+                (sku,)
+            )
+
+            if cur.fetchone():
+                raise ValueError(
+                    "This SKU is already being used."
+                )
+
+        # Create inventory item
+        cur.execute(
             """
             INSERT INTO inventory_items
             (
@@ -2698,9 +2721,10 @@ def admin_inventory_add():
                 item_name,
                 sku,
                 unit,
+                quantity_on_hand,
                 reorder_level
             )
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 category_id,
@@ -2708,28 +2732,101 @@ def admin_inventory_add():
                 name,
                 sku,
                 unit,
+                opening_stock,
                 reorder
-            ),
+            )
         )
 
-        audit(
-            "inventory_item_created",
-            "inventory_items",
-            item_id,
-            name
+        item_id = cur.lastrowid
+
+        # Record opening stock in movement history
+        if opening_stock > 0:
+            cur.execute(
+                """
+                INSERT INTO stock_movements
+                (
+                    inventory_item_id,
+                    movement_type,
+                    quantity_change,
+                    quantity_before,
+                    quantity_after,
+                    notes,
+                    recorded_by
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    item_id,
+                    "stock_in",
+                    opening_stock,
+                    Decimal("0"),
+                    opening_stock,
+                    "Initial inventory opening stock",
+                    actor_id()
+                )
+            )
+
+        # Record audit trail
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id,
+                action,
+                entity_name,
+                entity_id,
+                details
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                actor_id(),
+                "inventory_item_created",
+                "inventory_items",
+                item_id,
+                (
+                    f"Created {name}; "
+                    f"opening stock={opening_stock} {unit}; "
+                    f"reorder level={reorder} {unit}"
+                )
+            )
         )
+
+        conn.commit()
 
         flash(
-            "Inventory item created. "
-            "Record stock-in to set its quantity.",
+            "Inventory item created successfully "
+            "with its opening stock.",
             "success"
         )
 
-    except (ValueError, IntegrityError) as exc:
-        if isinstance(exc, IntegrityError):
-            flash("Duplicate SKU.", "danger")
-        else:
-            flash(str(exc), "danger")
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except IntegrityError:
+        conn.rollback()
+        flash(
+            "Could not create inventory item. "
+            "Check for a duplicate SKU or invalid data.",
+            "danger"
+        )
+
+    except Exception:
+        conn.rollback()
+
+        current_app.logger.exception(
+            "Failed to create inventory item"
+        )
+
+        flash(
+            "Unable to create inventory item. "
+            "Please check the server logs.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
 
     return redirect(
         url_for("admin.admin_inventory")
@@ -2859,6 +2956,7 @@ def admin_inventory_edit(item_id):
             "success"
         )
 
+    
     except IntegrityError:
         flash(
             "This SKU is already being used "
@@ -2869,8 +2967,382 @@ def admin_inventory_edit(item_id):
     except ValueError as exc:
         flash(str(exc), "danger")
 
+    except Exception:
+        current_app.logger.exception(
+            "Inventory item edit failed: item_id=%s",
+            item_id
+        )
+
+        flash(
+            "Could not save inventory changes. "
+            "Please check the Flask terminal.",
+            "danger"
+        )
+
     return redirect(
         url_for("admin.admin_inventory")
+    )
+
+
+# ==========================================
+# ARCHIVE INVENTORY ITEM
+# ==========================================
+
+@admin_bp.post(
+    "/stock-control/<int:item_id>/archive"
+)
+@role_required("admin")
+def admin_inventory_archive(item_id):
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        cur.execute(
+            """
+            SELECT id, item_name, is_active
+            FROM inventory_items
+            WHERE id = %s
+            FOR UPDATE
+            """,
+            (item_id,)
+        )
+
+        item = cur.fetchone()
+
+        if not item:
+            raise ValueError(
+                "Inventory item not found."
+            )
+
+        if not item["is_active"]:
+            raise ValueError(
+                "This item is already archived."
+            )
+
+        cur.execute(
+            """
+            UPDATE inventory_items
+            SET is_active = 0
+            WHERE id = %s
+            """,
+            (item_id,)
+        )
+
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id,
+                action,
+                entity_name,
+                entity_id,
+                details
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                actor_id(),
+                "inventory_item_archived",
+                "inventory_items",
+                item_id,
+                f"Archived inventory item: {item['item_name']}"
+            )
+        )
+
+        conn.commit()
+
+        flash(
+            "Inventory item archived successfully.",
+            "success"
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+
+        current_app.logger.exception(
+            "Inventory archive failed"
+        )
+
+        flash(
+            "Unable to archive inventory item.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for("admin.admin_inventory")
+    )
+
+
+# ==========================================
+# RESTORE INVENTORY ITEM
+# ==========================================
+
+@admin_bp.post(
+    "/stock-control/<int:item_id>/restore"
+)
+@role_required("admin")
+def admin_inventory_restore(item_id):
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        cur.execute(
+            """
+            SELECT id, item_name, is_active
+            FROM inventory_items
+            WHERE id = %s
+            FOR UPDATE
+            """,
+            (item_id,)
+        )
+
+        item = cur.fetchone()
+
+        if not item:
+            raise ValueError(
+                "Inventory item not found."
+            )
+
+        if item["is_active"]:
+            raise ValueError(
+                "This item is already active."
+            )
+
+        cur.execute(
+            """
+            UPDATE inventory_items
+            SET is_active = 1
+            WHERE id = %s
+            """,
+            (item_id,)
+        )
+
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id,
+                action,
+                entity_name,
+                entity_id,
+                details
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                actor_id(),
+                "inventory_item_restored",
+                "inventory_items",
+                item_id,
+                f"Restored inventory item: {item['item_name']}"
+            )
+        )
+
+        conn.commit()
+
+        flash(
+            "Inventory item restored successfully.",
+            "success"
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+
+        current_app.logger.exception(
+            "Inventory restore failed"
+        )
+
+        flash(
+            "Unable to restore inventory item.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for(
+            "admin.admin_inventory",
+            status="archived"
+        )
+    )
+
+
+# ==========================================
+# REMOVE UNUSED INVENTORY ITEM
+# ==========================================
+
+@admin_bp.post(
+    "/stock-control/<int:item_id>/remove"
+)
+@role_required("admin")
+def admin_inventory_remove(item_id):
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        cur.execute(
+            """
+            SELECT
+                id,
+                item_name,
+                quantity_on_hand,
+                is_active
+            FROM inventory_items
+            WHERE id = %s
+            FOR UPDATE
+            """,
+            (item_id,)
+        )
+
+        item = cur.fetchone()
+
+        if not item:
+            raise ValueError(
+                "Inventory item not found."
+            )
+
+        if item["is_active"]:
+            raise ValueError(
+                "Archive the item before removing it."
+            )
+
+        if Decimal(str(item["quantity_on_hand"])) != 0:
+            raise ValueError(
+                "Items with remaining stock cannot "
+                "be permanently removed."
+            )
+
+        # Protect existing production recipes.
+        cur.execute(
+            """
+            SELECT id
+            FROM recipe_ingredients
+            WHERE inventory_item_id = %s
+            LIMIT 1
+            """,
+            (item_id,)
+        )
+
+        if cur.fetchone():
+            raise ValueError(
+                "This item is used in a recipe. "
+                "It can be archived but not removed."
+            )
+
+        # Protect historical inventory records.
+        cur.execute(
+            """
+            SELECT id
+            FROM stock_movements
+            WHERE inventory_item_id = %s
+            LIMIT 1
+            """,
+            (item_id,)
+        )
+
+        if cur.fetchone():
+            raise ValueError(
+                "This item has stock movement history. "
+                "Keep it archived instead."
+            )
+
+        # Audit before deletion.
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id,
+                action,
+                entity_name,
+                entity_id,
+                details
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                actor_id(),
+                "inventory_item_removed",
+                "inventory_items",
+                item_id,
+                f"Removed unused item: {item['item_name']}"
+            )
+        )
+
+        cur.execute(
+            """
+            DELETE FROM inventory_items
+            WHERE id = %s
+              AND is_active = 0
+            """,
+            (item_id,)
+        )
+
+        if cur.rowcount != 1:
+            raise ValueError(
+                "Inventory item could not be removed."
+            )
+
+        conn.commit()
+
+        flash(
+            "Unused inventory item removed successfully.",
+            "success"
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except IntegrityError:
+        conn.rollback()
+
+        flash(
+            "This item is referenced by another record. "
+            "Keep it archived instead.",
+            "danger"
+        )
+
+    except Exception:
+        conn.rollback()
+
+        current_app.logger.exception(
+            "Inventory removal failed"
+        )
+
+        flash(
+            "Unable to remove inventory item.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for(
+            "admin.admin_inventory",
+            status="archived"
+        )
     )
 
 # RECORD STOCK MOVEMENT

@@ -586,7 +586,7 @@
 
                                 <form method="post"
                                       action="{{ url_for('staff.change_status', order_id=o.id) }}"
-                                      onsubmit="return confirm('Confirm this status update?')">
+                                      data-staff-confirm="Update Order Status">
 
                                     <input type="hidden"
                                            name="csrf_token"
@@ -690,6 +690,91 @@
         </section>
 
     </main>
+
+<dialog id="staff-confirm-dialog" class="staff-confirm-dialog"
+        aria-labelledby="staff-confirm-title"
+        aria-describedby="staff-confirm-description">
+    <div class="staff-confirm-header">
+        <span class="staff-confirm-eyebrow">
+            INVENTORYPRO / STAFF
+        </span>
+        <h2 id="staff-confirm-title">Confirm Action</h2>
+        <p id="staff-confirm-description">
+            Review this action before continuing.
+        </p>
+    </div>
+
+    <div class="staff-confirm-actions">
+        <button type="button" id="staff-confirm-cancel"
+                class="staff-confirm-cancel">
+            Cancel
+        </button>
+        <button type="button" id="staff-confirm-accept"
+                class="staff-confirm-accept">
+            Confirm
+        </button>
+    </div>
+</dialog>
+
+<script>
+(() => {
+    const dialog = document.getElementById('staff-confirm-dialog');
+    if (!dialog || !dialog.showModal) return;
+
+    const title = document.getElementById('staff-confirm-title');
+    const description = document.getElementById('staff-confirm-description');
+    const accept = document.getElementById('staff-confirm-accept');
+    const cancel = document.getElementById('staff-confirm-cancel');
+
+    let pendingForm = null;
+
+    document.querySelectorAll('form[data-staff-confirm]').forEach(form => {
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            if (!form.reportValidity() || dialog.open) return;
+
+            pendingForm = form;
+            const action = form.dataset.staffConfirm;
+
+            title.textContent = action;
+            description.textContent = action === 'Confirm COD Payment'
+                ? 'Confirm only after receiving the full cash payment.'
+                : 'Review this status update. New order confirmation requires an active recipe and sufficient stock.';
+
+            accept.textContent = action === 'Confirm COD Payment'
+                ? 'Confirm Payment'
+                : 'Update Status';
+
+            dialog.showModal();
+        });
+    });
+
+    function closeModal() {
+        dialog.close();
+        pendingForm = null;
+    }
+
+    cancel.addEventListener('click', closeModal);
+
+    dialog.addEventListener('close', () => {
+        pendingForm = null;
+    });
+
+    dialog.addEventListener('click', event => {
+        if (event.target === dialog) closeModal();
+    });
+
+    accept.addEventListener('click', () => {
+        if (!pendingForm) return;
+
+        const form = pendingForm;
+        pendingForm = null;
+        accept.disabled = true;
+
+        HTMLFormElement.prototype.submit.call(form);
+    });
+})();
+</script>
 
 </body>
 </html>

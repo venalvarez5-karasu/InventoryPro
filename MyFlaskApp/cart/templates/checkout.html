@@ -3,547 +3,100 @@
 
 {% block content %}
 
-<style>
-/* INVENTORYPRO CUSTOMER CHECKOUT */
-
-.tc-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 35px 24px 80px;
-    color: #30263d;
-}
-
-.tc-page *,
-.tc-page *::before,
-.tc-page *::after {
-    box-sizing: border-box;
-}
-
-.tc-page [hidden],
-.tc-dialog [hidden] {
-    display: none !important;
-}
-
-.tc-eyebrow {
-    color: #76518e;
-    font-size: 11px;
-    font-weight: 750;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.tc-heading {
-    margin: 7px 0 6px;
-    color: #30223d;
-    font-family: Georgia, serif;
-    font-size: 32px;
-}
-
-.tc-muted {
-    margin: 0;
-    color: #84788f;
-    font-size: 12px;
-    line-height: 1.7;
-}
-
-.tc-section {
-    margin-top: 24px;
-    padding: 23px;
-    background: #fff;
-    border: 1px solid #e9e1ef;
-    border-radius: 13px;
-}
-
-.tc-section h2 {
-    margin: 0 0 12px;
-    font-size: 17px;
-    color: #352843;
-}
-
-.tc-section h3 {
-    margin: 0;
-    font-size: 14px;
-}
-
-.tc-choices {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: 19px;
-}
-
-.tc-choice {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 20px;
-    border: 1px solid #e6dcea;
-    border-radius: 11px;
-    background: #fff;
-    cursor: pointer;
-}
-
-.tc-choice:has(input:checked) {
-    border-color: #76518e;
-    background: #f7f2fa;
-}
-
-.tc-choice input {
-    margin: 3px 0 0;
-    accent-color: #76518e;
-}
-
-.tc-choice strong {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
-.tc-choice small {
-    display: block;
-    color: #81748c;
-    font-size: 11px;
-    line-height: 1.6;
-}
-
-.tc-choice-disabled {
-    background: #faf9fb;
-    opacity: 0.65;
-    cursor: not-allowed;
-}
-
-.tc-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
-
-.tc-primary,
-.tc-secondary {
-    min-height: 43px;
-    padding: 11px 19px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 750;
-    cursor: pointer;
-}
-
-.tc-primary {
-    background: #76518e;
-    color: #fff;
-    border: 1px solid #76518e;
-}
-
-.tc-primary:hover:not(:disabled) {
-    background: #5d3c74;
-}
-
-.tc-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.tc-secondary {
-    background: #fff;
-    border: 1px solid #e5dceb;
-    color: #76518e;
-}
-
-.tc-progress {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 25px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #ebe4f0;
-    color: #897d94;
-    font-size: 12px;
-    font-weight: 650;
-}
-
-.tc-progress strong {
-    color: #76518e;
-}
-
-.tc-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 330px;
-    gap: 24px;
-    align-items: start;
-}
-
-.tc-left {
-    min-width: 0;
-}
-
-.tc-section-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 15px;
-}
-
-.tc-section-head h2 {
-    margin: 0;
-}
-
-.tc-link {
-    padding: 4px;
-    background: transparent;
-    border: 0;
-    color: #76518e;
-    font-size: 12px;
-    font-weight: 750;
-    cursor: pointer;
-}
-
-.tc-address {
-    padding: 16px;
-    border: 1px solid #e7dfea;
-    border-radius: 10px;
-}
-
-.tc-address strong {
-    font-size: 13px;
-}
-
-.tc-address p {
-    margin: 7px 0 0;
-    color: #786d83;
-    font-size: 12px;
-    line-height: 1.7;
-}
-
-.tc-tag {
-    display: inline-flex;
-    margin-top: 10px;
-    padding: 4px 8px;
-    border-radius: 5px;
-    color: #684c82;
-    background: #f2ecf8;
-    font-size: 10px;
-    font-weight: 750;
-}
-
-.tc-note {
-    display: block;
-    margin-top: 16px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.tc-textarea {
-    display: block;
-    width: 100%;
-    min-height: 80px;
-    margin-top: 8px;
-    padding: 12px;
-    border: 1px solid #e2d8e9;
-    border-radius: 9px;
-    background: #fff;
-    font: inherit;
-    font-size: 12px;
-    resize: vertical;
-}
-
-.tc-payment {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    padding: 14px;
-    border: 1px solid #d9cbe5;
-    border-radius: 9px;
-    background: #f9f6fb;
-}
-
-.tc-payment input {
-    accent-color: #76518e;
-}
-
-.tc-payment strong {
-    display: block;
-    font-size: 13px;
-}
-
-.tc-payment small {
-    display: block;
-    margin-top: 3px;
-    font-size: 11px;
-    color: #8a7c94;
-}
-
-.tc-item {
-    display: grid;
-    grid-template-columns: 46px minmax(0, 1fr) auto;
-    gap: 12px;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0eaf3;
-}
-
-.tc-item:last-child {
-    border-bottom: 0;
-}
-
-.tc-item-image {
-    display: grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    overflow: hidden;
-    border-radius: 8px;
-    background: #f4eef8;
-}
-
-.tc-item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.tc-item strong {
-    font-size: 12px;
-}
-
-.tc-item small {
-    display: block;
-    margin-top: 4px;
-    font-size: 10px;
-    color: #887b93;
-}
-
-.tc-item-price {
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.tc-summary {
-    position: sticky;
-    top: 98px;
-}
-
-.tc-summary-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 14px 0;
-    color: #756981;
-    font-size: 12px;
-}
-
-.tc-summary-row strong {
-    color: #392b48;
-    white-space: nowrap;
-}
-
-.tc-summary-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-top: 17px;
-    padding-top: 17px;
-    border-top: 1px solid #e8deed;
-    font-size: 13px;
-    font-weight: 750;
-}
-
-.tc-summary-total strong {
-    color: #76518e;
-    font-size: 22px;
-}
-
-.tc-summary .tc-primary {
-    width: 100%;
-    margin-top: 19px;
-}
-
-.tc-warning {
-    padding: 13px 15px;
-    border-radius: 9px;
-    background: #fff6ed;
-    color: #915923;
-    font-size: 12px;
-    line-height: 1.6;
-}
-
-/* SAVED ADDRESS MODAL */
-
-.tc-dialog {
-    width: min(570px, calc(100vw - 28px));
-    max-height: 85vh;
-    padding: 23px;
-    border: 1px solid #e5dbea;
-    border-radius: 14px;
-    background: #fff;
-    color: #30263d;
-}
-
-.tc-dialog::backdrop {
-    background: rgba(32, 21, 45, 0.48);
-}
-
-.tc-dialog h2 {
-    margin: 0 0 14px;
-    font-size: 19px;
-}
-
-.tc-address-option {
-    display: flex;
-    gap: 11px;
-    margin-bottom: 10px;
-    padding: 13px;
-    border: 1px solid #eae2ef;
-    border-radius: 9px;
-    cursor: pointer;
-}
-
-.tc-address-option:has(input:checked) {
-    border-color: #76518e;
-    background: #f8f4fb;
-}
-
-.tc-address-option input {
-    align-self: flex-start;
-    margin-top: 3px;
-    accent-color: #76518e;
-}
-
-.tc-address-option strong {
-    display: block;
-    font-size: 12px;
-}
-
-.tc-address-option small {
-    display: block;
-    margin-top: 4px;
-    color: #807389;
-    font-size: 11px;
-    line-height: 1.5;
-}
-
-@media (max-width: 850px) {
-    .tc-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .tc-summary {
-        position: static;
-    }
-}
-
-@media (max-width: 600px) {
-    .tc-page {
-        padding: 23px 15px 55px;
-    }
-
-    .tc-choices {
-        grid-template-columns: 1fr;
-    }
-
-    .tc-section {
-        padding: 17px;
-    }
-
-    .tc-heading {
-        font-size: 27px;
-    }
-}
-</style>
+<link rel="stylesheet"
+      href="{{ url_for('cart.static', filename='checkout.css') }}">
 
 <main class="tc-page"
       id="tc-page"
-      data-subtotal="{{ '%.2f'|format(subtotal) }}">
+      data-subtotal="{{ subtotal }}"
+      data-percent="{{ deposit_percent|default(20) }}">
 
     <span class="tc-eyebrow">
-        Tali's Bread &amp; Pastries
+        TALI'S BREAD &amp; PASTRIES
     </span>
 
-    <h1 class="tc-heading">Checkout</h1>
+    <h1>Checkout</h1>
 
     <p class="tc-muted">
-        Review your order and choose how you would
-        like to receive your bakery favorites.
+        Review your order and choose delivery or store pickup.
     </p>
 
-    <!-- STEP 1: FULFILLMENT SELECTION -->
+    <!-- STEP 1: FULFILLMENT -->
 
-    <section class="tc-section" id="tc-select-method">
+    <section class="tc-card" id="tc-method-step">
 
         <h2>How would you like to receive your order?</h2>
 
-        <div class="tc-choices">
+        <div class="tc-two">
 
-            <label class="tc-choice">
-                <input
-                    type="radio"
-                    name="tc-fulfillment"
-                    value="delivery">
+            <label class="tc-option">
+                <input type="radio"
+                       name="tc-fulfillment"
+                       value="delivery"
+                       checked>
 
                 <span>
                     <strong>Delivery</strong>
                     <small>
-                        Have your freshly baked favorites
-                        delivered to your preferred address.
+                        Delivered to an approved service area.
                     </small>
                 </span>
             </label>
 
-            <label class="tc-choice tc-choice-disabled">
-                <input
-                    type="radio"
-                    name="tc-fulfillment"
-                    value="pickup"
-                    disabled>
+            <label class="tc-option">
+                <input type="radio"
+                       name="tc-fulfillment"
+                       value="pickup"
+                       {% if not pickup_enabled|default(false) %}
+                       disabled
+                       {% endif %}>
 
                 <span>
                     <strong>Store Pickup</strong>
                     <small>
-                        Pick up directly from Tali's.
-                        A down payment is required.
-                        Currently unavailable while
-                        payment verification is being completed.
+                        Select a pickup date and time.
+                        A {{ deposit_percent|default(20) }}%
+                        GCash downpayment is required.
                     </small>
                 </span>
             </label>
 
         </div>
 
+        {% if not pickup_enabled|default(false) %}
+        <p class="tc-warning">
+            Store Pickup is currently disabled
+            in Admin settings.
+        </p>
+        {% endif %}
+
         <div class="tc-actions">
             <button type="button"
                     class="tc-primary"
-                    id="tc-continue"
-                    disabled>
+                    id="tc-continue">
                 Continue to Checkout
             </button>
         </div>
 
     </section>
 
-    <!-- STEP 2: DELIVERY CHECKOUT -->
+    <!-- STEP 2: CHECKOUT DETAILS -->
 
-    <div id="tc-checkout-step" hidden>
+    <div id="tc-details-step" hidden>
 
-        <div class="tc-progress">
-            <strong>Details</strong>
-            <span>›</span>
-            <span>Payment</span>
-            <span>›</span>
-            <span>Review Order</span>
-        </div>
+        <button type="button"
+                class="tc-link tc-back"
+                id="tc-back">
+            ← Change fulfillment method
+        </button>
 
         <div class="tc-layout">
 
-            <div class="tc-left">
+            <div>
 
-                <form
-                    id="tc-checkout-form"
-                    method="post"
-                    action="{{ url_for('cart.checkout') }}">
+                <form method="post"
+                      id="tc-checkout-form"
+                      action="{{ url_for('cart.checkout') }}">
 
                     <input type="hidden"
                            name="csrf_token"
@@ -555,484 +108,564 @@
 
                     <input type="hidden"
                            name="order_type"
+                           id="tc-order-type"
                            value="delivery">
 
                     <input type="hidden"
                            name="address_id"
                            id="tc-address-id"
-                           value="{% if eligible %}{{ eligible[0].id }}{% endif %}">
+                           value="{{ eligible[0].id if eligible else '' }}">
 
                     <!-- DELIVERY ADDRESS -->
 
-                    <section class="tc-section">
+                    <section class="tc-card"
+                             id="tc-delivery-fields">
 
-                        <div class="tc-section-head">
+                        <div class="tc-section-heading">
                             <h2>Delivery Address</h2>
 
-                            {% if eligible %}
                             <button type="button"
                                     class="tc-link"
                                     id="tc-change-address">
-                                Change
+                                Change / Add Address
                             </button>
-                            {% endif %}
                         </div>
 
-                        {% if eligible %}
+                        <div class="tc-address"
+                             id="tc-address-summary"
+                             {% if not eligible %}
+                             hidden
+                             {% endif %}>
 
-                        <div class="tc-address">
                             <strong id="tc-recipient">
+                                {% if eligible %}
                                 {{ eligible[0].recipient_name }}
                                 |
                                 {{ eligible[0].mobile_number }}
+                                {% endif %}
                             </strong>
 
                             <p id="tc-address-text">
+                                {% if eligible %}
                                 {{ eligible[0].street_address }},
                                 {{ eligible[0].barangay }},
                                 {{ eligible[0].city_municipality }},
                                 {{ eligible[0].province }},
                                 {{ eligible[0].postal_code }}
+                                {% endif %}
                             </p>
 
-                            <span class="tc-tag">
+                            <span class="tc-approved">
                                 Approved Delivery Area
                             </span>
+
                         </div>
 
-                        {% else %}
-
-                        <div class="tc-warning">
-                            You do not have an approved delivery
-                            address yet. Add or update your
-                            address to continue.
-                        </div>
-
-                        <p style="margin-top:14px">
-                            <a class="tc-link"
-                               href="{{ url_for('auth.complete_profile') }}">
-                                Manage My Address
-                            </a>
+                        <p class="tc-warning"
+                           id="tc-no-address"
+                           {% if eligible %}hidden{% endif %}>
+                            No approved delivery address selected.
+                            Add an address to continue.
                         </p>
 
-                        {% endif %}
+                    </section>
 
-                        <label class="tc-note"
-                               for="tc-customer-note">
-                            Order Notes (Optional)
-                        </label>
+                    <!-- STORE PICKUP -->
 
-                        <textarea
-                            id="tc-customer-note"
-                            class="tc-textarea"
-                            name="customer_note"
-                            maxlength="500"
-                            rows="3"
-                            placeholder="Delivery instructions or special requests..."></textarea>
+                    <section class="tc-card"
+                             id="tc-pickup-fields"
+                             hidden>
+
+                        <h2>Store Pickup Schedule</h2>
+
+                        <p class="tc-muted">
+                            Choose your preferred pickup date and time.
+                            The bakery will verify your downpayment
+                            before preparing the order.
+                        </p>
+
+                        <div class="tc-two">
+
+                            <label>
+                                Pickup Date
+
+                                <input type="date"
+                                       name="requested_date"
+                                       id="tc-pickup-date"
+                                       min="{{ today|default('') }}"
+                                       max="{{ max_date|default('') }}">
+                            </label>
+
+                            <label>
+                                Pickup Time
+
+                                <select name="requested_time"
+                                        id="tc-pickup-time">
+
+                                    <option value="">
+                                        Select pickup time
+                                    </option>
+
+                                    {% for slot in pickup_slots|default([]) %}
+                                    <option value="{{ slot }}">
+                                        {{ slot }}
+                                    </option>
+                                    {% endfor %}
+
+                                </select>
+                            </label>
+
+                        </div>
 
                     </section>
 
                     <!-- PAYMENT -->
 
-                    <section class="tc-section">
+                    <section class="tc-card">
 
                         <h2>Payment Method</h2>
 
-                        <label class="tc-payment">
+                        <div id="tc-cod-option">
+
+                            <label class="tc-option">
+                                <input type="radio"
+                                       name="payment_method"
+                                       value="cod"
+                                       checked>
+
+                                <span>
+                                    <strong>Cash on Delivery</strong>
+                                    <small>
+                                        Pay the full amount
+                                        upon delivery.
+                                    </small>
+                                </span>
+                            </label>
+
+                        </div>
+
+                        <label class="tc-option">
+
                             <input type="radio"
                                    name="payment_method"
-                                   value="cod"
-                                   checked
-                                   required>
+                                   value="gcash">
 
                             <span>
-                                <strong>Cash on Delivery</strong>
-                                <small>
-                                    Pay when your order arrives.
+                                <strong>GCash</strong>
+
+                                <small id="tc-gcash-description">
+                                    Pay using the bakery's official
+                                    GCash account and submit your
+                                    payment reference for verification.
                                 </small>
                             </span>
-                        </label>
 
-                        <p class="tc-muted"
-                           style="margin-top:11px">
-                            Payment options not yet integrated
-                            are not displayed.
-                        </p>
+                        </label>
 
                     </section>
 
-                    <!-- REVIEW -->
+                    <!-- REVIEW ITEMS -->
 
-                    <section class="tc-section">
+                    <section class="tc-card">
 
-                        <h2>Review Order</h2>
+                        <h2>Review Items</h2>
 
                         {% for item in items %}
+
                         <div class="tc-item">
-
-                            <div class="tc-item-image">
-
-                                {% if item.image_path %}
-                                <img
-                                    src="{{ url_for('products.static', filename='images/' ~ item.image_path) }}"
-                                    alt="{{ item.name }}"
-                                    loading="lazy">
-                                {% else %}
-                                <span>
-                                    {{ item.name[:1] }}
-                                </span>
-                                {% endif %}
-
-                            </div>
 
                             <div>
                                 <strong>{{ item.name }}</strong>
 
                                 <small>
-                                    {{ item.quantity }}
-                                    &times;
-                                    &#8369;{{ '%.2f'|format(item.price) }}
+                                    Quantity: {{ item.quantity }}
+                                    ·
+                                    ₱{{ '%.2f'|format(item.price) }}
                                 </small>
                             </div>
 
-                            <span class="tc-item-price">
-                                &#8369;{{ '%.2f'|format(item.line_total) }}
-                            </span>
+                            <strong>
+                                ₱{{ '%.2f'|format(item.line_total) }}
+                            </strong>
+
                         </div>
+
                         {% endfor %}
 
-                        <p class="tc-muted"
-                           style="margin-top:14px">
-                            Product prices and delivery fees are
-                            verified again when you place the order.
-                        </p>
+                        <label class="tc-note">
+                            Order Notes (Optional)
+
+                            <textarea name="customer_note"
+                                      rows="3"
+                                      maxlength="500"
+                                      placeholder="Special requests or delivery instructions..."></textarea>
+                        </label>
 
                     </section>
 
                 </form>
 
-                <div class="tc-actions">
-                    <button type="button"
-                            class="tc-secondary"
-                            id="tc-change-method">
-                        Change Fulfillment Method
-                    </button>
-                </div>
-
             </div>
 
             <!-- ORDER SUMMARY -->
 
-            <aside class="tc-section tc-summary">
+            <aside class="tc-card tc-summary">
 
                 <h2>Order Summary</h2>
 
                 <div class="tc-summary-row">
-                    <span>Fulfillment</span>
-                    <strong>Delivery</strong>
-                </div>
 
-                <div class="tc-summary-row">
-                    <span>Merchandise Subtotal</span>
+                    <span>Subtotal</span>
+
                     <strong>
-                        &#8369;{{ '%.2f'|format(subtotal) }}
+                        ₱{{ '%.2f'|format(subtotal) }}
                     </strong>
+
                 </div>
 
-                <div class="tc-summary-row">
+                <div class="tc-summary-row"
+                     id="tc-fee-row">
+
                     <span>Delivery Fee</span>
+
                     <strong id="tc-fee-preview">
-                        {% if eligible %}
-                            &#8369;{{ '%.2f'|format(eligible[0].delivery_fee) }}
-                        {% else %}
-                            Not available
-                        {% endif %}
+                        —
                     </strong>
+
                 </div>
 
-                <div class="tc-summary-total">
-                    <span>Total Payment</span>
+                <div class="tc-summary-row tc-total">
+
+                    <span>Order Total</span>
+
                     <strong id="tc-total-preview">
-                        {% if eligible %}
-                            &#8369;{{ '%.2f'|format(subtotal + eligible[0].delivery_fee) }}
-                        {% else %}
-                            —
-                        {% endif %}
+                        —
                     </strong>
+
+                </div>
+
+                <div id="tc-deposit-row" hidden>
+
+                    <div class="tc-summary-row">
+
+                        <span>
+                            GCash Downpayment
+                            ({{ deposit_percent|default(20) }}%)
+                        </span>
+
+                        <strong id="tc-deposit">
+                            —
+                        </strong>
+
+                    </div>
+
+                    <div class="tc-summary-row">
+
+                        <span>Balance Upon Pickup</span>
+
+                        <strong id="tc-balance">
+                            —
+                        </strong>
+
+                    </div>
+
                 </div>
 
                 <p class="tc-muted"
-                   style="margin-top:12px">
-                    Pay the full amount upon delivery.
+                   id="tc-payment-note">
+                    Pay upon delivery.
                 </p>
 
-                <button
-                    type="submit"
-                    form="tc-checkout-form"
-                    class="tc-primary"
-                    id="tc-place-order"
-                    {% if not eligible %}disabled{% endif %}>
+                <button type="submit"
+                        class="tc-primary tc-submit"
+                        id="tc-place-order"
+                        form="tc-checkout-form">
+
                     Place COD Order
+
                 </button>
 
             </aside>
 
         </div>
+
     </div>
 
-    <!-- SAVED ADDRESSES MODAL -->
+    <!-- MODAL 1: SELECT SAVED ADDRESS -->
 
     <dialog id="tc-address-dialog"
-            class="tc-dialog"
+            class="tc-dialog tc-select-dialog"
             aria-labelledby="tc-dialog-title">
 
-        <h2 id="tc-dialog-title">My Addresses</h2>
+        <div class="tc-modal-heading">
 
-        <p class="tc-muted"
-           style="margin-bottom:17px">
-            Select an address approved for delivery.
-        </p>
+            <div>
+                <h2 id="tc-dialog-title">
+                    Delivery Addresses
+                </h2>
 
-        {% for address in eligible %}
+                <p class="tc-muted">
+                    Select an address approved for delivery.
+                </p>
+            </div>
 
-        <label class="tc-address-option">
+            <button type="button"
+                    class="tc-modal-close"
+                    id="tc-address-close"
+                    aria-label="Close">
+                &times;
+            </button>
 
-            <input type="radio"
-                   name="tc-modal-address"
-                   value="{{ address.id }}"
-                   data-fee="{{ address.delivery_fee }}"
-                   data-recipient="{{ address.recipient_name }} | {{ address.mobile_number }}"
-                   data-address="{{ address.street_address }}, {{ address.barangay }}, {{ address.city_municipality }}, {{ address.province }}, {{ address.postal_code }}"
-                   {% if loop.first %}checked{% endif %}>
+        </div>
 
-            <span>
-                <strong>
-                    {{ address.recipient_name }}
-                    {% if address.is_default %}
-                        · Default
-                    {% endif %}
-                </strong>
+        <div class="tc-modal-body">
 
-                <small>
-                    {{ address.street_address }},
-                    {{ address.barangay }},
-                    {{ address.city_municipality }},
-                    {{ address.province }}
-                </small>
-            </span>
+            <div id="tc-saved-addresses">
 
-        </label>
+                {% for address in eligible %}
 
-        {% endfor %}
+                <label class="tc-option tc-saved-address">
 
-        <p style="margin-top:18px">
-            <a class="tc-link"
-               href="{{ url_for('auth.complete_profile') }}">
-                + Manage Address
-            </a>
-        </p>
+                    <input type="radio"
+                           name="tc-selected-address"
+                           value="{{ address.id }}"
+                           data-fee="{{ address.delivery_fee }}"
+                           data-recipient="{{ address.recipient_name }} | {{ address.mobile_number }}"
+                           data-address="{{ address.street_address }}, {{ address.barangay }}, {{ address.city_municipality }}, {{ address.province }}, {{ address.postal_code }}"
+                           {% if loop.first %}checked{% endif %}>
 
-        <div class="tc-actions">
+                    <span>
+
+                        <strong>
+                            {{ address.recipient_name }}
+
+                            {% if address.is_default %}
+                            · Default
+                            {% endif %}
+                        </strong>
+
+                        <small>
+                            {{ address.street_address }},
+                            {{ address.barangay }},
+                            {{ address.city_municipality }},
+                            {{ address.province }}
+                        </small>
+
+                    </span>
+
+                </label>
+
+                {% else %}
+
+                <p class="tc-empty-address"
+                   id="tc-empty-address">
+                    You don't have a saved address
+                    within the bakery's service areas yet.
+                </p>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        <div class="tc-modal-footer">
+
             <button type="button"
                     class="tc-secondary"
-                    id="tc-address-cancel">
-                Cancel
+                    id="tc-open-add-address">
+
+                + Add New Address
+
             </button>
 
             <button type="button"
                     class="tc-primary"
                     id="tc-address-confirm">
-                Confirm
+
+                Use Selected Address
+
             </button>
+
         </div>
 
     </dialog>
 
+    <!-- MODAL 2: ADD NEW ADDRESS -->
+
+    <dialog id="tc-add-address-dialog"
+            class="tc-dialog tc-add-dialog"
+            aria-labelledby="tc-add-dialog-title">
+
+        <div class="tc-modal-heading">
+
+            <div>
+                <h2 id="tc-add-dialog-title">
+                    Add New Address
+                </h2>
+
+                <p class="tc-muted">
+                    Enter a new delivery address.
+                    Covered locations only.
+                </p>
+            </div>
+
+            <button type="button"
+                    class="tc-modal-close"
+                    id="tc-add-address-close"
+                    aria-label="Close">
+
+                &times;
+
+            </button>
+
+        </div>
+
+        <form id="tc-add-address-form">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="tc-modal-body">
+
+                <div class="tc-two">
+
+                    <label>
+                        Recipient Name
+
+                        <input type="text"
+                               name="recipient_name"
+                               maxlength="160"
+                               required>
+                    </label>
+
+                    <label>
+                        Mobile Number
+
+                        <input type="tel"
+                               name="mobile_number"
+                               pattern="09[0-9]{9}"
+                               maxlength="11"
+                               placeholder="09XXXXXXXXX"
+                               required>
+                    </label>
+
+                    <label>
+                        Province / Region
+
+                        <select name="province"
+                                id="tc-province"
+                                required>
+
+                            <option value="">
+                                Select region
+                            </option>
+
+                            {% for area in service_areas|default([])|unique(attribute='province') %}
+
+                            <option value="{{ area.province }}">
+                                {{ area.province }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+                    </label>
+
+                    <label>
+                        City / Municipality
+
+                        <select name="city_municipality"
+                                id="tc-city"
+                                required>
+
+                            <option value="">
+                                Select city
+                            </option>
+
+                        </select>
+                    </label>
+
+                    <label>
+                        Barangay
+
+                        <select name="barangay"
+                                id="tc-barangay"
+                                required>
+
+                            <option value="">
+                                Select barangay
+                            </option>
+
+                        </select>
+                    </label>
+
+                    <label>
+                        Postal Code
+
+                        <input type="text"
+                               name="postal_code"
+                               pattern="[0-9]{4}"
+                               maxlength="4"
+                               inputmode="numeric"
+                               required>
+                    </label>
+
+                </div>
+
+                <label>
+                    House / Unit / Street Address
+
+                    <input type="text"
+                           name="street_address"
+                           minlength="3"
+                           maxlength="255"
+                           required>
+                </label>
+
+                <p class="tc-error"
+                   id="tc-address-error"
+                   role="alert"
+                   hidden></p>
+
+            </div>
+
+            <div class="tc-modal-footer">
+
+                <button type="button"
+                        class="tc-secondary"
+                        id="tc-add-address-back">
+
+                    Back
+
+                </button>
+
+                <button type="submit"
+                        class="tc-primary"
+                        id="tc-save-address">
+
+                    Save and Use Address
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </dialog>
+
+    <!-- APPROVED DELIVERY AREAS -->
+
+    <script type="application/json"
+            id="tc-service-areas">
+        {{ service_areas|default([])|tojson }}
+    </script>
+
 </main>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    "use strict";
-
-    const root = document.getElementById("tc-page");
-    if (!root) return;
-
-    const methodPanel = document.getElementById(
-        "tc-select-method"
-    );
-
-    const checkoutPanel = document.getElementById(
-        "tc-checkout-step"
-    );
-
-    const continueButton = document.getElementById(
-        "tc-continue"
-    );
-
-    const backButton = document.getElementById(
-        "tc-change-method"
-    );
-
-    const form = document.getElementById(
-        "tc-checkout-form"
-    );
-
-    const placeOrderButton = document.getElementById(
-        "tc-place-order"
-    );
-
-    const dialog = document.getElementById(
-        "tc-address-dialog"
-    );
-
-    const addressField = document.getElementById(
-        "tc-address-id"
-    );
-
-    const feePreview = document.getElementById(
-        "tc-fee-preview"
-    );
-
-    const totalPreview = document.getElementById(
-        "tc-total-preview"
-    );
-
-    const subtotal = Number(root.dataset.subtotal);
-
-    const formatter = new Intl.NumberFormat(
-        "en-PH",
-        {
-            style: "currency",
-            currency: "PHP",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
-
-    function updateTotals() {
-        const selected = Array.from(
-            dialog.querySelectorAll(
-                'input[name="tc-modal-address"]'
-            )
-        ).find(
-            radio => radio.value === addressField.value
-        );
-
-        if (!selected) {
-            feePreview.textContent = "Not available";
-            totalPreview.textContent = "—";
-            return;
-        }
-
-        const fee = Number(selected.dataset.fee);
-
-        if (!Number.isFinite(fee) || fee < 0) {
-            feePreview.textContent = "Invalid fee";
-            totalPreview.textContent = "—";
-            return;
-        }
-
-        feePreview.textContent = formatter.format(fee);
-
-        totalPreview.textContent = formatter.format(
-            subtotal + fee
-        );
-
-        document.getElementById(
-            "tc-recipient"
-        ).textContent = selected.dataset.recipient;
-
-        document.getElementById(
-            "tc-address-text"
-        ).textContent = selected.dataset.address;
-    }
-
-    document.querySelectorAll(
-        'input[name="tc-fulfillment"]'
-    ).forEach(radio => {
-        radio.addEventListener("change", () => {
-            continueButton.disabled = (
-                radio.value !== "delivery"
-            );
-        });
-    });
-
-    continueButton.addEventListener("click", () => {
-        const selected = document.querySelector(
-            'input[name="tc-fulfillment"]:checked'
-        );
-
-        if (!selected || selected.value !== "delivery") {
-            return;
-        }
-
-        methodPanel.hidden = true;
-        checkoutPanel.hidden = false;
-
-        updateTotals();
-    });
-
-    backButton.addEventListener("click", () => {
-        checkoutPanel.hidden = true;
-        methodPanel.hidden = false;
-    });
-
-    const openAddress = document.getElementById(
-        "tc-change-address"
-    );
-
-    if (openAddress && dialog) {
-        openAddress.addEventListener("click", () => {
-            const selected = dialog.querySelector(
-                'input[name="tc-modal-address"][value="' +
-                addressField.value +
-                '"]'
-            );
-
-            if (selected) selected.checked = true;
-
-            dialog.showModal();
-        });
-
-        document.getElementById(
-            "tc-address-cancel"
-        ).addEventListener("click", () => {
-            dialog.close();
-        });
-
-        document.getElementById(
-            "tc-address-confirm"
-        ).addEventListener("click", () => {
-            const selected = dialog.querySelector(
-                'input[name="tc-modal-address"]:checked'
-            );
-
-            if (!selected) return;
-
-            addressField.value = selected.value;
-
-            updateTotals();
-            dialog.close();
-        });
-    }
-
-    if (form) {
-        form.addEventListener("submit", event => {
-            if (
-                !addressField.value ||
-                form.dataset.submitting === "1"
-            ) {
-                event.preventDefault();
-                return;
-            }
-
-            form.dataset.submitting = "1";
-
-            placeOrderButton.disabled = true;
-            placeOrderButton.textContent = "Placing Order...";
-        });
-    }
-});
+<script defer
+        src="{{ url_for('cart.static', filename='checkout.js') }}">
 </script>
 
 {% endblock %}

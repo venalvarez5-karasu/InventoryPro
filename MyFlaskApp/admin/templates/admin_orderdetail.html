@@ -6,21 +6,20 @@
 <div class="adm-page-heading">
     <div>
         <a class="adm-back-link"
-            href="{{ url_for('admin.admin_orders') }}">
+           href="{{ url_for('admin.admin_orders') }}">
             ← Back to Orders
         </a>
 
         <h1>Order {{ order.order_number }}</h1>
 
         <p>
-            Placed {{ order.created_at }} &middot;
-            {{ order.order_type|title }} &middot;
-            {{ order.payment_method|replace('_', ' ')|upper }}
+            Placed {{ order.created_at }}
+            · {{ order.order_type|title }}
+            · {{ order.payment_method|upper }}
         </p>
     </div>
 
-    <span
-        class="adm-status {{ 'available' if order.status == 'completed' else 'unavailable' }}">
+    <span class="adm-status {{ 'available' if order.status == 'completed' else 'unavailable' }}">
         {{ order.status|replace('_', ' ')|title }}
     </span>
 </div>
@@ -28,6 +27,7 @@
 <div class="adm-console-detail-grid">
 
     <!-- ORDER ITEMS -->
+
     <section class="adm-panel adm-console-panel">
 
         <h2>Order Items</h2>
@@ -46,6 +46,7 @@
 
                 <tbody>
                     {% for item in items %}
+
                     <tr>
                         <td>
                             <strong>
@@ -54,22 +55,24 @@
                         </td>
 
                         <td>
-                            &#8369;{{ '%.2f'|format(item.unit_price) }}
+                            ₱{{ '%.2f'|format(item.unit_price) }}
                         </td>
 
                         <td>{{ item.quantity }}</td>
 
                         <td class="adm-price-cell">
-                            &#8369;{{ '%.2f'|format(item.line_total) }}
+                            ₱{{ '%.2f'|format(item.line_total) }}
                         </td>
                     </tr>
 
                     {% else %}
+
                     <tr>
                         <td colspan="4">
                             No order items recorded.
                         </td>
                     </tr>
+
                     {% endfor %}
                 </tbody>
             </table>
@@ -79,21 +82,21 @@
             <p>
                 Subtotal
                 <strong>
-                    &#8369;{{ '%.2f'|format(order.subtotal) }}
+                    ₱{{ '%.2f'|format(order.subtotal) }}
                 </strong>
             </p>
 
             <p>
-                Delivery fee
+                Delivery Fee
                 <strong>
-                    &#8369;{{ '%.2f'|format(order.delivery_fee) }}
+                    ₱{{ '%.2f'|format(order.delivery_fee) }}
                 </strong>
             </p>
 
             <p class="adm-console-grand">
                 Total
                 <strong>
-                    &#8369;{{ '%.2f'|format(order.total_amount) }}
+                    ₱{{ '%.2f'|format(order.total_amount) }}
                 </strong>
             </p>
         </div>
@@ -102,7 +105,8 @@
 
     <div class="adm-console-stack">
 
-        <!-- CUSTOMER DETAILS -->
+        <!-- CUSTOMER AND FULFILLMENT -->
+
         <section class="adm-panel adm-console-panel">
 
             <h2>Customer &amp; Fulfillment</h2>
@@ -124,22 +128,26 @@
                 <dt>Contact</dt>
                 <dd>{{ order.contact_number }}</dd>
 
+                <dt>Order Type</dt>
+                <dd>{{ order.order_type|title }}</dd>
+
                 <dt>Address</dt>
                 <dd>
-                    {{ order.delivery_address_snapshot or 'Pickup order' }}
+                    {{ order.delivery_address_snapshot
+                       or 'Store Pickup' }}
                 </dd>
 
-                <dt>Requested date</dt>
+                <dt>Requested Date</dt>
                 <dd>
                     {{ order.requested_date or 'Not specified' }}
                 </dd>
 
-                <dt>Requested time</dt>
+                <dt>Requested Time</dt>
                 <dd>
                     {{ order.requested_time or 'Not specified' }}
                 </dd>
 
-                <dt>Customer note</dt>
+                <dt>Customer Note</dt>
                 <dd>
                     {{ order.customer_note or 'None' }}
                 </dd>
@@ -148,36 +156,41 @@
 
         </section>
 
-        <!-- STATUS -->
+        <!-- ORDER STATUS -->
+
         <section class="adm-panel adm-console-panel">
 
             <h2>Order Status</h2>
 
             {% if allowed %}
 
-            <form class="adm-mini-form"
-                method="post"
-                action="{{ url_for('admin.admin_order_status', order_id=order.id) }}"
-                data-confirm="Change the order status? Confirm the fulfillment step has actually happened.">
+            <form method="post"
+                  class="adm-mini-form"
+                  action="{{ url_for(
+                      'admin.admin_order_status',
+                      order_id=order.id
+                  ) }}">
 
                 <input type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}">
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
 
                 <label>
-                    Next status
+                    Next Status
 
                     <select name="status" required>
-                        {% for s in allowed %}
-                        <option value="{{ s }}">
-                            {{ s|replace('_', ' ')|title }}
+                        {% for status in allowed %}
+
+                        <option value="{{ status }}">
+                            {{ status|replace('_', ' ')|title }}
                         </option>
+
                         {% endfor %}
                     </select>
                 </label>
 
                 <button type="submit"
-                    class="adm-primary-btn">
+                        class="adm-primary-btn">
                     Update Status
                 </button>
 
@@ -186,22 +199,18 @@
             {% else %}
 
             <p class="adm-console-muted">
-                This order has reached a terminal status.
+                No status action is currently available.
             </p>
 
             {% endif %}
 
             <p class="adm-console-muted">
-                Confirming an order automatically deducts the
-                required ingredients based on its active recipes.
-                Sufficient stock and valid recipes are required.
-
-                Payment collection is recorded separately.
+                Confirming orders deducts ingredients
+                according to the active product recipes.
+                Online payments must be verified first.
             </p>
 
         </section>
-
-        <!-- PAYMENT -->
 
         <!-- PAYMENT MANAGEMENT -->
 
@@ -214,19 +223,19 @@
             <div class="adm-console-totals">
 
                 <p>
-                    Required deposit
+                    Required GCash Deposit
                     <strong>
-                        &#8369;{{ '%.2f'|format(
-                        order.pickup_deposit_due or 0
+                        ₱{{ '%.2f'|format(
+                            order.pickup_deposit_due or 0
                         ) }}
                     </strong>
                 </p>
 
                 <p>
-                    Balance upon pickup
+                    Balance Upon Pickup
                     <strong>
-                        &#8369;{{ '%.2f'|format(
-                        order.pickup_balance_due or 0
+                        ₱{{ '%.2f'|format(
+                            order.pickup_balance_due or 0
                         ) }}
                     </strong>
                 </p>
@@ -236,122 +245,177 @@
             {% endif %}
 
             {% set paid_deposits = payments
-            | selectattr('payment_purpose', 'equalto',
-            'pickup_deposit')
-            | selectattr('status', 'equalto', 'paid')
-            | list
-            %}
+                | selectattr('payment_purpose',
+                             'equalto', 'pickup_deposit')
+                | selectattr('status', 'equalto', 'paid')
+                | list %}
 
             {% set paid_balances = payments
-            | selectattr('payment_purpose', 'equalto',
-            'pickup_balance')
-            | selectattr('status', 'equalto', 'paid')
-            | list
-            %}
+                | selectattr('payment_purpose',
+                             'equalto', 'pickup_balance')
+                | selectattr('status', 'equalto', 'paid')
+                | list %}
+
+            {% set paid_delivery_gcash = payments
+                | selectattr('payment_method',
+                             'equalto', 'gcash')
+                | selectattr('status', 'equalto', 'paid')
+                | list %}
 
             {% for payment in payments %}
 
-            <div style="
-            padding: 14px 0;
-            border-bottom: 1px solid #ece6f2;
-        ">
+            <div class="adm-payment-entry">
 
-                <p style="margin: 0 0 6px;">
-
+                <p>
                     <strong>
-                        {{ payment.payment_purpose
-                        | replace('_', ' ')
-                        | title }}
+                        {{ (payment.payment_purpose or 'full_order')
+                           |replace('_', ' ')|title }}
                     </strong>
 
-                    &middot;
-
-                    &#8369;{{ '%.2f'|format(payment.amount) }}
-
+                    · ₱{{ '%.2f'|format(payment.amount) }}
                 </p>
 
                 <p class="adm-console-muted">
-
-                    {{ payment.payment_method
-                    | replace('_', ' ')
-                    | upper }}
-
-                    &middot;
-
-                    {{ payment.status
-                    | replace('_', ' ')
-                    | title }}
-
+                    {{ payment.payment_method|upper }}
+                    · {{ payment.status|replace('_', ' ')|title }}
                 </p>
 
                 {% if payment.payment_reference %}
 
                 <p class="adm-console-muted">
                     Reference:
-                    <strong>{{ payment.payment_reference }}</strong>
+                    <strong>
+                        {{ payment.payment_reference }}
+                    </strong>
                 </p>
 
                 {% endif %}
 
-                {% if order.order_type == 'pickup'
-                and payment.payment_purpose == 'pickup_deposit'
-                and payment.status == 'pending_review' %}
+                <!-- DELIVERY GCASH VERIFICATION -->
 
-                <div style="
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                    margin-top: 12px;
-                ">
+                {% if order.order_type == 'delivery'
+                      and payment.payment_method == 'gcash'
+                      and payment.status == 'pending_review' %}
+
+                <p class="adm-console-muted">
+                    Verify the actual payment in the
+                    bakery's official GCash account.
+                </p>
+
+                <div class="adm-table-actions">
 
                     <form method="post"
-                        action="{{ url_for(
-                              'admin.admin_pickup_deposit_review',
+                          action="{{ url_for(
+                              'admin.admin_delivery_gcash_review',
                               order_id=order.id
-                          ) }}">
+                          ) }}"
+                          onsubmit="return confirm('Have you independently confirmed that the full payment was received?')">
 
                         <input type="hidden"
-                            name="csrf_token"
-                            value="{{ csrf_token() }}">
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
 
                         <input type="hidden"
-                            name="payment_id"
-                            value="{{ payment.id }}">
+                               name="payment_id"
+                               value="{{ payment.id }}">
 
                         <input type="hidden"
-                            name="decision"
-                            value="verify">
+                               name="decision"
+                               value="verify">
 
                         <button type="submit"
-                            class="adm-primary-btn"
-                            data-confirm="Have you confirmed the actual deposit was received?">
+                                class="adm-primary-btn">
+                            Verify GCash
+                        </button>
+
+                    </form>
+
+                    <form method="post"
+                          action="{{ url_for(
+                              'admin.admin_delivery_gcash_review',
+                              order_id=order.id
+                          ) }}"
+                          onsubmit="return confirm('Reject this GCash reference?')">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <input type="hidden"
+                               name="payment_id"
+                               value="{{ payment.id }}">
+
+                        <input type="hidden"
+                               name="decision"
+                               value="reject">
+
+                        <button type="submit"
+                                class="adm-secondary-btn">
+                            Reject Reference
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
+                <!-- STORE PICKUP DEPOSIT VERIFICATION -->
+
+                {% if order.order_type == 'pickup'
+                      and payment.payment_purpose == 'pickup_deposit'
+                      and payment.status == 'pending_review' %}
+
+                <div class="adm-table-actions">
+
+                    <form method="post"
+                          action="{{ url_for(
+                              'admin.admin_pickup_deposit_review',
+                              order_id=order.id
+                          ) }}"
+                          onsubmit="return confirm('Have you verified the actual deposit receipt?')">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <input type="hidden"
+                               name="payment_id"
+                               value="{{ payment.id }}">
+
+                        <input type="hidden"
+                               name="decision"
+                               value="verify">
+
+                        <button type="submit"
+                                class="adm-primary-btn">
                             Verify Deposit
                         </button>
 
                     </form>
 
                     <form method="post"
-                        action="{{ url_for(
+                          action="{{ url_for(
                               'admin.admin_pickup_deposit_review',
                               order_id=order.id
-                          ) }}">
+                          ) }}"
+                          onsubmit="return confirm('Reject the deposit reference?')">
 
                         <input type="hidden"
-                            name="csrf_token"
-                            value="{{ csrf_token() }}">
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
 
                         <input type="hidden"
-                            name="payment_id"
-                            value="{{ payment.id }}">
+                               name="payment_id"
+                               value="{{ payment.id }}">
 
                         <input type="hidden"
-                            name="decision"
-                            value="reject">
+                               name="decision"
+                               value="reject">
 
                         <button type="submit"
-                            class="adm-secondary-btn"
-                            data-confirm="Reject this deposit submission?">
-                            Reject
+                                class="adm-secondary-btn">
+                            Reject Deposit
                         </button>
 
                     </form>
@@ -370,29 +434,29 @@
 
             {% endfor %}
 
-            <!-- PICKUP: REMAINING BALANCE -->
+            <!-- PICKUP BALANCE -->
 
             {% if order.order_type == 'pickup'
-            and order.status == 'ready'
-            and paid_deposits
-            and not paid_balances
-            and order.pickup_balance_due
-            and order.pickup_balance_due > 0 %}
+                  and order.status == 'ready'
+                  and paid_deposits
+                  and not paid_balances
+                  and order.pickup_balance_due
+                  and order.pickup_balance_due > 0 %}
 
             <form method="post"
-                action="{{ url_for(
-                  'admin.admin_pickup_balance_received',
-                  order_id=order.id
-              ) }}"
-                style="margin-top: 18px;"
-                data-confirm="Only confirm after receiving the remaining balance in cash.">
+                  class="adm-payment-action"
+                  action="{{ url_for(
+                      'admin.admin_pickup_balance_received',
+                      order_id=order.id
+                  ) }}"
+                  onsubmit="return confirm('Confirm the remaining cash balance was actually received?')">
 
                 <input type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}">
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
 
                 <button type="submit"
-                    class="adm-primary-btn">
+                        class="adm-primary-btn">
                     Record Remaining Balance Received
                 </button>
 
@@ -400,41 +464,50 @@
 
             {% endif %}
 
-            <!-- DELIVERY: EXISTING COD WORKFLOW -->
+            <!-- DELIVERY COD -->
 
             {% if order.order_type == 'delivery'
-            and order.payment_method == 'cod'
-            and order.status == 'completed' %}
+                  and order.payment_method == 'cod'
+                  and order.status == 'completed' %}
 
             {% set cod_paid = payments
-            | selectattr('payment_purpose', 'equalto',
-            'full_order')
-            | selectattr('status', 'equalto', 'paid')
-            | list
-            %}
+                | selectattr('payment_purpose',
+                             'equalto', 'full_order')
+                | selectattr('status', 'equalto', 'paid')
+                | list %}
 
             {% if not cod_paid %}
 
             <form method="post"
-                action="{{ url_for(
+                  class="adm-payment-action"
+                  action="{{ url_for(
                       'admin.admin_payment_received',
                       order_id=order.id
                   ) }}"
-                style="margin-top: 18px;"
-                data-confirm="Confirm COD payment was actually received?">
+                  onsubmit="return confirm('Confirm COD payment was received?')">
 
                 <input type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}">
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
 
                 <button type="submit"
-                    class="adm-primary-btn">
+                        class="adm-primary-btn">
                     Confirm COD Payment Received
                 </button>
 
             </form>
 
             {% endif %}
+
+            {% endif %}
+
+            {% if order.order_type == 'delivery'
+                  and order.payment_method == 'gcash'
+                  and paid_delivery_gcash %}
+
+            <p class="adm-console-muted">
+                GCash payment has been verified.
+            </p>
 
             {% endif %}
 

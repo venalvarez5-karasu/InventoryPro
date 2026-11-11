@@ -3,17 +3,14 @@
 
 {% block content %}
 
-<section
-    class="container"
-    style="padding: 45px 0; max-width: 900px; min-height: 65vh;">
+<section class="container"
+         style="max-width:900px; padding:40px 20px;">
 
     <a href="{{ url_for('orders.order_list') }}">
         ← My Orders
     </a>
 
-    <h1>
-        Order {{ order.order_number }}
-    </h1>
+    <h1>Order {{ order.order_number }}</h1>
 
     <p>
         <strong>Status:</strong>
@@ -21,25 +18,46 @@
     </p>
 
     <p>
-        Placed: {{ order.created_at }}
+        <strong>Placed:</strong>
+        {{ order.created_at }}
     </p>
 
     <p>
-        <strong>Delivery:</strong>
-        {{ order.delivery_address_snapshot or 'Pickup' }}
+        <strong>Order Type:</strong>
+        {{ order.order_type|title }}
     </p>
+
+    {% if order.order_type == 'pickup' %}
+
+    <p>
+        <strong>Pickup Date:</strong>
+        {{ order.requested_date or 'Not specified' }}
+    </p>
+
+    <p>
+        <strong>Pickup Time:</strong>
+        {{ order.requested_time or 'Not specified' }}
+    </p>
+
+    {% else %}
+
+    <p>
+        <strong>Delivery Address:</strong>
+        {{ order.delivery_address_snapshot }}
+    </p>
+
+    {% endif %}
 
     <p>
         <strong>Payment:</strong>
-        {{ order.payment_method|replace('_', ' ')|upper }}
+        {{ order.payment_method|upper }}
     </p>
 
-    <h2>Items</h2>
+    <h2>Order Items</h2>
 
-    <div style="overflow-x: auto;">
+    <div style="overflow-x:auto;">
 
-        <table
-            style="width: 100%; border-collapse: collapse; text-align: left;">
+        <table style="width:100%; border-collapse:collapse;">
 
             <thead>
                 <tr>
@@ -53,168 +71,114 @@
             <tbody>
                 {% for item in items %}
 
-                <tr
-                    style="border-bottom: 1px solid #ece6f0;">
-
-                    <td style="padding: 12px 5px;">
-                        {{ item.product_name_snapshot }}
-                    </td>
-
+                <tr>
+                    <td>{{ item.product_name_snapshot }}</td>
                     <td>{{ item.quantity }}</td>
 
                     <td>
-                        &#8369;{{ "%.2f"|format(item.unit_price) }}
+                        ₱{{ '%.2f'|format(item.unit_price) }}
                     </td>
 
                     <td>
-                        &#8369;{{ "%.2f"|format(item.line_total) }}
+                        ₱{{ '%.2f'|format(item.line_total) }}
                     </td>
-
                 </tr>
 
                 {% endfor %}
             </tbody>
-
         </table>
 
     </div>
 
     <p>
         Subtotal:
-        &#8369;{{ "%.2f"|format(order.subtotal) }}
+        ₱{{ '%.2f'|format(order.subtotal) }}
     </p>
 
     <p>
         Delivery Fee:
-        &#8369;{{ "%.2f"|format(order.delivery_fee) }}
+        ₱{{ '%.2f'|format(order.delivery_fee) }}
     </p>
 
-    <h3>
+    <h2>
         Total:
-        &#8369;{{ "%.2f"|format(order.total_amount) }}
-    </h3>
+        ₱{{ '%.2f'|format(order.total_amount) }}
+    </h2>
 
-    {% if order.order_type == 'pickup' %}
+    <!-- DELIVERY GCASH PAYMENT -->
 
-    <section style="
-    margin-top: 25px;
-    padding: 20px;
-    background: #f8f5fb;
-    border: 1px solid #e8e0ee;
-    border-radius: 12px;
-">
+    {% if order.order_type == 'delivery'
+          and order.payment_method == 'gcash' %}
 
-        <h2 style="margin-top: 0; font-size: 19px;">
-            Store Pickup Payment
-        </h2>
+    <section style="padding:20px; margin-top:24px;
+                    background:#faf7fc;
+                    border:1px solid #e5dcec;
+                    border-radius:12px;">
+
+        <h2>GCash Payment</h2>
 
         <p>
-            Required deposit:
+            Amount to Pay:
             <strong>
-                &#8369;{{ '%.2f'|format(
-                order.pickup_deposit_due or 0
-                ) }}
+                ₱{{ '%.2f'|format(order.total_amount) }}
             </strong>
         </p>
 
-        <p>
-            Remaining balance at pickup:
-            <strong>
-                &#8369;{{ '%.2f'|format(
-                order.pickup_balance_due or 0
-                ) }}
-            </strong>
-        </p>
+        {% set paid_payments = payments
+            | selectattr('status', 'equalto', 'paid')
+            | list %}
 
-        {% set deposit_paid = payments
-        | selectattr('payment_purpose', 'equalto',
-        'pickup_deposit')
-        | selectattr('status', 'equalto', 'paid')
-        | list
-        %}
+        {% set pending_payments = payments
+            | selectattr('status', 'equalto', 'pending_review')
+            | list %}
 
-        {% set pending_deposit = payments
-        | selectattr('payment_purpose', 'equalto',
-        'pickup_deposit')
-        | selectattr('status', 'equalto',
-        'pending_review')
-        | list
-        %}
-
-        {% if deposit_paid %}
-
-        <p style="color: #247448; font-weight: 700;">
-            Down payment verified.
-        </p>
-
-        {% elif pending_deposit %}
-
-        <p style="color: #75588e; font-weight: 700;">
-            Payment under review.
-        </p>
+        {% if paid_payments %}
 
         <p>
-            The bakery must verify your payment
-            before preparing your order.
+            Your GCash payment has been verified.
+        </p>
+
+        {% elif pending_payments %}
+
+        <p>
+            Your payment reference is pending
+            Admin verification.
         </p>
 
         {% elif order.status in [
-        'pending_verification', 'pending'
-        ] and order.pickup_deposit_due
-        and order.payment_method in [
-        'gcash', 'bank_transfer'
+            'pending_verification', 'pending'
         ] %}
 
         <p>
-            After making your deposit using the bakery's
-            confirmed payment instructions, submit
-            your transaction reference below.
+            Pay using the bakery's confirmed official
+            GCash account details. Submit the reference
+            only after making the payment.
         </p>
 
         <form method="post"
-            action="{{ url_for(
-                  'orders.submit_pickup_deposit',
+              action="{{ url_for(
+                  'cart.submit_delivery_gcash_reference',
                   order_id=order.id
               ) }}">
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token() }}">
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
 
-            <label for="pickup-payment-reference"
-                style="display:block; margin-bottom:8px;">
-                Payment Reference Number
+            <label for="delivery-reference">
+                GCash Reference Number
             </label>
 
-            <input
-                id="pickup-payment-reference"
-                type="text"
-                name="payment_reference"
-                minlength="6"
-                maxlength="100"
-                pattern="[A-Za-z0-9-]{6,100}"
-                autocomplete="off"
-                required
-                style="
-                    display:block;
-                    width:100%;
-                    padding:12px;
-                    border:1px solid #ddd2e8;
-                    border-radius:8px;
-                    margin-bottom:12px;
-                ">
+            <input id="delivery-reference"
+                   type="text"
+                   name="payment_reference"
+                   minlength="6"
+                   maxlength="100"
+                   pattern="[A-Za-z0-9-]{6,100}"
+                   required>
 
-            <button type="submit"
-                style="
-                        background:#70528f;
-                        color:#fff;
-                        border:0;
-                        border-radius:8px;
-                        padding:12px 20px;
-                        cursor:pointer;
-                    ">
-                Submit for Verification
+            <button type="submit">
+                Submit Reference for Verification
             </button>
 
         </form>
@@ -223,17 +187,124 @@
 
         <p>
             This order is not accepting new
-            deposit submissions.
+            payment references.
         </p>
 
         {% endif %}
 
     </section>
+
+    {% endif %}
+
+    <!-- STORE PICKUP GCASH DEPOSIT -->
+
+    {% if order.order_type == 'pickup' %}
+
+    <section style="padding:20px; margin-top:24px;
+                    background:#faf7fc;
+                    border:1px solid #e5dcec;
+                    border-radius:12px;">
+
+        <h2>Store Pickup Payment</h2>
+
+        <p>
+            Required GCash Downpayment:
+            <strong>
+                ₱{{ '%.2f'|format(
+                    order.pickup_deposit_due or 0
+                ) }}
+            </strong>
+        </p>
+
+        <p>
+            Remaining Balance Upon Pickup:
+            <strong>
+                ₱{{ '%.2f'|format(
+                    order.pickup_balance_due or 0
+                ) }}
+            </strong>
+        </p>
+
+        {% set deposit_paid = payments
+            | selectattr('payment_purpose',
+                         'equalto', 'pickup_deposit')
+            | selectattr('status', 'equalto', 'paid')
+            | list %}
+
+        {% set deposit_pending = payments
+            | selectattr('payment_purpose',
+                         'equalto', 'pickup_deposit')
+            | selectattr('status', 'equalto', 'pending_review')
+            | list %}
+
+        {% if deposit_paid %}
+
+        <p>
+            Downpayment verified.
+            The bakery can now process your order.
+        </p>
+
+        {% elif deposit_pending %}
+
+        <p>
+            Your downpayment is under review.
+            Please wait for Admin verification.
+        </p>
+
+        {% elif order.status in [
+            'pending_verification', 'pending'
+        ] and order.pickup_deposit_due %}
+
+        <p>
+            Pay the required downpayment to
+            the bakery's confirmed official GCash account,
+            then submit your transaction reference.
+        </p>
+
+        <form method="post"
+              action="{{ url_for(
+                  'orders.submit_pickup_deposit',
+                  order_id=order.id
+              ) }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <label for="pickup-reference">
+                GCash Reference Number
+            </label>
+
+            <input id="pickup-reference"
+                   type="text"
+                   name="payment_reference"
+                   minlength="6"
+                   maxlength="100"
+                   pattern="[A-Za-z0-9-]{6,100}"
+                   required>
+
+            <button type="submit">
+                Submit Downpayment Reference
+            </button>
+
+        </form>
+
+        {% else %}
+
+        <p>
+            No new deposit submission is available
+            for this order.
+        </p>
+
+        {% endif %}
+
+    </section>
+
     {% endif %}
 
     <p>
         The bakery will update your order status
-        after reviewing your order.
+        after reviewing your order and payment.
     </p>
 
 </section>

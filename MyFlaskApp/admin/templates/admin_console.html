@@ -2,19 +2,17 @@
 {% extends "admin_base.html" %}
 {% block content %}
 
-
 {% set descriptions = {
-    'categories': 'Organize product categories and their catalog visibility.',
-    'orders': 'Review orders and update fulfillment status.',
-    'customers': 'Manage registered customer accounts.',
-    'areas': 'Configure delivery coverage, fees and COD permissions.',
-    'pickup_settings': 'Configure the required deposit for store pickup orders.',
-    'inventory': 'Monitor stock and record ingredient movements.',
-    'insights': 'Review order activity and sales performance.',
-    'activity': 'View administrative changes and recorded actions.',
-    'reports': 'Export product, order and inventory records.'
+'categories': 'Organize product categories and their catalog visibility.',
+'orders': 'Review orders and update fulfillment status.',
+'customers': 'Manage registered customer accounts.',
+'areas': 'Configure delivery coverage, fees and COD permissions.',
+'pickup_settings': 'Configure the required deposit for store pickup orders.',
+'inventory': 'Monitor stock and record ingredient movements.',
+'insights': 'Review order activity and sales performance.',
+'activity': 'View administrative changes and recorded actions.',
+'reports': 'Export product, order and inventory records.'
 } %}
-
 
 <div class="adm-page-heading">
     <div>
@@ -766,6 +764,8 @@
             </p>
         </div>
 
+        <!-- ADD INVENTORY ITEM -->
+
         <details
             class="adm-detail-toggle"
             data-modal-title="Add Inventory Item">
@@ -777,23 +777,32 @@
                 method="post"
                 action="{{ url_for('admin.admin_inventory_add') }}">
 
-                <input type="hidden"
+                <input
+                    type="hidden"
                     name="csrf_token"
                     value="{{ csrf_token() }}">
 
+                <!-- ITEM NAME -->
                 <label>
                     Item name
-                    <input name="item_name"
+
+                    <input
+                        type="text"
+                        name="item_name"
                         minlength="2"
                         maxlength="180"
-                        placeholder="e.g. All-Purpose Flour"
+                        placeholder="e.g. Almond"
                         required>
                 </label>
 
+                <!-- CATEGORY -->
                 <label>
                     Category
+
                     <select name="category_id" required>
-                        <option value>Select category</option>
+                        <option value>
+                            Select category
+                        </option>
 
                         {% for cat in categories %}
                         <option value="{{ cat.id }}">
@@ -803,11 +812,19 @@
                     </select>
                 </label>
 
+                <!-- ITEM TYPE -->
                 <label>
                     Item type
+
                     <select name="item_type" required>
-                        <option value="ingredient">Ingredient</option>
-                        <option value="packaging">Packaging</option>
+                        <option value="ingredient">
+                            Ingredient
+                        </option>
+
+                        <option value="packaging">
+                            Packaging
+                        </option>
+
                         <option value="finished_product">
                             Finished Product
                         </option>
@@ -816,41 +833,110 @@
 
                 <label>
                     Measurement unit
-                    <input name="unit"
+
+                    <input
+                        type="text"
+                        name="unit"
+                        list="inventory-units"
                         maxlength="20"
-                        placeholder="g / kg / pcs"
+                        placeholder="Select or enter unit"
                         required>
+
+                    <datalist id="inventory-units">
+                        <option value="g"></option>
+                        <option value="kg"></option>
+                        <option value="pcs"></option>
+                        <option value="sack"></option>
+                        <option value="mL"></option>
+                        <option value="L"></option>
+                        <option value="pack"></option>
+                        <option value="box"></option>
+                    </datalist>
                 </label>
 
+                <!-- SKU -->
                 <label>
                     SKU (optional)
-                    <input name="sku"
+
+                    <input
+                        type="text"
+                        name="sku"
                         maxlength="50"
-                        placeholder="e.g. ING-FLOUR-001">
+                        placeholder="e.g. FIL-001">
                 </label>
 
+                <!-- OPENING STOCK -->
                 <label>
-                    Reorder level
-                    <input type="number"
-                        name="reorder_level"
+                    Opening stock
+
+                    <input
+                        type="number"
+                        name="opening_stock"
                         min="0"
                         max="999999999.999"
                         step="0.001"
                         value="0"
                         required>
+
+                    <small class="adm-console-muted">
+                        Enter the verified starting stock
+                        based on the bakery inventory record.
+                    </small>
                 </label>
 
-                <button type="submit" class="adm-primary-btn">
+                <!-- REORDER LEVEL -->
+                <label>
+                    Reorder level (optional)
+
+                    <input
+                        type="number"
+                        name="reorder_level"
+                        min="0"
+                        max="999999999.999"
+                        step="0.001"
+                        value="0">
+
+                    <small class="adm-console-muted">
+                        Use 0 when the bakery has not
+                        specified a minimum stock threshold.
+                        Set a positive value to enable
+                        low-stock alerts for this item.
+                    </small>
+                </label>
+
+                <!-- SUBMIT -->
+                <button
+                    type="submit"
+                    class="adm-primary-btn">
+
                     Create Item
                 </button>
+
             </form>
         </details>
+
     </div>
 
     <form
         class="adm-console-filters ip-inventory-filters"
         method="get"
         action="{{ url_for('admin.admin_inventory') }}">
+
+        <label class="ip-status-filter">
+            Inventory status
+
+            <select name="status">
+                <option value="active"
+                    {% if status == 'active' %}selected{% endif %}>
+                    Active Items
+                </option>
+
+                <option value="archived"
+                    {% if status == 'archived' %}selected{% endif %}>
+                    Archived Items
+                </option>
+            </select>
+        </label>
 
         <input type="search"
             name="q"
@@ -864,7 +950,7 @@
 
         {% if q %}
         <a class="adm-secondary-btn"
-            href="{{ url_for('admin.admin_inventory') }}">
+            href="{{ url_for('admin.admin_inventory', status=status) }}">
             Clear
         </a>
         {% endif %}
@@ -888,6 +974,11 @@
                 <tr>
                     <td>
                         <strong>{{ row.item_name }}</strong>
+                        {% if not row.is_active %}
+                        <span class="adm-status archived">
+                            Archived
+                        </span>
+                        {% endif %}
                         <small class="adm-console-muted">
                             {{ row.sku or 'No SKU' }}
                         </small>
@@ -916,6 +1007,7 @@
 
                     <td>
                         <div class="adm-table-actions ip-inventory-row-actions">
+                            {% if row.is_active %}
 
                             <details
                                 class="adm-detail-toggle"
@@ -1055,6 +1147,80 @@
                                     </button>
                                 </form>
                             </details>
+
+                            {% endif %}
+
+                            <!-- ARCHIVE ACTIVE INVENTORY ITEM -->
+                            {% if row.is_active %}
+
+                            <form
+                                method="post"
+                                action="{{ url_for(
+        'admin.admin_inventory_archive',
+        item_id=row.id
+    ) }}"
+                                data-confirm="Archive this inventory item? It will be hidden from active inventory, but existing history will be kept.">
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}">
+
+                                <button
+                                    type="submit"
+                                    class="adm-action-button">
+                                    Archive
+                                </button>
+                            </form>
+
+                            {% else %}
+
+                            <!-- RESTORE ARCHIVED INVENTORY ITEM -->
+
+                            <form
+                                method="post"
+                                action="{{ url_for(
+        'admin.admin_inventory_restore',
+        item_id=row.id
+    ) }}"
+                                data-confirm="Restore this inventory item to the active inventory list?">
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}">
+
+                                <button
+                                    type="submit"
+                                    class="adm-action-button">
+                                    Restore
+                                </button>
+                            </form>
+
+                            <!-- REMOVE UNUSED ARCHIVED ITEM -->
+
+                            <form
+                                method="post"
+                                action="{{ url_for(
+        'admin.admin_inventory_remove',
+        item_id=row.id
+    ) }}"
+                                data-confirm="Permanently remove this unused inventory item? This action cannot be undone. Items with stock or historical references cannot be deleted.">
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}">
+
+                                <button
+                                    type="submit"
+                                    class="adm-action-button danger">
+                                    Remove
+                                </button>
+                            </form>
+
+                            {% endif %}
+
                         </div>
                     </td>
                 </tr>

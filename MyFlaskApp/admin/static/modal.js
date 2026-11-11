@@ -471,8 +471,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ADMIN STATUS ACTION MODALS
     // ==========================================
 
+   
     const actionPattern =
-        /\/(products\/\d+\/(availability|archive|restore)|orders\/\d+\/(status|payment)|customers\/\d+\/status|production\/costs\/\d+)$/;
+        /\/(products\/\d+\/(availability|archive|restore)|orders\/\d+\/(status|payment)|customers\/\d+\/status|production\/costs\/\d+|stock-control\/\d+\/(archive|restore|remove))$/;
 
     document.querySelectorAll(
         "form[action]"
@@ -803,11 +804,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    
     // ==========================================
     // SAVE MODAL USING FLASK
     // ==========================================
 
-    dialog.addEventListener("submit", async event => {
+    dialog.addEventListener("submit", async (event) => {
 
         if (!(event.target instanceof HTMLFormElement)) {
             return;
@@ -826,10 +828,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        if (
-            !form.checkValidity() &&
-            !submitter?.formNoValidate
-        ) {
+        if (!form.checkValidity() && !submitter?.formNoValidate) {
             form.reportValidity();
             return;
         }
@@ -837,19 +836,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = new FormData(form);
 
         if (submitter?.name) {
-            data.set(
-                submitter.name,
-                submitter.value
-            );
+            data.set(submitter.name, submitter.value);
         }
 
         saving = true;
         setError("");
 
         const buttons = [
-            ...form.querySelectorAll(
-                'button[type="submit"]'
-            )
+            ...form.querySelectorAll('button[type="submit"]')
         ];
 
         buttons.forEach(button => {
@@ -857,68 +851,110 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const oldSubtitle = subtitle.textContent;
-
         subtitle.textContent = "Saving changes...";
 
         try {
-
             const response = await fetch(url.href, {
                 method: "POST",
                 credentials: "same-origin",
                 body: data,
-                redirect: "follow"
+                redirect: "follow",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
             });
 
-            if (
-                response.redirected &&
-                new URL(response.url).pathname.startsWith(
-                    "/auth/"
-                )
-            ) {
+            const finalURL = new URL(response.url);
+
+            // Session expired or login required
+            if (finalURL.pathname.startsWith("/auth/")) {
                 location.assign(response.url);
                 return;
             }
 
+            const responseHTML = await response.text();
+
             const page = new DOMParser().parseFromString(
-                await response.text(),
+                responseHTML,
                 "text/html"
             );
 
-            const errors = [
-                ...page.querySelectorAll(
-                    ".adm-alert-danger, " +
-                    ".adm-alert-error, " +
-                    ".adm-alert-warning, " +
-                    ".staff-message-danger"
-                )
-            ].map(item => item.textContent.trim())
-             .filter(Boolean);
+            const errorElements = page.querySelectorAll(
+                ".adm-alert-danger, " +
+                ".adm-alert-error, " +
+                ".adm-alert-warning, " +
+                ".staff-message-danger"
+            );
 
-            if (
-                !response.ok ||
-                errors.length ||
-                !response.redirected
-            ) {
-                setError(
-                    errors.join("\n") ||
-                    "Save not confirmed. Please check the form and server logs."
-                );
+            const successElements = page.querySelectorAll(
+                ".adm-alert-success, " +
+                ".staff-message-success"
+            );
 
+            const errors = [...errorElements]
+                .map(el => el.textContent.trim())
+                .filter(Boolean);
+
+            const successes = [...successElements]
+                .map(el => el.textContent.trim())
+                .filter(Boolean);
+
+            // Flask returned HTTP error
+            if (!response.ok) {
+
+                let message = errors.join("\n");
+
+                if (!message) {
+                    message =
+                        `Server returned HTTP ${response.status}. ` +
+                        "Check the Flask terminal for details.";
+                }
+
+                setError(message);
                 return;
             }
 
-            location.reload();
+            // Flask returned validation or database errors
+            if (errors.length > 0) {
+                setError(errors.join("\n"));
+                return;
+            }
+
+            // Flask confirmed successful operation
+            if (successes.length > 0) {
+                location.reload();
+                return;
+            }
+
+            // Unknown result: do not falsely report success
+            console.warn(
+                "No success or error message found in Flask response.",
+                {
+                    requestedURL: url.href,
+                    responseURL: response.url,
+                    redirected: response.redirected,
+                    status: response.status
+                }
+            );
+
+            setError(
+                "The server did not confirm whether the " +
+                "changes were saved. Refresh the page and " +
+                "check the record before trying again."
+            );
 
         } catch (error) {
 
+            console.error("Inventory modal save failed:", error);
+
             setError(
-                "Unable to contact Flask. Save was not confirmed."
+                "Unable to complete the request. " +
+                "Check your Flask connection and terminal."
             );
 
         } finally {
 
             saving = false;
-
             subtitle.textContent = oldSubtitle;
 
             buttons.forEach(button => {
@@ -926,5 +962,4 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     });
-
 });
