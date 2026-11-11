@@ -634,3 +634,229 @@ input:focus-visible {
         max-width: none;
     }
 }
+
+
+
+/* Bakery staff dashboard – scoped to bakery role only */
+.staff-bakery-workspace {
+    --staff-purple: #51306d;
+    --staff-purple-dark: #39214e;
+    --staff-purple-light: #f3edf9;
+    --staff-border: #e9e4ed;
+    background: #faf9fc;
+    color: #2f2440;
+    min-height: 100vh;
+    padding-left: 226px;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+.staff-bakery-workspace .staff-side {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 15;
+    width: 226px;
+    padding: 27px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    background: var(--staff-purple-dark);
+    color: white;
+}
+.staff-bakery-workspace .staff-side-brand {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 34px;
+    text-decoration: none;
+}
+.staff-bakery-workspace .staff-side-mark {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 11px;
+    background: #79559b;
+    font-size: 21px;
+}
+.staff-bakery-workspace .staff-side-brand strong { display: block; font-size: 17px; letter-spacing: -.4px; }
+.staff-bakery-workspace .staff-side-brand small { display: block; color: #e6d8f1; font-size: 10px; padding-top: 3px; }
+.staff-bakery-workspace .staff-side-caption {
+    padding: 0 13px 13px;
+    color: #baa2cf;
+    letter-spacing: 1.1px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.staff-bakery-workspace .staff-side-nav { display: flex; flex-direction: column; gap: 6px; }
+.staff-bakery-workspace .staff-side-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    border-radius: 9px;
+    color: #f1eaf6;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+}
+.staff-bakery-workspace .staff-side-nav a span { font-size: 19px; width: 19px; text-align: center; }
+.staff-bakery-workspace .staff-side-nav a:hover, 
+.staff-bakery-workspace .staff-side-nav a.active { background: #6e4c8b; color: #fff; }
+.staff-bakery-workspace .staff-side-footer {
+    border-top: 1px solid #6b527e;
+    margin-top: auto;
+    padding: 19px 10px 4px;
+    color: #ddd1e7;
+    font-size: 12px;
+}
+.staff-bakery-workspace .staff-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+    border-bottom: 1px solid var(--staff-border);
+}
+.staff-bakery-workspace .staff-header-inner {
+    max-width: 1400px;
+    padding: 17px 30px;
+}
+.staff-bakery-workspace .staff-brand strong { font-size: 16px; color: var(--staff-purple-dark); }
+.staff-bakery-workspace .staff-brand small { font-size: 11px; }
+.staff-bakery-workspace .staff-main {
+    width: min(1400px, calc(100% - 60px));
+    margin: 28px auto 65px;
+}
+.staff-bakery-workspace .staff-welcome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+.staff-bakery-workspace .staff-welcome h2 {
+    font-size: clamp(21px, 2.2vw, 27px);
+    line-height: 1.2;
+    margin: 7px 0 8px;
+    color: #2f1e42;
+}
+.staff-bakery-workspace .staff-welcome p { font-size: 13px; margin: 0; color: #776b81; }
+.staff-bakery-workspace .staff-welcome-tag {
+    border: 1px solid #e8def0;
+    border-radius: 20px;
+    background: #fff;
+    color: #694783;
+    padding: 9px 13px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.staff-bakery-workspace .staff-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 25px;
+}
+.staff-bakery-workspace .staff-summary-card {
+    min-height: 145px;
+    padding: 19px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid var(--staff-border);
+    border-radius: 12px;
+}
+.staff-bakery-workspace .staff-summary-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--staff-purple-light);
+    color: var(--staff-purple);
+    margin-bottom: 12px;
+    font-size: 19px;
+}
+.staff-bakery-workspace .staff-summary-card > span:nth-child(2) {
+    font-size: 12px; color: #6d5c78; font-weight: 600;
+}
+.staff-bakery-workspace .staff-summary-card strong {
+    font-size: 28px;
+    line-height: 1.35;
+    color: #2f1e42;
+}
+.staff-bakery-workspace .staff-summary-card small { font-size: 11px; color: #8b8192; }
+.staff-bakery-workspace .staff-page-heading { margin: 0 0 18px; }
+.staff-bakery-workspace .staff-page-heading h1 { font-size: 20px; }
+.staff-bakery-workspace .staff-page-heading p { font-size: 12px; }
+.staff-bakery-workspace .staff-panel {
+    padding: 22px;
+    border: 1px solid var(--staff-border);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(46, 29, 64, .025);
+}
+.staff-bakery-workspace .staff-panel-heading h2 { font-size: 17px; }
+.staff-bakery-workspace .staff-table th {
+    background: #f8f5fb;
+    color: #766783;
+    white-space: nowrap;
+}
+.staff-bakery-workspace .staff-table td { padding: 17px 12px; line-height: 1.45; }
+.staff-bakery-workspace .staff-table td:nth-child(2) { min-width: 195px; }
+.staff-bakery-workspace .staff-table td:last-child { min-width: 185px; }
+.staff-bakery-workspace .staff-status {
+    background: #f3ecf9;
+    color: #6c448a;
+    white-space: nowrap;
+}
+.staff-bakery-workspace .staff-status-pending { background: #fceced; color: #a44855; }
+.staff-bakery-workspace .staff-status-confirmed { background: #edf0fd; color: #515da2; }
+.staff-bakery-workspace .staff-status-preparing { background: #fff1db; color: #98652c; }
+.staff-bakery-workspace .staff-status-ready { background: #e7f6ed; color: #2e8055; }
+.staff-bakery-workspace .staff-status-completed { background: #e7f6ed; color: #2e8055; }
+.staff-bakery-workspace .staff-primary-btn {
+    background: #69428b; border-color: #69428b;
+    border-radius: 7px; min-height: 37px;
+}
+.staff-bakery-workspace .staff-primary-btn:hover { background: #4d2f69; }
+.staff-bakery-workspace .staff-assign-rider-form select { max-width: 240px; }
+.staff-bakery-workspace .staff-logout {
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-size: 12px;
+}
+.staff-bakery-workspace #staff-orders, .staff-bakery-workspace #staff-settings { scroll-margin-top: 100px; }
+@media(max-width: 1100px) {
+    .staff-bakery-workspace .staff-summary-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width: 760px) {
+    .staff-bakery-workspace { padding-left: 0; padding-bottom: 63px; }
+    .staff-bakery-workspace .staff-side {
+        top: auto; bottom: 0; right: 0; width: 100%; height: 62px;
+        flex-direction: row; align-items: center; padding: 5px 8px;
+    }
+    .staff-bakery-workspace .staff-side-brand,
+    .staff-bakery-workspace .staff-side-caption,
+    .staff-bakery-workspace .staff-side-footer { display: none; }
+    .staff-bakery-workspace .staff-side-nav {
+        width: 100%; flex-direction: row; align-items: stretch; justify-content: space-around; gap: 3px;
+    }
+    .staff-bakery-workspace .staff-side-nav a {
+        flex: 1; min-width: 0; flex-direction: column;
+        gap: 2px; padding: 6px 2px;
+        font-size: 10px; text-align: center; white-space: nowrap;
+    }
+    .staff-bakery-workspace .staff-side-nav a span { font-size: 17px; }
+    .staff-bakery-workspace .staff-header-inner { padding: 13px 16px; }
+    .staff-bakery-workspace .staff-main { width: calc(100% - 26px); margin-top: 22px; }
+    .staff-bakery-workspace .staff-welcome-tag { display: none; }
+    .staff-bakery-workspace .staff-summary-grid { gap: 9px; }
+    .staff-bakery-workspace .staff-summary-card { min-height: 135px; padding: 14px; }
+    .staff-bakery-workspace .staff-panel { padding: 16px; }
+    .staff-bakery-workspace .staff-table { min-width: 780px; }
+}
+@media (max-width: 390px) {
+    .staff-bakery-workspace .staff-summary-card strong { font-size: 24px; }
+    .staff-bakery-workspace .staff-username { display: none; }
+    .staff-bakery-workspace .staff-role { display: none; }
+}

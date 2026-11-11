@@ -397,7 +397,23 @@
             href="{{ url_for('staff.static', filename='style.css') }}">
     </head>
 
-    <body class="staff-workspace">
+    <body class="staff-workspace{{ ' staff-bakery-workspace' if staff_type == 'bakery' else '' }}">
+        {% if staff_type == 'bakery' %}
+        <aside class="staff-side" aria-label="Bakery navigation">
+            <a class="staff-side-brand" href="{{ url_for('staff.dashboard') }}">
+                <span class="staff-side-mark">♨</span>
+                <span><strong>InventoryPro</strong><small>Tali's Bread &amp; Pastries</small></span>
+            </a>
+            <div class="staff-side-caption">BAKERY WORKSPACE</div>
+            <nav class="staff-side-nav">
+                <a class="active" href="{{ url_for('staff.dashboard') }}"><span aria-hidden="true">⌂</span> Dashboard</a>
+                <a href="#staff-orders"><span aria-hidden="true">▤</span> Orders</a>
+                <a href="#staff-orders"><span aria-hidden="true">♧</span> Assign Riders</a>
+                <a href="#staff-settings"><span aria-hidden="true">⚙</span> Account Settings</a>
+            </nav>
+            <div class="staff-side-footer">Bakery Staff Portal</div>
+        </aside>
+        {% endif %}
 
         <header class="staff-header">
             <div class="staff-header-inner">
@@ -436,6 +452,22 @@
         </header>
 
         <main class="staff-main">
+            {% if staff_type == 'bakery' %}
+            <section class="staff-welcome" aria-label="Dashboard overview">
+                <div>
+                    <span class="staff-eyebrow">OVERVIEW</span>
+                    <h2>Good day, {{ user.first_name }}!</h2>
+                    <p>Manage customer orders and delivery assignments in one place.</p>
+                </div>
+                <span class="staff-welcome-tag">Bakery Staff</span>
+            </section>
+            <section class="staff-summary-grid" aria-label="Order summary">
+                <div class="staff-summary-card"><span class="staff-summary-icon">▤</span><span>New Orders</span><strong>{{ orders|selectattr('status', 'equalto', 'pending')|list|length }}</strong><small>Awaiting confirmation</small></div>
+                <div class="staff-summary-card"><span class="staff-summary-icon">♨</span><span>Preparing</span><strong>{{ orders|selectattr('status', 'equalto', 'preparing')|list|length }}</strong><small>In the bakery</small></div>
+                <div class="staff-summary-card"><span class="staff-summary-icon">▣</span><span>Ready</span><strong>{{ orders|selectattr('status', 'equalto', 'ready')|list|length }}</strong><small>Pickup or rider assignment</small></div>
+                <div class="staff-summary-card"><span class="staff-summary-icon">♧</span><span>Available Riders</span><strong>{{ riders|length }}</strong><small>Enabled rider accounts</small></div>
+            </section>
+            {% endif %}
 
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -476,7 +508,7 @@
 
             <!-- WORK ORDERS -->
 
-            <section class="staff-panel">
+            <section class="staff-panel" id="staff-orders">
                 <div class="staff-panel-heading">
                     <h2>
                         {{ 'Assigned Deliveries'
@@ -527,7 +559,7 @@
                                 </td>
 
                                 <td>
-                                    <span class="staff-status">
+                                    <span class="staff-status staff-status-{{ o.status }}">
                                         {{ o.status|replace('_', ' ')|title }}
                                     </span>
                                 </td>
@@ -744,7 +776,7 @@
 
             <!-- PASSWORD SETTINGS -->
 
-            <section class="staff-panel">
+            <section class="staff-panel" id="staff-settings">
 
                 <div class="staff-panel-heading">
                     <h2>Change My Password</h2>
@@ -874,6 +906,7 @@
 
             }
 
+            dialog.showModal();
         });
     });
 
