@@ -25,21 +25,21 @@
 <!-- STAFF TABS -->
 
 <nav class="staff-management-tabs"
-     aria-label="Staff categories">
+    aria-label="Staff categories">
 
     <a href="{{ url_for('staff.manage', type='bakery') }}"
-       class="staff-management-tab {{ 'is-active' if tab == 'bakery' else '' }}"
-       {% if tab == 'bakery' %}
-       aria-current="page"
-       {% endif %}>
+        class="staff-management-tab {{ 'is-active' if tab == 'bakery' else '' }}"
+        {% if tab == 'bakery' %}
+        aria-current="page"
+        {% endif %}>
         Bakery Staff ({{ bakery_count }})
     </a>
 
     <a href="{{ url_for('staff.manage', type='rider') }}"
-       class="staff-management-tab {{ 'is-active' if tab == 'rider' else '' }}"
-       {% if tab == 'rider' %}
-       aria-current="page"
-       {% endif %}>
+        class="staff-management-tab {{ 'is-active' if tab == 'rider' else '' }}"
+        {% if tab == 'rider' %}
+        aria-current="page"
+        {% endif %}>
         Delivery Riders ({{ rider_count }})
     </a>
 
@@ -53,7 +53,7 @@
         <div>
             <h2>
                 Add {{ 'Bakery Staff' if tab == 'bakery'
-                       else 'Delivery Rider' }}
+                else 'Delivery Rider' }}
             </h2>
             <p class="adm-console-muted">
                 Create an account for the selected staff role.
@@ -62,69 +62,69 @@
     </div>
 
     <form method="post"
-          action="{{ url_for('staff.create_staff') }}"
-          class="adm-flex-form staff-create-form">
+        action="{{ url_for('staff.create_staff') }}"
+        class="adm-flex-form staff-create-form">
 
         <input type="hidden"
-               name="csrf_token"
-               value="{{ csrf_token() }}">
+            name="csrf_token"
+            value="{{ csrf_token() }}">
 
         <input type="hidden"
-               name="staff_type"
-               value="{{ tab }}">
+            name="staff_type"
+            value="{{ tab }}">
 
         <label>
             First Name
             <input type="text"
-                   name="first_name"
-                   maxlength="80"
-                   autocomplete="given-name"
-                   required>
+                name="first_name"
+                maxlength="80"
+                autocomplete="given-name"
+                required>
         </label>
 
         <label>
             Last Name
             <input type="text"
-                   name="last_name"
-                   maxlength="80"
-                   autocomplete="family-name"
-                   required>
+                name="last_name"
+                maxlength="80"
+                autocomplete="family-name"
+                required>
         </label>
 
         <label>
             Email
             <input type="email"
-                   name="email"
-                   maxlength="254"
-                   autocomplete="off"
-                   required>
+                name="email"
+                maxlength="254"
+                autocomplete="off"
+                required>
         </label>
 
         <label>
             Mobile Number
             <input type="tel"
-                   name="mobile_number"
-                   inputmode="numeric"
-                   pattern="09[0-9]{9}"
-                   maxlength="11"
-                   placeholder="09XXXXXXXXX"
-                   required>
+                name="mobile_number"
+                inputmode="numeric"
+                pattern="09[0-9]{9}"
+                maxlength="11"
+                placeholder="09XXXXXXXXX"
+                required>
         </label>
 
         <label>
             Temporary Password
             <input type="password"
-                   name="password"
-                   minlength="8"
-                   maxlength="128"
-                   autocomplete="new-password"
-                   required>
+                name="password"
+                minlength="8"
+                maxlength="128"
+                autocomplete="new-password"
+                required>
         </label>
 
         <button type="submit"
-                class="adm-primary-btn">
+            class="adm-primary-btn">
             Create {{ 'Bakery Staff' if tab == 'bakery'
-                      else 'Rider' }}
+            else 'Rider' }}
         </button>
 
     </form>
@@ -144,8 +144,8 @@
         <div>
             <h2>
                 {{ 'Bakery Staff Accounts'
-                   if tab == 'bakery'
-                   else 'Delivery Rider Accounts' }}
+                if tab == 'bakery'
+                else 'Delivery Rider Accounts' }}
             </h2>
             <p class="adm-console-muted">
                 Manage access to staff accounts.
@@ -177,25 +177,26 @@
                     <td>{{ s.email }}</td>
 
                     <td>
-                        <span class="adm-status {{ 'available' if s.is_enabled else 'archived' }}">
+                        <span
+                            class="adm-status {{ 'available' if s.is_enabled else 'archived' }}">
                             {{ 'Enabled' if s.is_enabled
-                               else 'Disabled' }}
+                            else 'Disabled' }}
                         </span>
                     </td>
 
                     <td>
                         <form method="post"
-                              action="{{ url_for('staff.toggle_staff', staff_id=s.id) }}"
-                              onsubmit="return confirm('Change this staff account access?')">
+                            action="{{ url_for('staff.toggle_staff', staff_id=s.id) }}"
+                            onsubmit="return confirm('Change this staff account access?')">
 
                             <input type="hidden"
-                                   name="csrf_token"
-                                   value="{{ csrf_token() }}">
+                                name="csrf_token"
+                                value="{{ csrf_token() }}">
 
                             <button type="submit"
-                                    class="adm-secondary-btn">
+                                class="adm-secondary-btn">
                                 {{ 'Disable' if s.is_enabled
-                                   else 'Enable' }}
+                                else 'Enable' }}
                             </button>
                         </form>
                     </td>
@@ -223,7 +224,7 @@
 
             {% if page > 1 %}
             <a class="adm-secondary-btn"
-               href="{{ url_for('staff.manage', type=tab, page=page-1) }}">
+                href="{{ url_for('staff.manage', type=tab, page=page-1) }}">
                 Previous
             </a>
             {% endif %}
@@ -234,7 +235,7 @@
 
             {% if page < pages %}
             <a class="adm-secondary-btn"
-               href="{{ url_for('staff.manage', type=tab, page=page+1) }}">
+                href="{{ url_for('staff.manage', type=tab, page=page+1) }}">
                 Next
             </a>
             {% endif %}
@@ -284,12 +285,12 @@
 
                     <td>
                         <form method="post"
-                              action="{{ url_for('staff.assign_rider', order_id=o.id) }}"
-                              class="adm-mini-form staff-assignment-form">
+                            action="{{ url_for('staff.assign_rider', order_id=o.id) }}"
+                            class="adm-mini-form staff-assignment-form">
 
                             <input type="hidden"
-                                   name="csrf_token"
-                                   value="{{ csrf_token() }}">
+                                name="csrf_token"
+                                value="{{ csrf_token() }}">
 
                             <label>
                                 <span class="sr-only">
@@ -297,7 +298,7 @@
                                 </span>
 
                                 <select name="rider_id">
-                                    <option value="">
+                                    <option value>
                                         Unassigned
                                     </option>
 
@@ -314,7 +315,7 @@
                             </label>
 
                             <button type="submit"
-                                    class="adm-primary-btn">
+                                class="adm-primary-btn">
                                 Save
                             </button>
                         </form>
@@ -344,7 +345,7 @@
 
             {% if assignment_page > 1 %}
             <a class="adm-secondary-btn"
-               href="{{ url_for('staff.manage',
+                href="{{ url_for('staff.manage',
                                 type='rider',
                                 page=page,
                                 assignment_page=assignment_page-1) }}">
@@ -359,7 +360,7 @@
 
             {% if assignment_page < assignment_pages %}
             <a class="adm-secondary-btn"
-               href="{{ url_for('staff.manage',
+                href="{{ url_for('staff.manage',
                                 type='rider',
                                 page=page,
                                 assignment_page=assignment_page+1) }}">
@@ -381,342 +382,441 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+            content="width=device-width, initial-scale=1.0">
 
-    <title>
-        {{ 'Rider Workspace' if staff_type == 'rider'
-           else 'Bakery Staff Workspace' }}
-        | InventoryPro
-    </title>
+        <title>
+            {{ 'Rider Workspace' if staff_type == 'rider'
+            else 'Bakery Staff Workspace' }}
+            | InventoryPro
+        </title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('staff.static', filename='style.css') }}">
-</head>
+        <link rel="stylesheet"
+            href="{{ url_for('staff.static', filename='style.css') }}">
+    </head>
 
-<body class="staff-workspace">
+    <body class="staff-workspace">
 
-    <header class="staff-header">
-        <div class="staff-header-inner">
+        <header class="staff-header">
+            <div class="staff-header-inner">
 
-            <div class="staff-brand">
-                <strong>InventoryPro</strong>
-                <small>Tali's Bread &amp; Pastries</small>
-            </div>
+                <div class="staff-brand">
+                    <strong>InventoryPro</strong>
+                    <small>Tali's Bread &amp; Pastries</small>
+                </div>
 
-            <div class="staff-header-actions">
+                <div class="staff-header-actions">
 
-                <span class="staff-role">
-                    {{ 'Delivery Rider' if staff_type == 'rider'
-                       else 'Bakery Staff' }}
-                </span>
+                    <span class="staff-role">
+                        {{ 'Delivery Rider' if staff_type == 'rider'
+                        else 'Bakery Staff' }}
+                    </span>
 
-                <span class="staff-username">
-                    {{ user.first_name }}
-                </span>
+                    <span class="staff-username">
+                        {{ user.first_name }}
+                    </span>
 
-                <form method="post"
-                      action="{{ url_for('auth.logout') }}">
+                    <form method="post"
+                        action="{{ url_for('auth.logout') }}">
 
-                    <input type="hidden"
-                           name="csrf_token"
-                           value="{{ csrf_token() }}">
+                        <input type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}">
 
-                    <button type="submit"
+                        <button type="submit"
                             class="staff-logout">
-                        Log Out
-                    </button>
-                </form>
+                            Log Out
+                        </button>
+                    </form>
 
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="staff-main">
+        <main class="staff-main">
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul class="staff-messages">
-            {% for category, message in messages %}
-            <li class="staff-message staff-message-{{ category }}">
-                {{ message }}
-            </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <ul class="staff-messages">
+                {% for category, message in messages %}
+                <li class="staff-message staff-message-{{ category }}">
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
 
-        <div class="staff-page-heading">
-            <div>
-                <span class="staff-eyebrow">
-                    STAFF WORKSPACE
+            <div class="staff-page-heading">
+                <div>
+                    <span class="staff-eyebrow">
+                        STAFF WORKSPACE
+                    </span>
+
+                    <h1>
+                        {{ 'My Deliveries' if staff_type == 'rider'
+                        else 'Bakery Orders' }}
+                    </h1>
+
+                    <p>
+                        {{ 'View and update assigned deliveries.'
+                        if staff_type == 'rider'
+                        else 'Confirm and prepare customer orders.' }}
+                    </p>
+                </div>
+
+                <span class="staff-count">
+                    {{ orders|length }}
+                    {{ 'Deliveries' if staff_type == 'rider'
+                    else 'Orders' }}
                 </span>
-
-                <h1>
-                    {{ 'My Deliveries' if staff_type == 'rider'
-                       else 'Bakery Orders' }}
-                </h1>
-
-                <p>
-                    {{ 'View and update assigned deliveries.'
-                       if staff_type == 'rider'
-                       else 'Confirm and prepare customer orders.' }}
-                </p>
             </div>
 
-            <span class="staff-count">
-                {{ orders|length }}
-                {{ 'Deliveries' if staff_type == 'rider'
-                   else 'Orders' }}
-            </span>
-        </div>
+            <!-- WORK ORDERS -->
 
-        <!-- WORK ORDERS -->
+            <section class="staff-panel">
+                <div class="staff-panel-heading">
+                    <h2>
+                        {{ 'Assigned Deliveries'
+                        if staff_type == 'rider'
+                        else 'Order Queue' }}
+                    </h2>
+                </div>
 
-        <section class="staff-panel">
-            <div class="staff-panel-heading">
-                <h2>
-                    {{ 'Assigned Deliveries'
-                       if staff_type == 'rider'
-                       else 'Order Queue' }}
-                </h2>
-            </div>
+                {% if orders %}
 
-            {% if orders %}
+                <div class="staff-table-scroll">
+                    <table class="staff-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Customer / Location</th>
+                                <th>Status</th>
+                                <th>Next Step</th>
+                            </tr>
+                        </thead>
 
-            <div class="staff-table-scroll">
-                <table class="staff-table">
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Customer / Location</th>
-                            <th>Status</th>
-                            <th>Next Step</th>
-                        </tr>
-                    </thead>
+                        <tbody>
+                            {% for o in orders %}
 
-                    <tbody>
-                        {% for o in orders %}
+                            <tr>
+                                <td>
+                                    <strong>{{ o.order_number }}</strong>
 
-                        <tr>
-                            <td>
-                                <strong>{{ o.order_number }}</strong>
+                                    <small>
+                                        {{ o.order_type|title }}
+                                        · ₱{{ '%.2f'|format(o.total_amount) }}
+                                    </small>
+                                </td>
 
-                                <small>
-                                    {{ o.order_type|title }}
-                                    · ₱{{ '%.2f'|format(o.total_amount) }}
-                                </small>
-                            </td>
+                                <td>
+                                    <strong>
+                                        {{ o.recipient_name or 'Customer' }}
+                                    </strong>
 
-                            <td>
-                                <strong>
-                                    {{ o.recipient_name or 'Customer' }}
-                                </strong>
+                                    <small>
+                                        {{ o.contact_number }}
+                                    </small>
 
-                                <small>
-                                    {{ o.contact_number }}
-                                </small>
+                                    <small>
+                                        {{ o.delivery_address_snapshot
+                                        or 'Store pickup' }}
+                                    </small>
+                                </td>
 
-                                <small>
-                                    {{ o.delivery_address_snapshot
-                                       or 'Store pickup' }}
-                                </small>
-                            </td>
+                                <td>
+                                    <span class="staff-status">
+                                        {{ o.status|replace('_', ' ')|title }}
+                                    </span>
+                                </td>
 
-                            <td>
-                                <span class="staff-status">
-                                    {{ o.status|replace('_', ' ')|title }}
-                                </span>
-                            </td>
+                                <td>
+                                    {% set next_status = {
+                                    'pending': 'confirmed',
+                                    'confirmed': 'preparing',
+                                    'preparing': 'ready'
+                                    } if staff_type == 'bakery' else {
+                                    'ready': 'out_for_delivery',
+                                    'out_for_delivery': 'completed'
+                                    } %}
 
-                            <td>
-                                {% set next_status =
-                                    {
-                                        'pending': 'confirmed',
-                                        'confirmed': 'preparing',
-                                        'preparing': 'ready'
-                                    }
-                                    if staff_type == 'bakery'
-                                    else
-                                    {
-                                        'ready': 'out_for_delivery',
-                                        'out_for_delivery': 'completed'
-                                    }
-                                %}
+                                    {% set next = next_status.get(o.status) %}
 
-                                {% set next = next_status.get(o.status) %}
+                                    {% if staff_type == 'bakery'
+                                    and o.order_type == 'delivery'
+                                    and o.status == 'completed' %}
 
-                                {% if staff_type == 'bakery'
-                                   and o.order_type == 'delivery'
-                                   and o.status == 'completed' %}
+                                    <form
+                                        method="post"
+                                        action="{{ url_for('staff.payment_received', order_id=o.id) }}"
+                                        data-staff-confirm="Confirm COD Payment">
 
-                                <form method="post"
-                                      action="{{ url_for('staff.payment_received', order_id=o.id) }}"
-                                      onsubmit="return confirm('Confirm the full COD payment was actually received?')">
+                                        <input type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}">
 
-                                    <input type="hidden"
-                                           name="csrf_token"
-                                           value="{{ csrf_token() }}">
-
-                                    <button class="staff-primary-btn"
+                                        <button class="staff-primary-btn"
                                             type="submit">
-                                        Payment Received
-                                    </button>
-                                </form>
+                                            Payment Received
+                                        </button>
+                                    </form>
 
-                                {% elif staff_type == 'bakery'
-                                     and o.status == 'ready' %}
+                                    {% elif staff_type == 'bakery'
+                                    and o.status == 'ready' %}
 
-                                <span class="staff-muted">
-                                    {{ 'Ready for Pickup'
-                                       if o.order_type == 'pickup'
-                                       else 'Awaiting Rider' }}
-                                </span>
+                                    {% if o.order_type == 'delivery' %}
 
-                                {% elif staff_type == 'rider'
-                                     and o.status in ['confirmed', 'preparing'] %}
+                                    <div class="staff-rider-assignment">
 
-                                <span class="staff-muted">
-                                    Waiting for Bakery
-                                </span>
+                                        {% if o.rider_user_id %}
 
-                                {% elif next %}
+                                        <div class="staff-rider-assigned">
+                                            <span
+                                                class="staff-rider-dot"></span>
 
-                                <form method="post"
-                                      action="{{ url_for('staff.change_status', order_id=o.id) }}"
-                                      data-staff-confirm="Update Order Status">
+                                            <div>
+                                                <strong>Rider Assigned</strong>
+                                                <small>
+                                                    {{ o.rider_first_name or
+                                                    'Rider' }}
+                                                    {{ o.rider_last_name or ''
+                                                    }}
+                                                </small>
+                                            </div>
+                                        </div>
 
-                                    <input type="hidden"
-                                           name="csrf_token"
-                                           value="{{ csrf_token() }}">
+                                        {% else %}
 
-                                    <input type="hidden"
-                                           name="status"
-                                           value="{{ next }}">
+                                        <span class="staff-rider-pending">
+                                            Awaiting Rider Assignment
+                                        </span>
 
-                                    <button class="staff-primary-btn"
+                                        {% endif %}
+
+                                        {% if riders %}
+
+                                        <form
+                                            class="staff-assign-rider-form"
+                                            method="post"
+                                            action="{{ url_for(
+                            'staff.bakery_assign_rider',
+                            order_id=o.id
+                        ) }}"
+                                            data-staff-confirm="Assign Delivery Rider">
+
+                                            <input type="hidden"
+                                                name="csrf_token"
+                                                value="{{ csrf_token() }}">
+
+                                            <label for="rider-{{ o.id }}"
+                                                class="staff-rider-label">
+                                                Select Delivery Rider
+                                            </label>
+
+                                            <select name="rider_id"
+                                                id="rider-{{ o.id }}"
+                                                required>
+
+                                                <option value>
+                                                    Select rider
+                                                </option>
+
+                                                {% for rider in riders %}
+
+                                                <option
+                                                    value="{{ rider.id }}"
+                                                    {% if o.rider_user_id ==
+                                                    rider.id %}
+                                                    selected
+                                                    {% endif %}>
+                                                    {{ rider.first_name }}
+                                                    {{ rider.last_name }}
+                                                </option>
+
+                                                {% endfor %}
+
+                                            </select>
+
+                                            <button type="submit"
+                                                class="staff-primary-btn">
+                                                {{ 'Update Rider'
+                                                if o.rider_user_id
+                                                else 'Assign Rider' }}
+                                            </button>
+                                        </form>
+
+                                        {% else %}
+
+                                        <p class="staff-rider-warning">
+                                            No available riders.
+                                            Contact the administrator.
+                                        </p>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    {% else %}
+
+                                    <span class="staff-muted">
+                                        Ready for Pickup
+                                    </span>
+
+                                    {% endif %}
+
+                                    {% elif staff_type == 'rider'
+                                    and o.status in ['confirmed', 'preparing']
+                                    %}
+
+                                    <span class="staff-muted">
+                                        Waiting for Bakery
+                                    </span>
+
+                                    {% elif next %}
+
+                                    <form
+                                        method="post"
+                                        action="{{ url_for(
+                'staff.change_status',
+                order_id=o.id
+            ) }}"
+                                        data-staff-confirm="Update Order Status">
+
+                                        <input type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}">
+
+                                        <input type="hidden"
+                                            name="status"
+                                            value="{{ next }}">
+
+                                        <button class="staff-primary-btn"
                                             type="submit">
-                                        {{ {
+
+                                            {{ {
                                             'confirmed': 'Confirm Order',
                                             'preparing': 'Start Preparing',
                                             'ready': 'Mark Ready',
-                                            'out_for_delivery': 'Out for Delivery',
+                                            'out_for_delivery':
+                                            'Out for Delivery',
                                             'completed': 'Mark Delivered'
-                                        }.get(next, next) }}
-                                    </button>
-                                </form>
+                                            }.get(next, next) }}
 
-                                {% else %}
+                                        </button>
+                                    </form>
 
-                                <span class="staff-muted">
-                                    No action available
-                                </span>
+                                    {% else %}
 
-                                {% endif %}
-                            </td>
-                        </tr>
+                                    <span class="staff-muted">
+                                        No action available
+                                    </span>
 
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                    {% endif %}
+                                </td>
 
-            {% else %}
+                            </tr>
 
-            <div class="staff-empty">
-                <h3>
-                    {{ 'No assigned deliveries yet'
-                       if staff_type == 'rider'
-                       else 'No work orders right now' }}
-                </h3>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-                <p>
-                    {{ 'Assigned deliveries will appear here when ready.'
-                       if staff_type == 'rider'
-                       else 'New and active orders will appear here.' }}
+                {% else %}
+
+                <div class="staff-empty">
+                    <h3>
+                        {{ 'No assigned deliveries yet'
+                        if staff_type == 'rider'
+                        else 'No work orders right now' }}
+                    </h3>
+
+                    <p>
+                        {{ 'Assigned deliveries will appear here when ready.'
+                        if staff_type == 'rider'
+                        else 'New and active orders will appear here.' }}
+                    </p>
+                </div>
+
+                {% endif %}
+            </section>
+
+            <!-- PASSWORD SETTINGS -->
+
+            <section class="staff-panel">
+
+                <div class="staff-panel-heading">
+                    <h2>Change My Password</h2>
+                </div>
+
+                <form method="post"
+                    action="{{ url_for('staff.change_password') }}"
+                    class="staff-password-form">
+
+                    <input type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}">
+
+                    <label>
+                        Current Password
+
+                        <input type="password"
+                            name="old_password"
+                            autocomplete="current-password"
+                            required>
+                    </label>
+
+                    <label>
+                        New Password
+
+                        <input type="password"
+                            name="new_password"
+                            minlength="8"
+                            maxlength="128"
+                            autocomplete="new-password"
+                            required>
+                    </label>
+
+                    <button type="submit"
+                        class="staff-primary-btn">
+                        Save Password
+                    </button>
+                </form>
+
+                <p class="staff-muted">
+                    At least 8 characters, including a number and symbol.
+                </p>
+            </section>
+
+        </main>
+
+        <dialog id="staff-confirm-dialog" class="staff-confirm-dialog"
+            aria-labelledby="staff-confirm-title"
+            aria-describedby="staff-confirm-description">
+            <div class="staff-confirm-header">
+                <span class="staff-confirm-eyebrow">
+                    INVENTORYPRO / STAFF
+                </span>
+                <h2 id="staff-confirm-title">Confirm Action</h2>
+                <p id="staff-confirm-description">
+                    Review this action before continuing.
                 </p>
             </div>
 
-            {% endif %}
-        </section>
-
-        <!-- PASSWORD SETTINGS -->
-
-        <section class="staff-panel">
-
-            <div class="staff-panel-heading">
-                <h2>Change My Password</h2>
-            </div>
-
-            <form method="post"
-                  action="{{ url_for('staff.change_password') }}"
-                  class="staff-password-form">
-
-                <input type="hidden"
-                       name="csrf_token"
-                       value="{{ csrf_token() }}">
-
-                <label>
-                    Current Password
-
-                    <input type="password"
-                           name="old_password"
-                           autocomplete="current-password"
-                           required>
-                </label>
-
-                <label>
-                    New Password
-
-                    <input type="password"
-                           name="new_password"
-                           minlength="8"
-                           maxlength="128"
-                           autocomplete="new-password"
-                           required>
-                </label>
-
-                <button type="submit"
-                        class="staff-primary-btn">
-                    Save Password
+            <div class="staff-confirm-actions">
+                <button type="button" id="staff-confirm-cancel"
+                    class="staff-confirm-cancel">
+                    Cancel
                 </button>
-            </form>
+                <button type="button" id="staff-confirm-accept"
+                    class="staff-confirm-accept">
+                    Confirm
+                </button>
+            </div>
+        </dialog>
 
-            <p class="staff-muted">
-                At least 8 characters, including a number and symbol.
-            </p>
-        </section>
-
-    </main>
-
-<dialog id="staff-confirm-dialog" class="staff-confirm-dialog"
-        aria-labelledby="staff-confirm-title"
-        aria-describedby="staff-confirm-description">
-    <div class="staff-confirm-header">
-        <span class="staff-confirm-eyebrow">
-            INVENTORYPRO / STAFF
-        </span>
-        <h2 id="staff-confirm-title">Confirm Action</h2>
-        <p id="staff-confirm-description">
-            Review this action before continuing.
-        </p>
-    </div>
-
-    <div class="staff-confirm-actions">
-        <button type="button" id="staff-confirm-cancel"
-                class="staff-confirm-cancel">
-            Cancel
-        </button>
-        <button type="button" id="staff-confirm-accept"
-                class="staff-confirm-accept">
-            Confirm
-        </button>
-    </div>
-</dialog>
-
-<script>
+        <script>
 (() => {
     const dialog = document.getElementById('staff-confirm-dialog');
     if (!dialog || !dialog.showModal) return;
@@ -737,15 +837,43 @@
             const action = form.dataset.staffConfirm;
 
             title.textContent = action;
-            description.textContent = action === 'Confirm COD Payment'
-                ? 'Confirm only after receiving the full cash payment.'
-                : 'Review this status update. New order confirmation requires an active recipe and sufficient stock.';
+           
+            if (action === 'Assign Delivery Rider') {
 
-            accept.textContent = action === 'Confirm COD Payment'
-                ? 'Confirm Payment'
-                : 'Update Status';
+                const selected = form.querySelector(
+                    'select[name="rider_id"]'
+                );
 
-            dialog.showModal();
+                const riderName = selected
+                    ?.selectedOptions[0]
+                    ?.textContent.trim() || "this rider";
+
+                description.textContent =
+                    `Assign this delivery to ${riderName}? ` +
+                    "The selected rider will see the " +
+                    "order in their workspace.";
+
+                accept.textContent = "Confirm Assignment";
+
+            } else if (action === 'Confirm COD Payment') {
+
+                description.textContent =
+                    "Confirm only after receiving " +
+                    "the full cash payment.";
+
+                accept.textContent = "Confirm Payment";
+
+            } else {
+
+                description.textContent =
+                    "Review this status update. " +
+                    "New order confirmation requires " +
+                    "an active recipe and sufficient stock.";
+
+                accept.textContent = "Update Status";
+
+            }
+
         });
     });
 
@@ -776,7 +904,7 @@
 })();
 </script>
 
-</body>
+    </body>
 </html>
 
 {% endif %}

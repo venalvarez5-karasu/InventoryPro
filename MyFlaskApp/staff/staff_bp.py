@@ -63,36 +63,285 @@ def audit(cur, user_id, action, entity, entity_id, details):
 @staff_bp.get("/")
 @staff_only
 def dashboard():
+
     user = current_user()
     staff_type = profile(user)["staff_type"]
-    if staff_type == "rider":
-        orders = get_all(
-            """SELECT o.id, o.order_number, o.order_type, o.status,
-                      o.recipient_name, o.contact_number,
-                      o.delivery_address_snapshot, o.total_amount
-               FROM orders o JOIN delivery_assignments d ON d.order_id = o.id
-               WHERE d.rider_user_id = %s
-                 AND o.order_type = 'delivery'
-                 AND o.status IN ('ready', 'out_for_delivery')
-               ORDER BY o.created_at DESC LIMIT 100""",
-            (user["id"],),
-        )
-    else:
-        orders = get_all(
-            """SELECT id, order_number, order_type, status,
-                      recipient_name, contact_number,
-                      delivery_address_snapshot, total_amount
-               FROM orders
-               WHERE status IN ('pending', 'confirmed', 'preparing', 'ready')
-                  OR (status='completed' AND order_type='delivery'
-                      AND payment_method='cod'
-                      AND EXISTS (SELECT 1 FROM payments p
-                                  WHERE p.order_id=orders.id AND p.status='unpaid'))
-               ORDER BY created_at DESC LIMIT 100"""
-        )
-    return render_template("staff_dashboard.html", view="staff", user=user,
-                           staff_type=staff_type, orders=orders)
 
+    riders = []
+
+    if staff_type == "rider":
+
+        # Riders only see deliveries assigned to them.
+        orders = get_all(
+            """
+            SELECT
+                o.id,
+                o.order_number,
+                o.order_type,
+                o.status,
+                o.recipient_name,
+                o.contact_number,
+                o.delivery_address_snapshot,
+                o.total_amount
+            FROM orders o
+            JOIN delivery_assignments d
+                ON d.order_id = o.id
+            WHERE d.rider_user_id = %s
+              AND o.order_type = 'delivery'
+              AND o.status IN (
+                  'ready',
+                  'out_for_delivery'
+              )
+            ORDER BY o.created_at DESC
+            LIMIT 100
+            """,
+            (user["id"],)
+        )
+
+    else:
+
+        # Bakery staff sees pending and active orders,
+        # including each delivery's assigned rider.
+        orders = get_all(
+            """
+            SELECT
+                o.id,
+                o.order_number,
+                o.order_type,
+                o.status,
+                o.recipient_name,
+                o.contact_number,
+                o.delivery_address_snapshot,
+                o.total_amount,
+                d.rider_user_id,
+                ru.first_name AS rider_first_name,
+                ru.last_name AS rider_last_name
+            FROM orders o
+            LEFT JOIN delivery_assignments d
+                ON d.order_id = o.id
+            LEFT JOIN users ru
+                ON ru.id = d.rider_user_id
+            WHERE o.status IN (
+                'pending',
+                'confirmed',
+                'preparing',
+                'ready'
+            )
+            OR (
+                o.status = 'completed'
+                AND o.order_type = 'delivery'
+                AND o.payment_method = 'cod'
+                AND EXISTS (
+                    SELECT 1
+                    FROM payments p
+                    WHERE p.order_id = o.id
+                      AND p.status = 'unpaid'
+                )
+            )
+            ORDER BY o.created_at DESC
+            LIMIT 100
+            """
+        )
+
+        # Only enabled, active rider accounts
+        # appear in the assignment dropdown.
+        riders = get_all(
+            """
+            SELECT
+                u.id,
+                u.first_name,
+                u.last_name
+            FROM users u
+            JOIN staff_profiles sp
+                ON sp.user_id = u.id
+            WHERE u.role = 'staff'
+              AND u.account_status = 'active'
+              AND sp.staff_type = 'rider'
+              AND sp.is_enabled = 1
+            ORDER BY
+                u.first_name,
+                u.last_name
+            """
+        )
+
+    return render_template(
+        "staff_dashboard.html",
+        view="staff",
+        user=user,
+        staff_type=staff_type,
+        orders=orders,
+        riders=riders
+    )
+
+# ==========================================
+# BAKERY STAFF - ASSIGN DELIVERY RIDER
+# ==========================================
+
+@staff_bp.post(
+    "/orders/<int:order_id>/assign-rider"
+)
+@staff_only
+def bakery_assign_rider(order_id):
+
+    user = current_user()
+    staff_profile = profile(user)
+
+    # Only bakery staff can use this route.
+    if staff_profile["staff_type"] != "bakery":
+        abort(403)
+
+    rider_id = request.form.get(
+        "rider_id",
+        type=int
+    )
+
+    if not rider_id or rider_id <= 0:
+        flash(
+            "Please select a delivery rider.",
+            "danger"
+        )
+        return redirect(
+            url_for("staff.dashboard")
+        )
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        # Lock the order to prevent conflicting
+        # assignment and status updates.
+        cur.execute(
+            """
+            SELECT
+                id,
+                order_number,
+                order_type,
+                status
+            FROM orders
+            WHERE id = %s
+            FOR UPDATE
+            """,
+            (order_id,)
+        )
+
+        order = cur.fetchone()
+
+        if not order:
+            raise ValueError(
+                "Order not found."
+            )
+
+        if order["order_type"] != "delivery":
+            raise ValueError(
+                "Riders can only be assigned "
+                "to delivery orders."
+            )
+
+        # Assignment starts when the bakery
+        # has finished preparing the order.
+        if order["status"] != "ready":
+            raise ValueError(
+                "Only Ready orders can be assigned "
+                "by bakery staff."
+            )
+
+        # Verify the selected rider is active.
+        cur.execute(
+            """
+            SELECT
+                u.id,
+                u.first_name,
+                u.last_name
+            FROM users u
+            JOIN staff_profiles sp
+                ON sp.user_id = u.id
+            WHERE u.id = %s
+              AND u.role = 'staff'
+              AND u.account_status = 'active'
+              AND sp.staff_type = 'rider'
+              AND sp.is_enabled = 1
+            LIMIT 1
+            """,
+            (rider_id,)
+        )
+
+        rider = cur.fetchone()
+
+        if not rider:
+            raise ValueError(
+                "Selected rider is not available "
+                "or the account is disabled."
+            )
+
+        # Insert or update the assignment.
+        # This uses the existing unique order_id
+        # constraint in delivery_assignments.
+        cur.execute(
+            """
+            INSERT INTO delivery_assignments
+            (
+                order_id,
+                rider_user_id
+            )
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE
+                rider_user_id = VALUES(rider_user_id)
+            """,
+            (
+                order_id,
+                rider_id
+            )
+        )
+
+        # Save who assigned the rider.
+        audit(
+            cur,
+            user["id"],
+            "bakery_rider_assigned",
+            "orders",
+            order_id,
+            (
+                f"Order {order['order_number']} "
+                f"assigned to rider "
+                f"{rider['first_name']} "
+                f"{rider['last_name']}"
+            )
+        )
+
+        conn.commit()
+
+        flash(
+            "Delivery rider assigned successfully.",
+            "success"
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+
+        from flask import current_app
+
+        current_app.logger.exception(
+            "Bakery rider assignment failed"
+        )
+
+        flash(
+            "Unable to assign rider. "
+            "Please contact the administrator.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for("staff.dashboard")
+    )
 
 @staff_bp.post("/orders/<int:order_id>/status")
 @staff_only

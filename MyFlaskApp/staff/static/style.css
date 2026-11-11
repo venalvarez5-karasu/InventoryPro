@@ -523,3 +523,114 @@ input:focus-visible {
     opacity: .6;
     cursor: wait;
 }
+
+/* ==========================================
+   BAKERY STAFF - RIDER ASSIGNMENT
+   ========================================== */
+
+.staff-rider-assignment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 210px;
+}
+
+.staff-rider-pending {
+    display: inline-flex;
+    padding: 7px 11px;
+    border: 1px solid #eee0c4;
+    border-radius: 7px;
+    background: #fff9ed;
+    color: #956920;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.staff-rider-assigned {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    width: 100%;
+    border: 1px solid #d9e9df;
+    border-radius: 8px;
+    background: #f4faf6;
+}
+
+.staff-rider-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #399567;
+}
+
+.staff-rider-assigned strong {
+    display: block;
+    color: #246d49;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.staff-rider-assigned small {
+    display: block;
+    margin-top: 3px;
+    color: #426c55;
+    font-size: 11px;
+}
+
+.staff-assign-rider-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 240px;
+    margin: 0;
+}
+
+.staff-rider-label {
+    color: #635371;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.staff-assign-rider-form select {
+    width: 100%;
+    min-height: 39px;
+    padding: 9px 11px;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+    background: #fff;
+    color: #382b47;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.staff-assign-rider-form select:focus {
+    outline: 2px solid #a991bd;
+    outline-offset: 2px;
+}
+
+.staff-assign-rider-form .staff-primary-btn {
+    min-height: 37px;
+    width: 100%;
+}
+
+.staff-rider-warning {
+    max-width: 220px;
+    margin: 0;
+    color: #a35a35;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .staff-rider-assignment {
+        min-width: 190px;
+    }
+
+    .staff-assign-rider-form {
+        max-width: none;
+    }
+}
