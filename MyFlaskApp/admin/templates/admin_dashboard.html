@@ -248,7 +248,7 @@
                     {% for order in recent_orders|default([]) %}
                     <tr>
                         <td>
-                            <a href="{{ url_for('admin.admin_order_detail', order_id=order.id) }}">
+                            <a href="{{ url_for('admin.admin_orderdetail', order_id=order.id) }}">
                                 <strong>
                                     {{ order.order_number }}
                                 </strong>

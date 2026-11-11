@@ -44,7 +44,7 @@ TRANSITIONS = {
     "pending": (
         "confirmed", "rejected", "cancelled"
     ),
-    "confirmed": ("preparing"),
+    "confirmed": ("preparing",),
     "preparing": ("ready",),
     "ready": ("out_for_delivery", "completed"),
     "out_for_delivery": ("completed",),
@@ -538,6 +538,58 @@ def admin_orderdetail(order_id):
         and "completed" in allowed
     ):
         allowed.remove("completed")
+        
+    
+    # Hide unavailable pickup transitions in the UI.
+    # The POST route independently enforces these rules.
+
+    if order["order_type"] == "pickup":
+
+        deposit_due = Decimal(
+            str(order["pickup_deposit_due"] or 0)
+        )
+
+        balance_due = Decimal(
+            str(order["pickup_balance_due"] or 0)
+        )
+
+        deposit_paid = sum(
+            (
+                Decimal(str(p["amount"]))
+                for p in payments
+                if p["payment_purpose"] == "pickup_deposit"
+                and p["status"] == "paid"
+            ),
+            Decimal("0")
+        )
+
+        balance_paid = sum(
+            (
+                Decimal(str(p["amount"]))
+                for p in payments
+                if p["payment_purpose"] == "pickup_balance"
+                and p["status"] == "paid"
+            ),
+            Decimal("0")
+        )
+
+        if (
+            deposit_due <= 0
+            or deposit_paid < deposit_due
+        ):
+            allowed = [
+                status
+                for status in allowed
+                if status in ("cancelled", "rejected")
+            ]
+
+        elif balance_paid < balance_due:
+            allowed = [
+                status
+                for status in allowed
+                if status != "completed"
+            ]
+
 
     return render_template(
         "admin_orderdetail.html",
@@ -615,6 +667,93 @@ def admin_order_status(order_id):
                 "is not allowed."
             )
             
+         
+        # PICKUP PAYMENT SAFETY
+        # Delivery COD is not affected.
+
+        if row["order_type"] == "pickup":
+
+            cur.execute(
+                """
+                SELECT
+                    pickup_deposit_due,
+                    pickup_balance_due
+                FROM orders
+                WHERE id = %s
+                """,
+                (order_id,)
+            )
+
+            amounts = cur.fetchone()
+
+            deposit_due = Decimal(
+                str(amounts["pickup_deposit_due"] or 0)
+            )
+
+            balance_due = Decimal(
+                str(amounts["pickup_balance_due"] or 0)
+            )
+
+            if deposit_due <= 0:
+                raise ValueError(
+                    "Pickup deposit is not configured "
+                    "for this order."
+                )
+
+            cur.execute(
+                """
+                SELECT
+                    payment_purpose,
+                    COALESCE(SUM(amount), 0) AS total_paid
+                FROM payments
+                WHERE order_id = %s
+                  AND status = 'paid'
+                  AND payment_purpose IN (
+                      'pickup_deposit',
+                      'pickup_balance'
+                  )
+                GROUP BY payment_purpose
+                """,
+                (order_id,)
+            )
+
+            paid_amounts = {
+                payment["payment_purpose"]: Decimal(
+                    str(payment["total_paid"])
+                )
+                for payment in cur.fetchall()
+            }
+
+            deposit_paid = paid_amounts.get(
+                "pickup_deposit", Decimal("0.00")
+            )
+
+            balance_paid = paid_amounts.get(
+                "pickup_balance", Decimal("0.00")
+            )
+
+            # Cancellation/rejection remains possible
+            # under the existing transition rules.
+            if target not in ("cancelled", "rejected"):
+
+                if deposit_paid < deposit_due:
+                    raise ValueError(
+                        "Verify the required pickup deposit "
+                        "before advancing this order."
+                    )
+
+                # Complete pickup only after the
+                # remaining balance was collected.
+                if (
+                    target == "completed"
+                    and balance_paid < balance_due
+                ):
+                    raise ValueError(
+                        "Record the remaining pickup balance "
+                        "before completing this order."
+                    )
+   
+            
             
         if target == "confirmed":
             deduct_order_recipe_stock(    
@@ -676,6 +815,398 @@ def admin_order_status(order_id):
         )
     )
 
+# ==========================================
+# STORE PICKUP - VERIFY OR REJECT DEPOSIT
+# ==========================================
+
+@admin_bp.route(
+    "/orders/<int:order_id>/deposit-review",
+    methods=["POST"]
+)
+@role_required("admin")
+def admin_pickup_deposit_review(order_id):
+
+    payment_id = request.form.get(
+        "payment_id", type=int
+    )
+
+    decision = request.form.get("decision", "").strip()
+
+    if not payment_id or decision not in {
+        "verify", "reject"
+    }:
+        abort(400)
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        cur.execute(
+            """
+            SELECT
+                id,
+                order_type,
+                status,
+                payment_method,
+                pickup_deposit_due
+            FROM orders
+            WHERE id = %s
+            FOR UPDATE
+            """,
+            (order_id,)
+        )
+
+        order = cur.fetchone()
+
+        if not order:
+            raise ValueError("Order not found.")
+
+        if order["order_type"] != "pickup":
+            raise ValueError(
+                "Deposit verification is for Store Pickup only."
+            )
+
+        if order["status"] in (
+            "completed", "cancelled", "rejected"
+        ):
+            raise ValueError(
+                "This pickup order is no longer eligible "
+                "for deposit review."
+            )
+
+        cur.execute(
+            """
+            SELECT
+                id,
+                amount,
+                status,
+                payment_method,
+                payment_reference
+            FROM payments
+            WHERE id = %s
+              AND order_id = %s
+              AND payment_purpose = 'pickup_deposit'
+            FOR UPDATE
+            """,
+            (payment_id, order_id)
+        )
+
+        payment = cur.fetchone()
+
+        if not payment:
+            raise ValueError(
+                "Deposit payment record not found."
+            )
+
+        if payment["status"] != "pending_review":
+            raise ValueError(
+                "Only pending-review deposits "
+                "can be verified or rejected."
+            )
+
+        required = Decimal(
+            str(order["pickup_deposit_due"] or 0)
+        ).quantize(Decimal("0.01"))
+
+        submitted = Decimal(
+            str(payment["amount"])
+        ).quantize(Decimal("0.01"))
+
+        if (
+            required <= 0
+            or submitted != required
+            or not payment["payment_reference"]
+            or payment["payment_method"]
+               != order["payment_method"]
+        ):
+            raise ValueError(
+                "Deposit amount, reference or method "
+                "does not match the pickup order."
+            )
+
+        if decision == "verify":
+
+            cur.execute(
+                """
+                SELECT COALESCE(SUM(amount), 0) AS total
+                FROM payments
+                WHERE order_id = %s
+                  AND payment_purpose = 'pickup_deposit'
+                  AND status = 'paid'
+                """,
+                (order_id,)
+            )
+
+            existing_paid = Decimal(
+                str(cur.fetchone()["total"])
+            )
+
+            if existing_paid > 0:
+                raise ValueError(
+                    "A verified deposit already exists."
+                )
+
+            cur.execute(
+                """
+                UPDATE payments
+                SET
+                    status = 'paid',
+                    verified_by = %s,
+                    paid_at = NOW()
+                WHERE id = %s
+                """,
+                (actor_id(), payment_id)
+            )
+
+            action = "pickup_deposit_verified"
+            message = "Pickup deposit verified."
+
+        else:
+
+            cur.execute(
+                """
+                UPDATE payments
+                SET
+                    status = 'failed',
+                    verified_by = %s
+                WHERE id = %s
+                """,
+                (actor_id(), payment_id)
+            )
+
+            action = "pickup_deposit_rejected"
+            message = "Deposit submission rejected."
+
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id,
+                action,
+                entity_name,
+                entity_id,
+                details
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                actor_id(),
+                action,
+                "payments",
+                payment_id,
+                f"Order #{order_id}; decision={decision}"
+            )
+        )
+
+        conn.commit()
+        flash(message, "success")
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+        current_app.logger.exception(
+            "Pickup deposit review failed."
+        )
+        flash(
+            "Unable to review the pickup deposit.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for(
+            "admin.admin_orderdetail",
+            order_id=order_id
+        )
+    )
+
+# ==========================================
+# STORE PICKUP - COLLECT REMAINING BALANCE
+# ==========================================
+
+@admin_bp.route(
+    "/orders/<int:order_id>/pickup-balance",
+    methods=["POST"]
+)
+@role_required("admin")
+def admin_pickup_balance_received(order_id):
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        cur.execute(
+            """
+            SELECT
+                id,
+                order_type,
+                status,
+                pickup_deposit_due,
+                pickup_balance_due
+            FROM orders
+            WHERE id = %s
+            FOR UPDATE
+            """,
+            (order_id,)
+        )
+
+        order = cur.fetchone()
+
+        if not order:
+            raise ValueError("Order not found.")
+
+        if (
+            order["order_type"] != "pickup"
+            or order["status"] != "ready"
+        ):
+            raise ValueError(
+                "The pickup order must be ready "
+                "before collecting the balance."
+            )
+
+        deposit_due = Decimal(
+            str(order["pickup_deposit_due"] or 0)
+        )
+
+        balance_due = Decimal(
+            str(order["pickup_balance_due"] or 0)
+        )
+
+        cur.execute(
+            """
+            SELECT
+                payment_purpose,
+                COALESCE(SUM(amount), 0) AS total_paid
+            FROM payments
+            WHERE order_id = %s
+              AND status = 'paid'
+              AND payment_purpose IN (
+                  'pickup_deposit', 'pickup_balance'
+              )
+            GROUP BY payment_purpose
+            """,
+            (order_id,)
+        )
+
+        recorded = {
+            row["payment_purpose"]: Decimal(
+                str(row["total_paid"])
+            )
+            for row in cur.fetchall()
+        }
+
+        if (
+            deposit_due <= 0
+            or recorded.get(
+                "pickup_deposit", Decimal("0")
+            ) < deposit_due
+        ):
+            raise ValueError(
+                "The pickup deposit must be verified first."
+            )
+
+        if recorded.get(
+            "pickup_balance", Decimal("0")
+        ) > 0:
+            raise ValueError(
+                "The remaining balance was already recorded."
+            )
+
+        if balance_due <= 0:
+            raise ValueError(
+                "There is no remaining balance to collect."
+            )
+
+        # Cash is recorded only after the bakery
+        # physically receives the payment.
+        cur.execute(
+            """
+            INSERT INTO payments
+            (
+                order_id,
+                payment_method,
+                amount,
+                status,
+                payment_purpose,
+                verified_by,
+                paid_at
+            )
+            VALUES
+            (
+                %s,
+                'cash_on_pickup',
+                %s,
+                'paid',
+                'pickup_balance',
+                %s,
+                NOW()
+            )
+            """,
+            (
+                order_id,
+                balance_due,
+                actor_id()
+            )
+        )
+
+        cur.execute(
+            """
+            INSERT INTO audit_logs
+            (
+                user_id, action,
+                entity_name, entity_id, details
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                actor_id(),
+                "pickup_balance_received",
+                "orders",
+                order_id,
+                f"Cash received: PHP {balance_due}"
+            )
+        )
+
+        conn.commit()
+
+        flash(
+            "Remaining pickup balance recorded.",
+            "success"
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+        current_app.logger.exception(
+            "Could not record pickup balance."
+        )
+        flash(
+            "Unable to record pickup balance.",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for(
+            "admin.admin_orderdetail",
+            order_id=order_id
+        )
+    )
+
 # MANUAL PAYMENT CONFIRMATION
 
 @admin_bp.route(
@@ -724,6 +1255,8 @@ def admin_payment_received(order_id):
             """,
             (order_id,),
         )
+        
+        
 
         payment = cur.fetchone()
 
@@ -1819,6 +2352,113 @@ def admin_delivery_areas():
         page=page,
         pages=pages,
         total=total
+    )
+
+# ==========================================
+# STORE PICKUP SETTINGS
+# ==========================================
+
+@admin_bp.route(
+    "/pickup-settings",
+    methods=["GET", "POST"]
+)
+@role_required("admin")
+def admin_pickup_settings():
+
+    settings = db_one(
+        """
+        SELECT
+            id,
+            deposit_percent,
+            pickup_enabled
+        FROM store_pickup_settings
+        WHERE id = 1
+        """
+    )
+
+    if not settings:
+        flash(
+            "Store Pickup settings are missing. "
+            "Run the database migration first.",
+            "danger"
+        )
+        return redirect(
+            url_for("admin.dashboard")
+        )
+
+    if request.method == "POST":
+
+        raw = request.form.get(
+            "deposit_percent", ""
+        ).strip()
+
+        try:
+            percent = Decimal(raw)
+
+            if (
+                not percent.is_finite()
+                or percent < Decimal("1.00")
+                or percent > Decimal("100.00")
+                or percent.as_tuple().exponent < -2
+            ):
+                raise ValueError
+
+        except (InvalidOperation, ValueError):
+            flash(
+                "Enter a deposit percentage "
+                "between 1% and 100%, with "
+                "up to two decimal places.",
+                "danger"
+            )
+            return redirect(
+                url_for("admin.admin_pickup_settings")
+            )
+
+        try:
+            db_write(
+                """
+                UPDATE store_pickup_settings
+                SET deposit_percent = %s
+                WHERE id = 1
+                """,
+                (percent,)
+            )
+
+            audit(
+                "pickup_deposit_updated",
+                "store_pickup_settings",
+                1,
+                (
+                    f"Deposit changed from "
+                    f"{settings['deposit_percent']}% "
+                    f"to {percent}%"
+                )
+            )
+
+            flash(
+                "Store Pickup deposit percentage "
+                "updated successfully.",
+                "success"
+            )
+
+        except Exception:
+            current_app.logger.exception(
+                "Could not update pickup deposit."
+            )
+
+            flash(
+                "Unable to save the pickup settings.",
+                "danger"
+            )
+
+        return redirect(
+            url_for("admin.admin_pickup_settings")
+        )
+
+    return console(
+        "pickup_settings",
+        "Store Pickup Settings",
+        settings=settings
     )
 
 # INVENTORY OVERVIEW + MOVEMENT HISTORY

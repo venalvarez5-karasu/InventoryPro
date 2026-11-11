@@ -502,7 +502,7 @@ def checkout():
 
                 return redirect(
                     url_for(
-                        "orders.order_detail",
+                        "orders.order_list",
                         order_id=matched[0]["id"]
                     )
                 )
@@ -821,7 +821,7 @@ def checkout():
 
                 return redirect(
                     url_for(
-                        "orders.order_detail",
+                        "orders.order_list",
                         order_id=matched[0]["id"]
                     )
                 )
@@ -864,7 +864,7 @@ def checkout():
 
         return redirect(
             url_for(
-                "orders.order_detail",
+                "orders.order_list",
                 order_id=order_id
             )
         )

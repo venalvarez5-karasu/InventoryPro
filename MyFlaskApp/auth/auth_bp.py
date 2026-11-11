@@ -727,8 +727,12 @@ def login():
                 "success"
             )
 
-            if user["role"] in ("admin", "staff"):
+            if user["role"] == "admin":
                 destination = "/admin/"
+                
+            elif user["role"] == "staff":
+                destination = "/staff/"
+                
             else:
                 destination = "/"
 

@@ -1,0 +1,549 @@
+
+{% if view == 'admin' %}
+{% extends 'admin_base.html' %}
+{% endif %}
+
+{% block content %}
+
+{% if view == 'admin' %}
+
+<div class="adm-page-heading">
+  <div>
+    <span class="adm-eyebrow">INVENTORYPRO MANAGEMENT</span>
+    <h1>Staff Management</h1>
+    <p>Create bakery staff and rider accounts, and assign drivers to orders.</p>
+  </div>
+</div>
+
+<section class="adm-panel adm-console-panel">
+  <h2>Create Staff Account</h2>
+
+  <form method="post"
+        action="{{ url_for('staff.create_staff') }}"
+        class="adm-flex-form">
+
+    <input type="hidden" name="csrf_token"
+           value="{{ csrf_token() }}">
+
+    <label>
+      First Name
+      <input name="first_name" maxlength="80" required>
+    </label>
+
+    <label>
+      Last Name
+      <input name="last_name" maxlength="80" required>
+    </label>
+
+    <label>
+      Email
+      <input name="email" type="email"
+             maxlength="254" required>
+    </label>
+
+    <label>
+      Mobile Number
+      <input name="mobile_number"
+             inputmode="numeric"
+             pattern="09[0-9]{9}"
+             maxlength="11" required>
+    </label>
+
+    <label>
+      Temporary Password
+      <input name="password"
+             type="password"
+             minlength="8"
+             maxlength="128"
+             autocomplete="new-password"
+             required>
+    </label>
+
+    <label>
+      Assigned Work
+      <select name="staff_type" required>
+        <option value="bakery">Bakery Staff</option>
+        <option value="rider">Delivery Rider</option>
+      </select>
+    </label>
+
+    <button type="submit" class="adm-primary-btn">
+      Create Staff
+    </button>
+  </form>
+
+  <p class="adm-console-muted">
+    Use a unique temporary password and share it privately.
+    Staff should change it after login.
+  </p>
+</section>
+
+<section class="adm-panel adm-console-panel">
+  <h2>Staff Accounts</h2>
+
+  <div class="adm-table-scroll">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Staff</th>
+          <th>Email</th>
+          <th>Work</th>
+          <th>Access</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for s in staff %}
+        <tr>
+          <td>
+            <strong>{{ s.first_name }} {{ s.last_name }}</strong>
+          </td>
+          <td>{{ s.email }}</td>
+          <td>
+            {{ 'Bakery Staff' if s.staff_type == 'bakery'
+               else 'Delivery Rider' }}
+          </td>
+          <td>
+            {{ 'Enabled' if s.is_enabled else 'Disabled' }}
+          </td>
+          <td>
+            <form method="post"
+                  action="{{ url_for('staff.toggle_staff', staff_id=s.id) }}"
+                  onsubmit="return confirm('Change this staff account access?')">
+
+              <input type="hidden"
+                     name="csrf_token"
+                     value="{{ csrf_token() }}">
+
+              <button type="submit" class="adm-secondary-btn">
+                {{ 'Disable' if s.is_enabled else 'Enable' }}
+              </button>
+            </form>
+          </td>
+        </tr>
+
+        {% else %}
+        <tr>
+          <td colspan="5">No staff accounts yet.</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="adm-panel adm-console-panel">
+  <h2>Assign Delivery Riders</h2>
+
+  <div class="adm-table-scroll">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Status</th>
+          <th>Assigned Rider</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for o in orders %}
+        <tr>
+          <td><strong>{{ o.order_number }}</strong></td>
+          <td>{{ o.status|replace('_', ' ')|title }}</td>
+          <td>
+
+            <form method="post"
+                  action="{{ url_for('staff.assign_rider', order_id=o.id) }}"
+                  class="adm-mini-form">
+
+              <input type="hidden"
+                     name="csrf_token"
+                     value="{{ csrf_token() }}">
+
+              <label>
+                Select Rider
+                <select name="rider_id">
+                  <option value="">Unassigned</option>
+
+                  {% for rider in riders %}
+                  <option value="{{ rider.id }}"
+                    {% if o.rider_user_id == rider.id %}
+                    selected
+                    {% endif %}>
+                    {{ rider.first_name }} {{ rider.last_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </label>
+
+              <button type="submit" class="adm-primary-btn">
+                Save
+              </button>
+
+            </form>
+          </td>
+        </tr>
+
+        {% else %}
+        <tr>
+          <td colspan="3">No active delivery orders.</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% else %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+
+  <title>
+    {{ 'Rider Workspace' if staff_type == 'rider'
+       else 'Bakery Staff Workspace' }} | InventoryPro
+  </title>
+
+  <link rel="stylesheet"
+        href="{{ url_for('staff.static', filename='style.css') }}">
+</head>
+
+<body class="staff-page">
+
+  <header class="staff-header">
+    <div class="staff-header-inner">
+
+      <div class="staff-brand">
+        <img
+          src="{{ url_for('auth.static', filename='logo.jpg') }}"
+          alt="Tali's logo"
+          class="staff-logo">
+
+        <div>
+          <strong>InventoryPro</strong>
+          <span>Tali's Bread &amp; Pastries</span>
+        </div>
+      </div>
+
+      <div class="staff-header-right">
+
+        <span class="role-chip">
+          {{ 'Delivery Rider' if staff_type == 'rider'
+             else 'Bakery Staff' }}
+        </span>
+
+        <div class="staff-user">
+          {{ user.first_name }}
+        </div>
+
+        <form method="post"
+              action="{{ url_for('auth.logout') }}"
+              class="logout-form">
+
+          <input type="hidden"
+                 name="csrf_token"
+                 value="{{ csrf_token() }}">
+
+          <button type="submit" class="logout-btn">
+            Log out
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </header>
+
+  <main class="staff-container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="staff-alert
+                  {{ 'staff-alert-error'
+                     if category in ['danger', 'error']
+                     else 'staff-alert-info' }}"
+           role="alert">
+        {{ message }}
+      </div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="staff-heading">
+      <div>
+        <p class="eyebrow">STAFF WORKSPACE</p>
+
+        <h1>
+          {{ 'My Deliveries' if staff_type == 'rider'
+             else 'Bakery Orders' }}
+        </h1>
+
+        <p>
+          {{ 'Manage the orders assigned to you.'
+             if staff_type == 'rider'
+             else 'Confirm orders and update their preparation status.' }}
+        </p>
+      </div>
+
+      <div class="count-chip">
+        <strong>{{ orders|length }}</strong>
+        {{ 'assigned delivery orders'
+           if staff_type == 'rider'
+           else 'work orders' }}
+      </div>
+    </section>
+
+    <section class="staff-panel staff-orders-panel"
+             aria-labelledby="work-heading">
+
+      <div class="panel-heading">
+        <div>
+          <h2 id="work-heading">
+            {{ 'Assigned Deliveries'
+               if staff_type == 'rider'
+               else 'Order Queue' }}
+          </h2>
+
+          <p>
+            Only the actions permitted for your account are shown.
+          </p>
+        </div>
+      </div>
+
+      {% if orders %}
+
+      <div class="work-list">
+
+        {% for o in orders %}
+
+        <article class="work-card">
+
+          <div class="work-card-top">
+
+            <div class="work-id">
+              <strong>{{ o.order_number }}</strong>
+
+              <span>
+                {{ 'Store Pickup'
+                   if o.order_type == 'pickup'
+                   else 'Delivery' }}
+
+                · ₱{{ '%.2f'|format(o.total_amount) }}
+              </span>
+            </div>
+
+            <span class="status-chip status-{{ o.status }}">
+              {{ o.status|replace('_', ' ')|title }}
+            </span>
+          </div>
+
+          <div class="work-card-body">
+
+            <div class="work-detail">
+              <span class="detail-label">Customer</span>
+
+              <strong>
+                {{ o.recipient_name or 'Customer' }}
+              </strong>
+
+              <span>
+                {{ o.contact_number or 'No contact number' }}
+              </span>
+            </div>
+
+            <div class="work-detail location-detail">
+
+              <span class="detail-label">
+                {{ 'Pickup Location'
+                   if o.order_type == 'pickup'
+                   else 'Delivery Address' }}
+              </span>
+
+              <span>
+                {{ o.delivery_address_snapshot
+                   or 'Store pickup — confirm bakery address with admin' }}
+              </span>
+
+            </div>
+          </div>
+
+          <div class="work-card-footer">
+
+            <span class="next-label">Next Step</span>
+
+            {% set next_status =
+              {
+                'pending': 'confirmed',
+                'confirmed': 'preparing',
+                'preparing': 'ready'
+              }
+              if staff_type == 'bakery'
+              else
+              {
+                'ready': 'out_for_delivery',
+                'out_for_delivery': 'completed'
+              }
+            %}
+
+            {% set next = next_status.get(o.status) %}
+
+            {% if staff_type == 'bakery'
+               and o.order_type == 'delivery'
+               and o.status == 'completed' %}
+
+              <form method="post"
+                    action="{{ url_for('staff.payment_received', order_id=o.id) }}"
+                    onsubmit="return confirm('Only confirm if the full COD payment was actually received. Continue?')">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <button class="primary-btn" type="submit">
+                  Record COD Payment
+                </button>
+              </form>
+
+            {% elif staff_type == 'bakery'
+                 and o.status == 'ready' %}
+
+              <span class="action-note">
+                {{ 'Ready for customer pickup'
+                   if o.order_type == 'pickup'
+                   else 'Awaiting assigned rider' }}
+              </span>
+
+            {% elif next %}
+
+              <form method="post"
+                    action="{{ url_for('staff.change_status', order_id=o.id) }}"
+                    onsubmit="return confirm('Confirm this work step has actually happened?')">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <input type="hidden"
+                       name="status"
+                       value="{{ next }}">
+
+                <button class="primary-btn" type="submit">
+                  {{ {
+                       'confirmed': 'Confirm Order',
+                       'preparing': 'Start Preparing',
+                       'ready': 'Mark as Ready',
+                       'out_for_delivery': 'Out for Delivery',
+                       'completed': 'Mark Delivered'
+                     }.get(next, next) }}
+                </button>
+              </form>
+
+            {% else %}
+
+              <span class="action-note">
+                No action available
+              </span>
+
+            {% endif %}
+
+          </div>
+        </article>
+
+        {% endfor %}
+
+      </div>
+
+      {% else %}
+
+      <div class="staff-empty">
+
+        <div class="empty-icon" aria-hidden="true">
+          ✓
+        </div>
+
+        <h3>
+          {{ 'No deliveries assigned yet'
+             if staff_type == 'rider'
+             else 'No work orders right now' }}
+        </h3>
+
+        <p>
+          {{ 'New assigned orders will appear here when the admin assigns them.'
+             if staff_type == 'rider'
+             else 'New and active orders will appear here when customers place orders.' }}
+        </p>
+
+      </div>
+
+      {% endif %}
+
+    </section>
+
+    <section class="staff-panel password-panel"
+             aria-labelledby="password-heading">
+
+      <div class="panel-heading">
+        <div>
+          <h2 id="password-heading">
+            Change My Password
+          </h2>
+
+          <p>
+            Use a strong password to protect your account.
+          </p>
+        </div>
+      </div>
+
+      <form method="post"
+            action="{{ url_for('staff.change_password') }}"
+            class="password-form">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <label>
+          Current Password
+
+          <input name="old_password"
+                 type="password"
+                 autocomplete="current-password"
+                 required>
+        </label>
+
+        <label>
+          New Password
+
+          <input name="new_password"
+                 type="password"
+                 autocomplete="new-password"
+                 minlength="8"
+                 maxlength="128"
+                 required>
+
+          <small>
+            8+ characters, including a number and symbol
+          </small>
+        </label>
+
+        <button type="submit"
+                class="primary-btn password-save">
+          Save Password
+        </button>
+
+      </form>
+
+    </section>
+
+  </main>
+</body>
+</html>
+
+{% endif %}
+{% endblock %}

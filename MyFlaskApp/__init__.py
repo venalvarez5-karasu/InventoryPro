@@ -56,6 +56,7 @@ def reg_app():
     from .production.production_bp import production_bp
     from .products.products_bp import products_bp
     from .reports.reports_bp import reports_bp
+    from .staff.staff_bp import staff_bp
 
     # Register Blueprints
     app.register_blueprint(index_bp)
@@ -69,5 +70,6 @@ def reg_app():
     app.register_blueprint(inventory_bp, url_prefix="/admin/inventory")
     app.register_blueprint(production_bp, url_prefix="/admin/production")
     app.register_blueprint(reports_bp, url_prefix="/admin/reports")
+    app.register_blueprint(staff_bp, url_prefix="/staff")
 
     return app

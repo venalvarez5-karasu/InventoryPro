@@ -9,8 +9,12 @@ from flask import (
 
 from MySQLdb.cursors import DictCursor
 
+from flask import request
 from MyFlaskApp import mysql
 from MyFlaskApp.auth.auth_bp import current_user
+import re
+from decimal import Decimal
+
 
 
 orders_bp = Blueprint(
@@ -86,6 +90,190 @@ def order_list():
 
 
 @orders_bp.route("/<int:order_id>")
+
+# ==========================================
+# CUSTOMER - SUBMIT PICKUP DEPOSIT REFERENCE
+# ==========================================
+
+@orders_bp.route(
+    "/<int:order_id>/pickup-deposit",
+    methods=["POST"]
+)
+def submit_pickup_deposit(order_id):
+
+    user_id = get_user_id()
+
+    if not user_id:
+        return redirect(
+            url_for("auth.login")
+        )
+
+    reference = request.form.get(
+        "payment_reference", ""
+    ).strip().upper()
+
+    if not re.fullmatch(
+        r"[A-Z0-9-]{6,100}",
+        reference
+    ):
+        flash(
+            "Enter a valid payment reference "
+            "containing 6 to 100 letters, numbers "
+            "or hyphens.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "orders.order_list",
+                order_id=order_id
+            )
+        )
+
+    conn = mysql.connection
+    cur = conn.cursor(DictCursor)
+
+    try:
+        conn.begin()
+
+        cur.execute(
+            """
+            SELECT
+                id,
+                order_type,
+                status,
+                payment_method,
+                pickup_deposit_due
+            FROM orders
+            WHERE id = %s
+              AND user_id = %s
+            FOR UPDATE
+            """,
+            (order_id, user_id)
+        )
+
+        order = cur.fetchone()
+
+        if not order:
+            abort(404)
+
+        if (
+            order["order_type"] != "pickup"
+            or order["status"] not in (
+                "pending_verification", "pending"
+            )
+            or order["payment_method"] not in (
+                "gcash", "bank_transfer"
+            )
+        ):
+            raise ValueError(
+                "This order does not accept "
+                "a pickup deposit submission."
+            )
+
+        deposit = Decimal(
+            str(order["pickup_deposit_due"] or 0)
+        ).quantize(Decimal("0.01"))
+
+        if deposit <= 0:
+            raise ValueError(
+                "The required deposit is not configured."
+            )
+
+        # Do not permit another submission while
+        # a reference is being reviewed or after payment.
+        cur.execute(
+            """
+            SELECT id, status
+            FROM payments
+            WHERE order_id = %s
+              AND payment_purpose = 'pickup_deposit'
+              AND status IN ('pending_review', 'paid')
+            FOR UPDATE
+            """,
+            (order_id,)
+        )
+
+        if cur.fetchone():
+            raise ValueError(
+                "A deposit is already under review "
+                "or has been verified."
+            )
+
+        cur.execute(
+            """
+            SELECT id
+            FROM payments
+            WHERE payment_method = %s
+              AND payment_reference = %s
+            LIMIT 1
+            """,
+            (
+                order["payment_method"],
+                reference
+            )
+        )
+
+        if cur.fetchone():
+            raise ValueError(
+                "That payment reference has already "
+                "been submitted."
+            )
+
+        cur.execute(
+            """
+            INSERT INTO payments
+            (
+                order_id,
+                payment_method,
+                amount,
+                status,
+                payment_purpose,
+                payment_reference
+            )
+            VALUES
+            (
+                %s, %s, %s,
+                'pending_review',
+                'pickup_deposit',
+                %s
+            )
+            """,
+            (
+                order_id,
+                order["payment_method"],
+                deposit,
+                reference
+            )
+        )
+
+        conn.commit()
+
+        flash(
+            "Payment reference submitted. "
+            "The bakery will verify it before "
+            "preparing your order.",
+            "success"
+        )
+
+    except ValueError as exc:
+        conn.rollback()
+        flash(str(exc), "danger")
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        cur.close()
+
+    return redirect(
+        url_for(
+            "orders.order_list",
+            order_id=order_id
+        )
+    )
+
 def order_detail(order_id):
 
     user_id = get_user_id()
@@ -101,7 +289,7 @@ def order_detail(order_id):
             url_for(
                 "auth.login",
                 next=url_for(
-                    "orders.order_detail",
+                    "orders.order_list",
                     order_id=order_id
                 )
             )
@@ -132,6 +320,21 @@ def order_detail(order_id):
         ORDER BY id
         """,
         (order_id,),
+    )
+    payments = rows(
+         """
+         SELECT
+             id,
+             payment_purpose,
+            payment_method,
+            payment_reference,
+            amount,
+            status
+        FROM payments
+        WHERE order_id = %s
+        ORDER BY created_at DESC, id DESC
+        """,
+        (order_id,)
     )
 
     return render_template(

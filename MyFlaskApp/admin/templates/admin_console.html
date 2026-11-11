@@ -2,16 +2,19 @@
 {% extends "admin_base.html" %}
 {% block content %}
 
+
 {% set descriptions = {
     'categories': 'Organize product categories and their catalog visibility.',
     'orders': 'Review orders and update fulfillment status.',
     'customers': 'Manage registered customer accounts.',
     'areas': 'Configure delivery coverage, fees and COD permissions.',
+    'pickup_settings': 'Configure the required deposit for store pickup orders.',
     'inventory': 'Monitor stock and record ingredient movements.',
     'insights': 'Review order activity and sales performance.',
     'activity': 'View administrative changes and recorded actions.',
     'reports': 'Export product, order and inventory records.'
 } %}
+
 
 <div class="adm-page-heading">
     <div>
@@ -22,12 +25,12 @@
 
     {% if section == 'orders' %}
     <a class="adm-secondary-btn"
-       href="{{ url_for('admin.admin_export', kind='orders') }}">
+        href="{{ url_for('admin.admin_export', kind='orders') }}">
         Export Orders CSV
     </a>
     {% elif section == 'inventory' %}
     <a class="adm-secondary-btn"
-       href="{{ url_for('admin.admin_export', kind='inventory') }}">
+        href="{{ url_for('admin.admin_export', kind='inventory') }}">
         Export Inventory CSV
     </a>
     {% endif %}
@@ -41,24 +44,24 @@
     <h2>Add a Category</h2>
 
     <form class="adm-flex-form"
-          method="post"
-          action="{{ url_for('admin.categories_page') }}">
+        method="post"
+        action="{{ url_for('admin.categories_page') }}">
 
         <input type="hidden" name="csrf_token"
-               value="{{ csrf_token() }}">
+            value="{{ csrf_token() }}">
 
         <input type="hidden" name="action" value="add">
 
         <label>
             Category name
             <input name="name" minlength="2" maxlength="100"
-                   placeholder="e.g. Specialty Breads" required>
+                placeholder="e.g. Specialty Breads" required>
         </label>
 
         <label>
             Display order
             <input type="number" name="display_order"
-                   min="0" max="9999" value="5" required>
+                min="0" max="9999" value="5" required>
         </label>
 
         <button type="submit" class="adm-primary-btn">
@@ -100,49 +103,50 @@
                     <td>{{ row.display_order }}</td>
 
                     <td>
-                        <span class="adm-status {{ 'available' if row.is_active else 'archived' }}">
+                        <span
+                            class="adm-status {{ 'available' if row.is_active else 'archived' }}">
                             {{ 'Active' if row.is_active else 'Disabled' }}
                         </span>
                     </td>
 
                     <td>
                         <details class="adm-detail-toggle"
-                                 data-modal-title="Edit Category">
+                            data-modal-title="Edit Category">
                             <summary>Edit</summary>
 
                             <form class="adm-mini-form"
-                                  method="post"
-                                  action="{{ url_for('admin.categories_page') }}">
+                                method="post"
+                                action="{{ url_for('admin.categories_page') }}">
 
                                 <input type="hidden" name="csrf_token"
-                                       value="{{ csrf_token() }}">
+                                    value="{{ csrf_token() }}">
 
                                 <input type="hidden" name="category_id"
-                                       value="{{ row.id }}">
+                                    value="{{ row.id }}">
 
                                 <label>
                                     Name
                                     <input name="name"
-                                           value="{{ row.name }}"
-                                           minlength="2"
-                                           maxlength="100"
-                                           required>
+                                        value="{{ row.name }}"
+                                        minlength="2"
+                                        maxlength="100"
+                                        required>
                                 </label>
 
                                 <label>
                                     Display order
                                     <input type="number"
-                                           name="display_order"
-                                           min="0"
-                                           max="9999"
-                                           value="{{ row.display_order }}"
-                                           required>
+                                        name="display_order"
+                                        min="0"
+                                        max="9999"
+                                        value="{{ row.display_order }}"
+                                        required>
                                 </label>
 
                                 <button type="submit"
-                                        name="action"
-                                        value="update"
-                                        class="adm-action-button">
+                                    name="action"
+                                    value="update"
+                                    class="adm-action-button">
                                     Save Changes
                                 </button>
 
@@ -152,7 +156,8 @@
                                     value="{{ 'disable' if row.is_active else 'enable' }}"
                                     class="adm-action-button {{ 'danger' if row.is_active else 'restore' }}"
                                     formnovalidate>
-                                    {{ 'Disable' if row.is_active else 'Enable' }}
+                                    {{ 'Disable' if row.is_active else 'Enable'
+                                    }}
                                 </button>
                             </form>
                         </details>
@@ -178,17 +183,17 @@
 <section class="adm-panel">
     <form class="adm-console-filters" method="get">
         <input type="search"
-               name="q"
-               value="{{ q }}"
-               maxlength="80"
-               placeholder="Order number, customer or email">
+            name="q"
+            value="{{ q }}"
+            maxlength="80"
+            placeholder="Order number, customer or email">
 
         <select name="status">
-            <option value="">All statuses</option>
+            <option value>All statuses</option>
 
             {% for item in statuses %}
             <option value="{{ item }}"
-                    {% if status == item %}selected{% endif %}>
+                {% if status == item %}selected{% endif %}>
                 {{ item|replace('_', ' ')|title }}
             </option>
             {% endfor %}
@@ -230,14 +235,15 @@
                     </td>
 
                     <td>
-                        <span class="adm-status {{ 'available' if row.status == 'completed' else 'unavailable' }}">
+                        <span
+                            class="adm-status {{ 'available' if row.status == 'completed' else 'unavailable' }}">
                             {{ row.status|replace('_',' ')|title }}
                         </span>
                     </td>
 
                     <td>
                         <a class="adm-action-button"
-                           href="{{ url_for('admin.admin_order_detail', order_id=row.id) }}">
+                            href="{{ url_for('admin.admin_orderdetail', order_id=row.id) }}">
                             View
                         </a>
                     </td>
@@ -262,10 +268,10 @@
 <section class="adm-panel">
     <form class="adm-console-filters" method="get">
         <input type="search"
-               name="q"
-               value="{{ q }}"
-               maxlength="80"
-               placeholder="Search name or email">
+            name="q"
+            value="{{ q }}"
+            maxlength="80"
+            placeholder="Search name or email">
 
         <button class="adm-primary-btn" type="submit">
             Search
@@ -299,7 +305,8 @@
                     <td>{{ row.created_at }}</td>
 
                     <td>
-                        <span class="adm-status {{ 'available' if row.account_status == 'active' else 'archived' }}">
+                        <span
+                            class="adm-status {{ 'available' if row.account_status == 'active' else 'archived' }}">
                             {{ row.account_status|title }}
                         </span>
                     </td>
@@ -311,17 +318,18 @@
                             data-confirm="Change this customer's status?">
 
                             <input type="hidden"
-                                   name="csrf_token"
-                                   value="{{ csrf_token() }}">
+                                name="csrf_token"
+                                value="{{ csrf_token() }}">
 
                             <input type="hidden"
-                                   name="status"
-                                   value="{{ 'disabled' if row.account_status == 'active' else 'active' }}">
+                                name="status"
+                                value="{{ 'disabled' if row.account_status == 'active' else 'active' }}">
 
                             <button
                                 class="adm-action-button {{ 'danger' if row.account_status == 'active' else 'restore' }}"
                                 type="submit">
-                                {{ 'Disable' if row.account_status == 'active' else 'Reactivate' }}
+                                {{ 'Disable' if row.account_status == 'active'
+                                else 'Reactivate' }}
                             </button>
                         </form>
                     </td>
@@ -342,8 +350,8 @@
 {% elif section == 'areas' %}
 
 <div id="adm-distance-config"
-     data-lookup-url="{{ url_for('admin.admin_delivery_distance_lookup') }}"
-     hidden></div>
+    data-lookup-url="{{ url_for('admin.admin_delivery_distance_lookup') }}"
+    hidden></div>
 
 <div class="adm-delivery-page">
 
@@ -364,17 +372,17 @@
         </div>
 
         <form class="adm-flex-form adm-distance-form"
-              data-distance-form
-              method="post"
-              action="{{ url_for('admin.admin_delivery_areas') }}">
+            data-distance-form
+            method="post"
+            action="{{ url_for('admin.admin_delivery_areas') }}">
 
             <input type="hidden"
-                   name="csrf_token"
-                   value="{{ csrf_token() }}">
+                name="csrf_token"
+                value="{{ csrf_token() }}">
 
             <input type="hidden"
-                   name="action"
-                   value="add">
+                name="action"
+                value="add">
 
             <div class="adm-delivery-fields">
 
@@ -382,7 +390,7 @@
                     Province / Region
 
                     <select name="region_id" required>
-                        <option value="">Select region</option>
+                        <option value>Select region</option>
 
                         {% for region in regions %}
                         <option value="{{ region.id }}">
@@ -396,28 +404,28 @@
                     City / Municipality
 
                     <input type="text"
-                           name="city_municipality"
-                           minlength="2"
-                           maxlength="100"
-                           placeholder="Select city / municipality"
-                           autocomplete="off"
-                           required>
+                        name="city_municipality"
+                        minlength="2"
+                        maxlength="100"
+                        placeholder="Select city / municipality"
+                        autocomplete="off"
+                        required>
                 </label>
 
                 <label class="adm-delivery-field">
                     Road Distance (km)
 
                     <input type="number"
-                           name="estimated_distance_km"
-                           min="0"
-                           max="99999.99"
-                           step="0.01"
-                           placeholder="Auto lookup or enter km">
+                        name="estimated_distance_km"
+                        min="0"
+                        max="99999.99"
+                        step="0.01"
+                        placeholder="Auto lookup or enter km">
                 </label>
 
                 <div class="adm-delivery-fee-preview"
-                     data-delivery-preview
-                     aria-live="polite">
+                    data-delivery-preview
+                    aria-live="polite">
 
                     <span>Delivery Fee</span>
 
@@ -435,15 +443,15 @@
             <div class="adm-delivery-checks">
                 <label class="adm-checkbox-label">
                     <input type="checkbox"
-                           name="is_enabled"
-                           value="1">
+                        name="is_enabled"
+                        value="1">
                     Enable delivery
                 </label>
 
                 <label class="adm-checkbox-label">
                     <input type="checkbox"
-                           name="cod_enabled"
-                           value="1">
+                        name="cod_enabled"
+                        value="1">
                     Allow COD
                 </label>
             </div>
@@ -517,29 +525,31 @@
 
                         <td>
                             {% if row.estimated_distance_km is not none %}
-                                {{ row.estimated_distance_km }} km
+                            {{ row.estimated_distance_km }} km
                             {% else %}
-                                <span class="adm-delivery-muted">
-                                    Not set
-                                </span>
+                            <span class="adm-delivery-muted">
+                                Not set
+                            </span>
                             {% endif %}
                         </td>
 
                         <td>
                             {% if row.delivery_fee is not none %}
-                                <strong>
-                                    &#8369;{{ '%.2f'|format(row.delivery_fee) }}
-                                </strong>
+                            <strong>
+                                &#8369;{{ '%.2f'|format(row.delivery_fee) }}
+                            </strong>
                             {% else %}
-                                <span class="adm-delivery-muted">
-                                    For quotation
-                                </span>
+                            <span class="adm-delivery-muted">
+                                For quotation
+                            </span>
                             {% endif %}
                         </td>
 
                         <td>
-                            <span class="adm-status {{ 'available' if row.is_enabled else 'archived' }}">
-                                {{ 'Enabled' if row.is_enabled else 'Disabled' }}
+                            <span
+                                class="adm-status {{ 'available' if row.is_enabled else 'archived' }}">
+                                {{ 'Enabled' if row.is_enabled else 'Disabled'
+                                }}
                             </span>
                         </td>
 
@@ -549,27 +559,27 @@
 
                         <td>
                             <details class="adm-detail-toggle"
-                                     data-modal-title="Edit Delivery Area">
+                                data-modal-title="Edit Delivery Area">
 
                                 <summary>Edit</summary>
 
                                 <form class="adm-mini-form adm-distance-form"
-                                      data-distance-form
-                                      data-existing-fee="{{ row.delivery_fee if row.delivery_fee is not none else '' }}"
-                                      method="post"
-                                      action="{{ url_for('admin.admin_delivery_areas') }}">
+                                    data-distance-form
+                                    data-existing-fee="{{ row.delivery_fee if row.delivery_fee is not none else '' }}"
+                                    method="post"
+                                    action="{{ url_for('admin.admin_delivery_areas') }}">
 
                                     <input type="hidden"
-                                           name="csrf_token"
-                                           value="{{ csrf_token() }}">
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}">
 
                                     <input type="hidden"
-                                           name="action"
-                                           value="update">
+                                        name="action"
+                                        value="update">
 
                                     <input type="hidden"
-                                           name="area_id"
-                                           value="{{ row.id }}">
+                                        name="area_id"
+                                        value="{{ row.id }}">
 
                                     <div class="adm-delivery-modal-origin">
                                         From Los Ba&ntilde;os, Laguna
@@ -583,9 +593,10 @@
                                             <select name="region_id" required>
                                                 {% for region in regions %}
                                                 <option value="{{ region.id }}"
-                                                        {% if region.id == row.region_id %}
-                                                        selected
-                                                        {% endif %}>
+                                                    {% if region.id ==
+                                                    row.region_id %}
+                                                    selected
+                                                    {% endif %}>
                                                     {{ region.name }}
                                                 </option>
                                                 {% endfor %}
@@ -596,36 +607,39 @@
                                             City / Municipality
 
                                             <input type="text"
-                                                   name="city_municipality"
-                                                   value="{{ row.city_municipality }}"
-                                                   minlength="2"
-                                                   maxlength="100"
-                                                   required>
+                                                name="city_municipality"
+                                                value="{{ row.city_municipality }}"
+                                                minlength="2"
+                                                maxlength="100"
+                                                required>
                                         </label>
 
                                         <label class="adm-delivery-field">
                                             Road Distance (km)
 
                                             <input type="number"
-                                                   name="estimated_distance_km"
-                                                   min="0"
-                                                   max="99999.99"
-                                                   step="0.01"
-                                                   value="{{ row.estimated_distance_km if row.estimated_distance_km is not none else '' }}"
-                                                   placeholder="Auto lookup or enter km">
+                                                name="estimated_distance_km"
+                                                min="0"
+                                                max="99999.99"
+                                                step="0.01"
+                                                value="{{ row.estimated_distance_km if row.estimated_distance_km is not none else '' }}"
+                                                placeholder="Auto lookup or enter km">
                                         </label>
 
                                         <div class="adm-delivery-fee-preview"
-                                             data-delivery-preview
-                                             aria-live="polite">
+                                            data-delivery-preview
+                                            aria-live="polite">
 
                                             <span>Delivery Fee</span>
 
                                             <strong data-delivery-fee>
-                                                {% if row.delivery_fee is not none %}
-                                                    &#8369;{{ '%.2f'|format(row.delivery_fee) }}
+                                                {% if row.delivery_fee is not
+                                                none %}
+                                                &#8369;{{
+                                                '%.2f'|format(row.delivery_fee)
+                                                }}
                                                 {% else %}
-                                                    For quotation
+                                                For quotation
                                                 {% endif %}
                                             </strong>
 
@@ -638,23 +652,25 @@
                                     <div class="adm-delivery-checks">
                                         <label class="adm-checkbox-label">
                                             <input type="checkbox"
-                                                   name="is_enabled"
-                                                   value="1"
-                                                   {% if row.is_enabled %}checked{% endif %}>
+                                                name="is_enabled"
+                                                value="1"
+                                                {% if row.is_enabled %}checked{%
+                                                endif %}>
                                             Enable delivery
                                         </label>
 
                                         <label class="adm-checkbox-label">
                                             <input type="checkbox"
-                                                   name="cod_enabled"
-                                                   value="1"
-                                                   {% if row.cod_enabled %}checked{% endif %}>
+                                                name="cod_enabled"
+                                                value="1"
+                                                {% if row.cod_enabled
+                                                %}checked{% endif %}>
                                             Allow COD
                                         </label>
                                     </div>
 
                                     <button type="submit"
-                                            class="adm-primary-btn">
+                                        class="adm-primary-btn">
                                         Save Changes
                                     </button>
                                 </form>
@@ -677,6 +693,64 @@
     </section>
 </div>
 
+{% elif section == 'pickup_settings' %}
+
+<section class="adm-panel adm-console-panel">
+
+    <h2>Store Pickup Deposit</h2>
+
+    <p class="adm-console-muted">
+        Configure the deposit customers must pay
+        before the bakery can prepare pickup orders.
+    </p>
+
+    <form
+        method="post"
+        action="{{ url_for('admin.admin_pickup_settings') }}"
+        class="adm-mini-form">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}">
+
+        <label>
+            Required Down Payment (%)
+
+            <input
+                type="number"
+                name="deposit_percent"
+                min="1"
+                max="100"
+                step="0.01"
+                value="{{ settings.deposit_percent }}"
+                required>
+        </label>
+
+        <p class="adm-console-muted">
+            Default: 20%.
+            Changes will apply to new pickup orders
+            once Store Pickup checkout is enabled.
+        </p>
+
+        <button
+            type="submit"
+            class="adm-primary-btn">
+            Save Settings
+        </button>
+
+    </form>
+
+    <p class="adm-console-muted">
+        Store Pickup checkout:
+        {% if settings.pickup_enabled %}
+        Enabled
+        {% else %}
+        Disabled while payment integration is incomplete
+        {% endif %}
+    </p>
+
+</section>
 
 {% elif section == 'inventory' %}
 
@@ -704,22 +778,22 @@
                 action="{{ url_for('admin.admin_inventory_add') }}">
 
                 <input type="hidden"
-                       name="csrf_token"
-                       value="{{ csrf_token() }}">
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
 
                 <label>
                     Item name
                     <input name="item_name"
-                           minlength="2"
-                           maxlength="180"
-                           placeholder="e.g. All-Purpose Flour"
-                           required>
+                        minlength="2"
+                        maxlength="180"
+                        placeholder="e.g. All-Purpose Flour"
+                        required>
                 </label>
 
                 <label>
                     Category
                     <select name="category_id" required>
-                        <option value="">Select category</option>
+                        <option value>Select category</option>
 
                         {% for cat in categories %}
                         <option value="{{ cat.id }}">
@@ -743,27 +817,27 @@
                 <label>
                     Measurement unit
                     <input name="unit"
-                           maxlength="20"
-                           placeholder="g / kg / pcs"
-                           required>
+                        maxlength="20"
+                        placeholder="g / kg / pcs"
+                        required>
                 </label>
 
                 <label>
                     SKU (optional)
                     <input name="sku"
-                           maxlength="50"
-                           placeholder="e.g. ING-FLOUR-001">
+                        maxlength="50"
+                        placeholder="e.g. ING-FLOUR-001">
                 </label>
 
                 <label>
                     Reorder level
                     <input type="number"
-                           name="reorder_level"
-                           min="0"
-                           max="999999999.999"
-                           step="0.001"
-                           value="0"
-                           required>
+                        name="reorder_level"
+                        min="0"
+                        max="999999999.999"
+                        step="0.001"
+                        value="0"
+                        required>
                 </label>
 
                 <button type="submit" class="adm-primary-btn">
@@ -779,10 +853,10 @@
         action="{{ url_for('admin.admin_inventory') }}">
 
         <input type="search"
-               name="q"
-               value="{{ q }}"
-               maxlength="80"
-               placeholder="Search inventory name or SKU">
+            name="q"
+            value="{{ q }}"
+            maxlength="80"
+            placeholder="Search inventory name or SKU">
 
         <button class="adm-primary-btn" type="submit">
             Search
@@ -790,7 +864,7 @@
 
         {% if q %}
         <a class="adm-secondary-btn"
-           href="{{ url_for('admin.admin_inventory') }}">
+            href="{{ url_for('admin.admin_inventory') }}">
             Clear
         </a>
         {% endif %}
@@ -832,7 +906,8 @@
                     <td>
                         {{ row.reorder_level }} {{ row.unit }}
 
-                        {% if row.reorder_level > 0 and row.quantity_on_hand <= row.reorder_level %}
+                        {% if row.reorder_level > 0 and row.quantity_on_hand <=
+                        row.reorder_level %}
                         <span class="adm-status archived">
                             Low Stock
                         </span>
@@ -854,8 +929,8 @@
                                     action="{{ url_for('admin.admin_inventory_edit', item_id=row.id) }}">
 
                                     <input type="hidden"
-                                           name="csrf_token"
-                                           value="{{ csrf_token() }}">
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}">
 
                                     <label>
                                         Item name
@@ -873,7 +948,8 @@
                                             {% for cat in categories %}
                                             <option
                                                 value="{{ cat.id }}"
-                                                {% if cat.id == row.category_id %}
+                                                {% if cat.id == row.category_id
+                                                %}
                                                 selected
                                                 {% endif %}>
                                                 {{ cat.name }}
@@ -885,24 +961,25 @@
                                     <label>
                                         SKU (optional)
                                         <input name="sku"
-                                               value="{{ row.sku or '' }}"
-                                               maxlength="50">
+                                            value="{{ row.sku or '' }}"
+                                            maxlength="50">
                                     </label>
 
                                     <label>
                                         Reorder level ({{ row.unit }})
                                         <input type="number"
-                                               name="reorder_level"
-                                               min="0"
-                                               max="999999999.999"
-                                               step="0.001"
-                                               value="{{ row.reorder_level }}"
-                                               required>
+                                            name="reorder_level"
+                                            min="0"
+                                            max="999999999.999"
+                                            step="0.001"
+                                            value="{{ row.reorder_level }}"
+                                            required>
                                     </label>
 
                                     <p class="ip-inventory-note">
                                         Type:
-                                        {{ row.item_type|replace('_',' ')|title }}
+                                        {{ row.item_type|replace('_',' ')|title
+                                        }}
                                         / Unit: {{ row.unit }}.
                                         These remain fixed to protect
                                         existing recipe measurements.
@@ -928,8 +1005,8 @@
                                     action="{{ url_for('admin.admin_inventory_movement', item_id=row.id) }}">
 
                                     <input type="hidden"
-                                           name="csrf_token"
-                                           value="{{ csrf_token() }}">
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}">
 
                                     <p class="ip-inventory-note">
                                         Current stock:
@@ -965,10 +1042,10 @@
                                     <label>
                                         Reason
                                         <input name="notes"
-                                               minlength="3"
-                                               maxlength="255"
-                                               placeholder="e.g. Supplier delivery"
-                                               required>
+                                            minlength="3"
+                                            maxlength="255"
+                                            placeholder="e.g. Supplier delivery"
+                                            required>
                                     </label>
 
                                     <button
@@ -1034,7 +1111,8 @@
                     </td>
 
                     <td>
-                        <span class="ip-stock-change {{ 'positive' if movement.quantity_change > 0 else 'negative' }}">
+                        <span
+                            class="ip-stock-change {{ 'positive' if movement.quantity_change > 0 else 'negative' }}">
                             {% if movement.quantity_change > 0 %}+{% endif %}
                             {{ movement.quantity_change }} {{ movement.unit }}
                         </span>
@@ -1065,12 +1143,12 @@
     </div>
 
     {% with
-        page=movement_page,
-        pages=movement_pages,
-        total=movement_total,
-        pager_param='mov_page'
+    page=movement_page,
+    pages=movement_pages,
+    total=movement_total,
+    pager_param='mov_page'
     %}
-        {% include "admin_pagination.html" %}
+    {% include "admin_pagination.html" %}
     {% endwith %}
 </section>
 
@@ -1312,15 +1390,15 @@
 <div class="adm-quick-grid">
 
     <a class="adm-quick-card"
-       href="{{ url_for('admin.admin_export', kind='products') }}">
+        href="{{ url_for('admin.admin_export', kind='products') }}">
 
         <span class="adm-quick-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round">
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round">
 
-                <rect x="5" y="3" width="14" height="18" rx="2"/>
-                <path d="M9 8h6M9 12h6M9 16h4"/>
+                <rect x="5" y="3" width="14" height="18" rx="2" />
+                <path d="M9 8h6M9 12h6M9 16h4" />
             </svg>
         </span>
 
@@ -1332,15 +1410,15 @@
     </a>
 
     <a class="adm-quick-card"
-       href="{{ url_for('admin.admin_export', kind='orders') }}">
+        href="{{ url_for('admin.admin_export', kind='orders') }}">
 
         <span class="adm-quick-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round">
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round">
 
-                <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/>
-                <path d="M9 8h6M9 12h6"/>
+                <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" />
+                <path d="M9 8h6M9 12h6" />
             </svg>
         </span>
 
@@ -1351,15 +1429,15 @@
     </a>
 
     <a class="adm-quick-card"
-       href="{{ url_for('admin.admin_export', kind='inventory') }}">
+        href="{{ url_for('admin.admin_export', kind='inventory') }}">
 
         <span class="adm-quick-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="1.8"
-                 stroke-linecap="round">
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round">
 
-                <path d="m3 7 9-4 9 4-9 4-9-4Z"/>
-                <path d="M3 7v10l9 4 9-4V7M12 11v10"/>
+                <path d="m3 7 9-4 9 4-9 4-9-4Z" />
+                <path d="M3 7v10l9 4 9-4V7M12 11v10" />
             </svg>
         </span>
 
@@ -1381,14 +1459,14 @@
 <!-- SHARED PAGINATION -->
 
 {% if section in [
-    'categories',
-    'orders',
-    'customers',
-    'inventory',
-    'areas',
-    'activity'
+'categories',
+'orders',
+'customers',
+'inventory',
+'areas',
+'activity'
 ] %}
-    {% include "admin_pagination.html" %}
+{% include "admin_pagination.html" %}
 {% endif %}
 
 {% endblock %}

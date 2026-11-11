@@ -5,8 +5,7 @@
 
 <section
     class="container"
-    style="padding: 45px 0; max-width: 900px; min-height: 65vh;"
->
+    style="padding: 45px 0; max-width: 900px; min-height: 65vh;">
 
     <a href="{{ url_for('orders.order_list') }}">
         ← My Orders
@@ -40,8 +39,7 @@
     <div style="overflow-x: auto;">
 
         <table
-            style="width: 100%; border-collapse: collapse; text-align: left;"
-        >
+            style="width: 100%; border-collapse: collapse; text-align: left;">
 
             <thead>
                 <tr>
@@ -56,8 +54,7 @@
                 {% for item in items %}
 
                 <tr
-                    style="border-bottom: 1px solid #ece6f0;"
-                >
+                    style="border-bottom: 1px solid #ece6f0;">
 
                     <td style="padding: 12px 5px;">
                         {{ item.product_name_snapshot }}
@@ -96,6 +93,143 @@
         Total:
         &#8369;{{ "%.2f"|format(order.total_amount) }}
     </h3>
+
+    {% if order.order_type == 'pickup' %}
+
+    <section style="
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8f5fb;
+    border: 1px solid #e8e0ee;
+    border-radius: 12px;
+">
+
+        <h2 style="margin-top: 0; font-size: 19px;">
+            Store Pickup Payment
+        </h2>
+
+        <p>
+            Required deposit:
+            <strong>
+                &#8369;{{ '%.2f'|format(
+                order.pickup_deposit_due or 0
+                ) }}
+            </strong>
+        </p>
+
+        <p>
+            Remaining balance at pickup:
+            <strong>
+                &#8369;{{ '%.2f'|format(
+                order.pickup_balance_due or 0
+                ) }}
+            </strong>
+        </p>
+
+        {% set deposit_paid = payments
+        | selectattr('payment_purpose', 'equalto',
+        'pickup_deposit')
+        | selectattr('status', 'equalto', 'paid')
+        | list
+        %}
+
+        {% set pending_deposit = payments
+        | selectattr('payment_purpose', 'equalto',
+        'pickup_deposit')
+        | selectattr('status', 'equalto',
+        'pending_review')
+        | list
+        %}
+
+        {% if deposit_paid %}
+
+        <p style="color: #247448; font-weight: 700;">
+            Down payment verified.
+        </p>
+
+        {% elif pending_deposit %}
+
+        <p style="color: #75588e; font-weight: 700;">
+            Payment under review.
+        </p>
+
+        <p>
+            The bakery must verify your payment
+            before preparing your order.
+        </p>
+
+        {% elif order.status in [
+        'pending_verification', 'pending'
+        ] and order.pickup_deposit_due
+        and order.payment_method in [
+        'gcash', 'bank_transfer'
+        ] %}
+
+        <p>
+            After making your deposit using the bakery's
+            confirmed payment instructions, submit
+            your transaction reference below.
+        </p>
+
+        <form method="post"
+            action="{{ url_for(
+                  'orders.submit_pickup_deposit',
+                  order_id=order.id
+              ) }}">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}">
+
+            <label for="pickup-payment-reference"
+                style="display:block; margin-bottom:8px;">
+                Payment Reference Number
+            </label>
+
+            <input
+                id="pickup-payment-reference"
+                type="text"
+                name="payment_reference"
+                minlength="6"
+                maxlength="100"
+                pattern="[A-Za-z0-9-]{6,100}"
+                autocomplete="off"
+                required
+                style="
+                    display:block;
+                    width:100%;
+                    padding:12px;
+                    border:1px solid #ddd2e8;
+                    border-radius:8px;
+                    margin-bottom:12px;
+                ">
+
+            <button type="submit"
+                style="
+                        background:#70528f;
+                        color:#fff;
+                        border:0;
+                        border-radius:8px;
+                        padding:12px 20px;
+                        cursor:pointer;
+                    ">
+                Submit for Verification
+            </button>
+
+        </form>
+
+        {% else %}
+
+        <p>
+            This order is not accepting new
+            deposit submissions.
+        </p>
+
+        {% endif %}
+
+    </section>
+    {% endif %}
 
     <p>
         The bakery will update your order status

@@ -5,10 +5,9 @@
 
 <section
     class="container"
-    style="padding: 45px 0; max-width: 900px; min-height: 65vh;"
->
+    style="padding: 45px 0; max-width: 900px; min-height: 65vh;">
 
-         CHECKOUT HEADING
+    <!-- CHECKOUT HEADING -->
 
     <h1>Checkout</h1>
 
@@ -24,10 +23,9 @@
                 repeat(auto-fit, minmax(min(100%, 300px), 1fr));
             gap: 24px;
             align-items: start;
-        "
-    >
+        ">
 
-             DELIVERY ADDRESS
+        <!--   DELIVERY ADDRESS -->
 
         <div
             style="
@@ -35,8 +33,7 @@
                 border-radius: 14px;
                 padding: 22px;
                 background: white;
-            "
-        >
+            ">
 
             <h2 style="font-size: 20px;">
                 Delivery Address
@@ -44,141 +41,132 @@
 
             {% if not addresses %}
 
-                <p>
-                    No saved address yet.
+            <p>
+                No saved address yet.
 
-                    <a href="{{ url_for('auth.complete_profile') }}">
-                        Complete Your Address
-                    </a>
-                </p>
+                <a href="{{ url_for('auth.complete_profile') }}">
+                    Complete Your Address
+                </a>
+            </p>
 
             {% elif not eligible %}
 
-                <p>
-                    None of your saved addresses is
-                    within an enabled COD delivery area.
-                </p>
+            <p>
+                None of your saved addresses is
+                within an enabled COD delivery area.
+            </p>
 
-                <p>
-                    Please contact the bakery to confirm
-                    delivery coverage or update your address.
-                </p>
+            <p>
+                Please contact the bakery to confirm
+                delivery coverage or update your address.
+            </p>
 
             {% else %}
 
-                <!-- CHECKOUT FORM -->
+            <!-- CHECKOUT FORM -->
 
-                <form
-                    id="checkout-form"
-                    method="post"
-                    action="{{ url_for('cart.checkout') }}"
-                >
+            <form
+                id="checkout-form"
+                method="post"
+                action="{{ url_for('cart.checkout') }}">
 
-                    <!-- CSRF PROTECTION -->
+                <!-- CSRF PROTECTION -->
 
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
 
-                    <!-- DUPLICATE ORDER PROTECTION -->
+                <!-- DUPLICATE ORDER PROTECTION -->
 
-                    <input
-                        type="hidden"
-                        name="checkout_token"
-                        value="{{ checkout_token }}"
-                    >
+                <input
+                    type="hidden"
+                    name="checkout_token"
+                    value="{{ checkout_token }}">
 
-                    <!-- AVAILABLE DELIVERY ADDRESSES -->
+                <!-- AVAILABLE DELIVERY ADDRESSES -->
 
-                    {% for address in eligible %}
+                {% for address in eligible %}
 
-                        <label
-                            style="
+                <label
+                    style="
                                 display: block;
                                 padding: 12px;
                                 margin-bottom: 10px;
                                 border: 1px solid #e9e0ef;
                                 border-radius: 10px;
                                 cursor: pointer;
-                            "
-                        >
+                            ">
 
-                            <input
-                                type="radio"
-                                name="address_id"
-                                value="{{ address.id }}"
-                                data-fee="{{ address.delivery_fee }}"
-                                {% if loop.first %}checked{% endif %}
-                                required
-                            >
+                    <input
+                        type="radio"
+                        name="address_id"
+                        value="{{ address.id }}"
+                        data-fee="{{ address.delivery_fee }}"
+                        {% if loop.first %}checked{% endif %}
+                        required>
 
-                            <strong>
-                                {{ address.recipient_name }}
-                            </strong>
+                    <strong>
+                        {{ address.recipient_name }}
+                    </strong>
 
-                            <span
-                                style="
+                    <span
+                        style="
                                     display: block;
                                     margin-left: 24px;
                                     color: #71667d;
-                                "
-                            >
-                                {{ address.street_address }},
-                                {{ address.barangay }},
-                                {{ address.city_municipality }},
-                                {{ address.province }}
-                            </span>
+                                ">
+                        {{ address.street_address }},
+                        {{ address.barangay }},
+                        {{ address.city_municipality }},
+                        {{ address.province }}
+                    </span>
 
-                            <span
-                                style="
+                    <span
+                        style="
                                     display: block;
                                     margin-left: 24px;
                                     color: #69508d;
-                                "
-                            >
-                                Delivery fee:
-                                &#8369;{{ "%.2f"|format(address.delivery_fee) }}
-                            </span>
+                                ">
+                        Delivery fee:
+                        &#8369;{{ "%.2f"|format(address.delivery_fee) }}
+                    </span>
 
-                        </label>
+                </label>
 
-                    {% endfor %}
+                {% endfor %}
 
-                    <!-- ORDER NOTES -->
+                <!-- ORDER NOTES -->
 
-                    <label
-                        for="customer_note"
-                        style="
+                <label
+                    for="customer_note"
+                    style="
                             display: block;
                             margin-top: 18px;
-                        "
-                    >
-                        Order Notes (Optional)
-                    </label>
+                        ">
+                    Order Notes (Optional)
+                </label>
 
-                    <textarea
-                        id="customer_note"
-                        name="customer_note"
-                        maxlength="500"
-                        rows="3"
-                        placeholder="Add special instructions for your order..."
-                        style="
+                <textarea
+                    id="customer_note"
+                    name="customer_note"
+                    maxlength="500"
+                    rows="3"
+                    placeholder="Add special instructions for your order..."
+                    style="
                             width: 100%;
                             padding: 12px;
                             border: 1px solid #ded3e8;
                             border-radius: 9px;
                             resize: vertical;
-                        "
-                    ></textarea>
+                        "></textarea>
 
-                    <!-- PLACE ORDER -->
+                <!-- PLACE ORDER -->
 
-                    <button
-                        id="place-order"
-                        type="submit"
-                        style="
+                <button
+                    id="place-order"
+                    type="submit"
+                    style="
                             padding: 13px 18px;
                             background: #69508d;
                             color: white;
@@ -187,18 +175,17 @@
                             margin-top: 14px;
                             cursor: pointer;
                             font-weight: 600;
-                        "
-                    >
-                        Place COD Order
-                    </button>
+                        ">
+                    Place COD Order
+                </button>
 
-                </form>
+            </form>
 
             {% endif %}
 
         </div>
 
-             ORDER SUMMARY
+        <!-- ORDER SUMMARY-->
 
         <aside
             style="
@@ -206,8 +193,7 @@
                 border-radius: 14px;
                 padding: 22px;
                 background: #faf7fc;
-            "
-        >
+            ">
 
             <h2 style="font-size: 20px;">
                 Order Summary
@@ -217,23 +203,22 @@
 
             {% for item in items %}
 
-                <p
-                    style="
+            <p
+                style="
                         display: flex;
                         justify-content: space-between;
                         gap: 10px;
-                    "
-                >
+                    ">
 
-                    <span>
-                        {{ item.quantity }} Ã {{ item.name }}
-                    </span>
+                <span>
+                    {{ item.quantity }} Ã {{ item.name }}
+                </span>
 
-                    <strong>
-                        &#8369;{{ "%.2f"|format(item.line_total) }}
-                    </strong>
+                <strong>
+                    &#8369;{{ "%.2f"|format(item.line_total) }}
+                </strong>
 
-                </p>
+            </p>
 
             {% endfor %}
 
@@ -256,10 +241,9 @@
 
                 <strong
                     id="fee-preview"
-                    style="float: right;"
-                >
+                    style="float: right;">
                     {% if eligible %}
-                        &#8369;{{ "%.2f"|format(eligible[0].delivery_fee) }}
+                    &#8369;{{ "%.2f"|format(eligible[0].delivery_fee) }}
                     {% else %}
                     {% endif %}
                 </strong>
@@ -280,12 +264,11 @@
                         float: right;
                         color: #69508d;
                         font-size: 18px;
-                    "
-                >
+                    ">
                     {% if eligible %}
-                        &#8369;{{ "%.2f"|format(
-                            subtotal + eligible[0].delivery_fee
-                        ) }}
+                    &#8369;{{ "%.2f"|format(
+                    subtotal + eligible[0].delivery_fee
+                    ) }}
                     {% else %}
 
                     {% endif %}
@@ -298,8 +281,7 @@
                     margin-top: 15px;
                     color: #81758d;
                     line-height: 1.6;
-                "
-            >
+                ">
                 The server verifies current product prices
                 and delivery fees when the order is submitted.
             </small>
@@ -310,16 +292,15 @@
 
 </section>
 
-     PASS FLASK SUBTOTAL TO JAVASCRIPT
-     This avoids Jinja syntax inside JS.
+PASS FLASK SUBTOTAL TO JAVASCRIPT
+This avoids Jinja syntax inside JS.
 
 <input
     type="hidden"
     id="checkout-subtotal"
-    value="{{ '%.2f'|format(subtotal) }}"
->
+    value="{{ '%.2f'|format(subtotal) }}">
 
-     CHECKOUT JAVASCRIPT
+<!--CHECKOUT JAVASCRIPT-->
 
 <script>
 "use strict";
@@ -360,85 +341,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // PHILIPPINE PESO FORMATTER
 
-    function formatMoney(amount) {
 
-        const numericAmount = Number(amount);
+function formatMoney(amount) {
+    const value = Number(amount);
 
-        if (!Number.isFinite(numericAmount)) {
-            return ;
-        }
-
-        return "&#8369;" + numericAmount.toLocaleString(
-            "en-PH",
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        );
+    if (!Number.isFinite(value)) {
+        return "—";
     }
 
-    // UPDATE DELIVERY FEE AND TOTAL
+    return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(value);
+}
 
-    function updateCheckoutTotal() {
+function updateCheckoutTotal() {
+    const selectedAddress = document.querySelector(
+        'input[name="address_id"]:checked'
+    );
 
-        const selectedAddress = document.querySelector(
-            'input[name="address_id"]:checked'
-        );
-
-        // No selected address
-        if (!selectedAddress) {
-
-            if (feePreview) {
-                feePreview.textContent ;
-            }
-
-            if (totalPreview) {
-                totalPreview.textContent;
-            }
-
-            return;
-        }
-
-        // Get delivery fee from the selected address
-        const deliveryFee = Number(
-            selectedAddress.dataset.fee
-        );
-
-        if (
-            !Number.isFinite(deliveryFee) ||
-            deliveryFee < 0
-        ) {
-
-            if (feePreview) {
-                feePreview.textContent = "”";
-            }
-
-            if (totalPreview) {
-                totalPreview.textContent = "”";
-            }
-
-            return;
-        }
-
-        // Calculate estimated total
-        const estimatedTotal = subtotal + deliveryFee;
-
-        // Update displayed delivery fee
+    if (!selectedAddress) {
         if (feePreview) {
-
-            feePreview.textContent = formatMoney(
-                deliveryFee
-            );
+            feePreview.textContent = "—";
         }
 
-        // Update displayed grand total
         if (totalPreview) {
-
-            totalPreview.textContent = formatMoney(
-                estimatedTotal
-            );
+            totalPreview.textContent = "—";
         }
+
+        return;
     }
+
+    const deliveryFee = Number(
+        selectedAddress.dataset.fee
+    );
+
+    if (
+        !Number.isFinite(deliveryFee) ||
+        deliveryFee < 0
+    ) {
+        if (feePreview) {
+            feePreview.textContent = "Invalid fee";
+        }
+
+        if (totalPreview) {
+            totalPreview.textContent = "—";
+        }
+
+        return;
+    }
+
+    const estimatedTotal = subtotal + deliveryFee;
+
+    if (feePreview) {
+        feePreview.textContent = formatMoney(
+            deliveryFee
+        );
+    }
+
+    if (totalPreview) {
+        totalPreview.textContent = formatMoney(
+            estimatedTotal
+        );
+    }
+}
+
 
     // LISTEN FOR ADDRESS CHANGES
 

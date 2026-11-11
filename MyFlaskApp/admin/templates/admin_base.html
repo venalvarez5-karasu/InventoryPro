@@ -170,7 +170,7 @@
             <a href="{{ url_for('admin.admin_orders') }}"
                class="{{ 'active' if ep in [
                   'admin.admin_orders',
-                  'admin.admin_order_detail'
+                  'admin.admin_orderdetail'
                ] else '' }}">
                 {{ nav_icon('orders') }}
                 <span>Orders</span>
@@ -181,6 +181,16 @@
                 {{ nav_icon('customers') }}
                 <span>Customers</span>
             </a>
+
+<a href="{{ url_for('staff.manage') }}"
+   class="{{ 'active' if ep == 'staff.manage' else '' }}"
+   {% if ep == 'staff.manage' %}
+   aria-current="page"
+   {% endif %}>
+    {{ nav_icon('customers') }}
+    <span>Staff Management</span>
+</a>
+
 
             <a href="{{ url_for('admin.admin_inventory') }}"
                class="{{ 'active' if ep == 'admin.admin_inventory' else '' }}">
@@ -193,6 +203,19 @@
                 {{ nav_icon('location') }}
                 <span>Delivery Areas</span>
             </a>
+
+            <a href="{{ url_for('admin.admin_pickup_settings') }}"
+               class="{{ 'active' if ep == 'admin.admin_pickup_settings' else '' }}"
+               {% if ep == 'admin.admin_pickup_settings' %}
+                aria-current="page"
+                {% endif %}>
+
+                    {{ nav_icon('recipes') }}
+
+                <span>Store Pickup Settings</span>
+
+            </a>
+
 
             <span class="adm-nav-heading">INSIGHTS</span>
 

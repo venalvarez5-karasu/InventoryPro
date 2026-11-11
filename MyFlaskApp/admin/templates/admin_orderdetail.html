@@ -202,34 +202,190 @@
         </section>
 
         <!-- PAYMENT -->
+
+        <!-- PAYMENT MANAGEMENT -->
+
         <section class="adm-panel adm-console-panel">
 
-            <h2>Payment</h2>
+            <h2>Payment Management</h2>
+
+            {% if order.order_type == 'pickup' %}
+
+            <div class="adm-console-totals">
+
+                <p>
+                    Required deposit
+                    <strong>
+                        &#8369;{{ '%.2f'|format(
+                        order.pickup_deposit_due or 0
+                        ) }}
+                    </strong>
+                </p>
+
+                <p>
+                    Balance upon pickup
+                    <strong>
+                        &#8369;{{ '%.2f'|format(
+                        order.pickup_balance_due or 0
+                        ) }}
+                    </strong>
+                </p>
+
+            </div>
+
+            {% endif %}
+
+            {% set paid_deposits = payments
+            | selectattr('payment_purpose', 'equalto',
+            'pickup_deposit')
+            | selectattr('status', 'equalto', 'paid')
+            | list
+            %}
+
+            {% set paid_balances = payments
+            | selectattr('payment_purpose', 'equalto',
+            'pickup_balance')
+            | selectattr('status', 'equalto', 'paid')
+            | list
+            %}
 
             {% for payment in payments %}
-            <p>
-                <strong>
-                    {{ payment.status|replace('_', ' ')|title }}
-                </strong>
-                &middot; &#8369;{{ '%.2f'|format(payment.amount) }}
-                &middot; {{ payment.payment_method|replace('_', ' ')|upper }}
-            </p>
+
+            <div style="
+            padding: 14px 0;
+            border-bottom: 1px solid #ece6f2;
+        ">
+
+                <p style="margin: 0 0 6px;">
+
+                    <strong>
+                        {{ payment.payment_purpose
+                        | replace('_', ' ')
+                        | title }}
+                    </strong>
+
+                    &middot;
+
+                    &#8369;{{ '%.2f'|format(payment.amount) }}
+
+                </p>
+
+                <p class="adm-console-muted">
+
+                    {{ payment.payment_method
+                    | replace('_', ' ')
+                    | upper }}
+
+                    &middot;
+
+                    {{ payment.status
+                    | replace('_', ' ')
+                    | title }}
+
+                </p>
+
+                {% if payment.payment_reference %}
+
+                <p class="adm-console-muted">
+                    Reference:
+                    <strong>{{ payment.payment_reference }}</strong>
+                </p>
+
+                {% endif %}
+
+                {% if order.order_type == 'pickup'
+                and payment.payment_purpose == 'pickup_deposit'
+                and payment.status == 'pending_review' %}
+
+                <div style="
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    margin-top: 12px;
+                ">
+
+                    <form method="post"
+                        action="{{ url_for(
+                              'admin.admin_pickup_deposit_review',
+                              order_id=order.id
+                          ) }}">
+
+                        <input type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}">
+
+                        <input type="hidden"
+                            name="payment_id"
+                            value="{{ payment.id }}">
+
+                        <input type="hidden"
+                            name="decision"
+                            value="verify">
+
+                        <button type="submit"
+                            class="adm-primary-btn"
+                            data-confirm="Have you confirmed the actual deposit was received?">
+                            Verify Deposit
+                        </button>
+
+                    </form>
+
+                    <form method="post"
+                        action="{{ url_for(
+                              'admin.admin_pickup_deposit_review',
+                              order_id=order.id
+                          ) }}">
+
+                        <input type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}">
+
+                        <input type="hidden"
+                            name="payment_id"
+                            value="{{ payment.id }}">
+
+                        <input type="hidden"
+                            name="decision"
+                            value="reject">
+
+                        <button type="submit"
+                            class="adm-secondary-btn"
+                            data-confirm="Reject this deposit submission?">
+                            Reject
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endif %}
+
+            </div>
 
             {% else %}
 
             <p class="adm-console-muted">
-                No payment record yet.
+                No payment records yet.
             </p>
 
             {% endfor %}
 
-            {% set paid = payments and payments[0].status == 'paid' %}
+            <!-- PICKUP: REMAINING BALANCE -->
 
-            {% if order.status == 'completed' and not paid %}
+            {% if order.order_type == 'pickup'
+            and order.status == 'ready'
+            and paid_deposits
+            and not paid_balances
+            and order.pickup_balance_due
+            and order.pickup_balance_due > 0 %}
 
             <form method="post"
-                action="{{ url_for('admin.admin_payment_received', order_id=order.id) }}"
-                data-confirm="Only confirm if payment was actually received. Mark this order as paid?">
+                action="{{ url_for(
+                  'admin.admin_pickup_balance_received',
+                  order_id=order.id
+              ) }}"
+                style="margin-top: 18px;"
+                data-confirm="Only confirm after receiving the remaining balance in cash.">
 
                 <input type="hidden"
                     name="csrf_token"
@@ -237,10 +393,48 @@
 
                 <button type="submit"
                     class="adm-primary-btn">
-                    Confirm Payment Received
+                    Record Remaining Balance Received
                 </button>
 
             </form>
+
+            {% endif %}
+
+            <!-- DELIVERY: EXISTING COD WORKFLOW -->
+
+            {% if order.order_type == 'delivery'
+            and order.payment_method == 'cod'
+            and order.status == 'completed' %}
+
+            {% set cod_paid = payments
+            | selectattr('payment_purpose', 'equalto',
+            'full_order')
+            | selectattr('status', 'equalto', 'paid')
+            | list
+            %}
+
+            {% if not cod_paid %}
+
+            <form method="post"
+                action="{{ url_for(
+                      'admin.admin_payment_received',
+                      order_id=order.id
+                  ) }}"
+                style="margin-top: 18px;"
+                data-confirm="Confirm COD payment was actually received?">
+
+                <input type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
+
+                <button type="submit"
+                    class="adm-primary-btn">
+                    Confirm COD Payment Received
+                </button>
+
+            </form>
+
+            {% endif %}
 
             {% endif %}
 

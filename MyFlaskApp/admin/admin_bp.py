@@ -931,6 +931,6 @@ def restore_product(product_id):
     return redirect(
         url_for("admin.manage_products")
     )
-
+    
 from . import admin
 from . import notification
