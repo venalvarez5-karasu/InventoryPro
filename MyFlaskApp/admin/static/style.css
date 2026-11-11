@@ -4125,3 +4125,329 @@ body {
         min-width: 180px;
     }
 }
+
+/* ==========================================
+   INVENTORYPRO - STAFF MANAGEMENT
+   TABS, FORMS, TABLES AND PAGINATION
+   ========================================== */
+
+/* STAFF CATEGORY TABS */
+
+.staff-management-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+    padding: 0;
+}
+
+.staff-management-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 12px 22px;
+
+    background: #ffffff;
+    border: 1px solid #ded2e9;
+    border-radius: 9px;
+
+    color: #62447c;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.staff-management-tab:hover {
+    background: #f2ebf8;
+    border-color: #bda8d0;
+    color: #51316d;
+}
+
+.staff-management-tab.is-active,
+.staff-management-tab[aria-current="page"] {
+    background: #76518e;
+    border-color: #76518e;
+    color: #ffffff;
+}
+
+.staff-management-tab.is-active:hover {
+    background: #63417e;
+    color: #ffffff;
+}
+
+/* SECTION HEADINGS */
+
+.staff-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.staff-section-heading h2 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #34233f;
+}
+
+.staff-section-heading p {
+    margin: 0;
+    font-size: 12px;
+    color: #85768e;
+}
+
+/* STAFF CREATE FORM */
+
+.staff-create-form {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+    align-items: end;
+    gap: 12px;
+}
+
+.staff-create-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+
+    color: #51415d;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.staff-create-form input {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 12px;
+
+    background: #ffffff;
+    border: 1px solid #ded5e7;
+    border-radius: 8px;
+
+    color: #34233f;
+    font-size: 13px;
+}
+
+.staff-create-form input:focus {
+    outline: 2px solid #a88cbd;
+    outline-offset: 1px;
+}
+
+.staff-create-form button {
+    min-height: 42px;
+    padding: 10px 18px;
+    white-space: nowrap;
+}
+
+.staff-form-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #86788d;
+}
+
+/* STAFF TABLE */
+
+.staff-management-tabs ~ .adm-panel .adm-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.staff-management-tabs ~ .adm-panel .adm-table th {
+    padding: 14px 16px;
+    background: #f8f5fb;
+    color: #786986;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: left;
+}
+
+.staff-management-tabs ~ .adm-panel .adm-table td {
+    padding: 15px 16px;
+    border-bottom: 1px solid #eee8f2;
+
+    font-size: 13px;
+    color: #40354b;
+    vertical-align: middle;
+}
+
+.staff-management-tabs ~ .adm-panel .adm-table tbody tr:hover {
+    background: #fcfaff;
+}
+
+/* PAGINATION */
+
+.staff-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 14px;
+    margin-top: 22px;
+    padding-top: 18px;
+
+    border-top: 1px solid #eee8f2;
+}
+
+.staff-pagination > .adm-console-muted {
+    color: #81748c;
+    font-size: 12px;
+}
+
+.staff-pagination-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.staff-page-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 37px;
+    padding: 8px 14px;
+
+    background: #f4eef8;
+    border: 1px solid #e8def0;
+    border-radius: 8px;
+
+    color: #62447c;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.staff-pagination-actions .adm-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 37px;
+    padding: 9px 15px;
+
+    background: #ffffff;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+
+    color: #67477f;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.staff-pagination-actions .adm-secondary-btn:hover {
+    background: #f2ebf8;
+    border-color: #c6b2d8;
+}
+
+/* RIDER ASSIGNMENT FORM */
+
+.staff-assignment-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.staff-assignment-form label {
+    min-width: 170px;
+    flex: 1;
+}
+
+.staff-assignment-form select {
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 12px;
+
+    background: #ffffff;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+
+    color: #40304f;
+    font-size: 12px;
+}
+
+.staff-assignment-form button {
+    min-height: 40px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1250px) {
+    .staff-create-form {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .staff-create-form button {
+        width: fit-content;
+    }
+}
+
+@media (max-width: 768px) {
+    .staff-management-tabs {
+        gap: 9px;
+        margin: 18px 0;
+    }
+
+    .staff-management-tab {
+        flex: 1;
+        padding: 11px 12px;
+        text-align: center;
+    }
+
+    .staff-create-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .staff-pagination {
+        align-items: flex-start;
+    }
+
+    .staff-pagination-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .staff-create-form {
+        grid-template-columns: 1fr;
+    }
+
+    .staff-create-form button {
+        width: 100%;
+    }
+
+    .staff-management-tab {
+        font-size: 12px;
+    }
+
+    .staff-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .staff-pagination-actions {
+        justify-content: space-between;
+    }
+
+    .staff-assignment-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

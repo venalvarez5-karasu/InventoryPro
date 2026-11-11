@@ -269,6 +269,27 @@ def view_cart():
 
 @cart_bp.route("/add", methods=["POST"])
 def add_to_cart():
+    from urllib.parse import urlsplit
+
+    def return_to_browsing():
+        # Only redirect to pages on this website.
+        previous = request.referrer
+        fallback = url_for("products.browse")
+
+        if not previous:
+            return redirect(fallback)
+
+        target = urlsplit(previous)
+        current = urlsplit(request.host_url)
+
+        if (
+            target.scheme not in ("http", "https")
+            or target.netloc != current.netloc
+            or target.path.startswith("/cart/")
+        ):
+            return redirect(fallback)
+
+        return redirect(previous)
 
     product_id = request.form.get(
         "product_id", type=int
@@ -293,15 +314,11 @@ def add_to_cart():
     )
 
     if not product:
-
         flash(
             "Product is currently unavailable.",
             "warning"
         )
-
-        return redirect(
-            url_for("products.browse")
-        )
+        return return_to_browsing()
 
     cart = dict(session.get("shop_cart", {}))
 
@@ -309,15 +326,11 @@ def add_to_cart():
         str(product_id) not in cart
         and len(cart) >= MAX_DISTINCT
     ):
-
         flash(
             "Cart can contain up to 25 different products.",
             "warning"
         )
-
-        return redirect(
-            url_for("cart.view_cart")
-        )
+        return return_to_browsing()
 
     cart[str(product_id)] = min(
         MAX_QUANTITY,
@@ -329,9 +342,8 @@ def add_to_cart():
 
     flash("Product added to your cart.", "success")
 
-    return redirect(
-        url_for("cart.view_cart")
-    )
+    return return_to_browsing()
+
 
 
 # UPDATE CART

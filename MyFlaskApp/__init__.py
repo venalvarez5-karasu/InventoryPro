@@ -57,7 +57,10 @@ def reg_app():
     from .products.products_bp import products_bp
     from .reports.reports_bp import reports_bp
     from .staff.staff_bp import staff_bp
-
+    from .staff.extra_routes import staff_extras_bp
+    from .auth.offline_cache import install_offline_address_cache
+    
+    
     # Register Blueprints
     app.register_blueprint(index_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -71,5 +74,7 @@ def reg_app():
     app.register_blueprint(production_bp, url_prefix="/admin/production")
     app.register_blueprint(reports_bp, url_prefix="/admin/reports")
     app.register_blueprint(staff_bp, url_prefix="/staff")
+    app.register_blueprint(staff_extras_bp, url_prefix="/staff") 
+    install_offline_address_cache()
 
     return app

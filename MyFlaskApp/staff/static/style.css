@@ -860,3 +860,1670 @@ input:focus-visible {
     .staff-bakery-workspace .staff-username { display: none; }
     .staff-bakery-workspace .staff-role { display: none; }
 }
+
+/* =====================================================
+   INVENTORYPRO - STAFF WORKSPACE
+   Tali's Bread & Pastries
+
+   Includes:
+   - Shared Staff Styles
+   - Admin Staff Management
+   - Bakery Staff Dashboard
+   - Rider Dashboard Redesign
+
+   Colors: Off-white / Neutral / Purple Accent
+===================================================== */
+
+:root {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #30283d;
+    background: #faf9fc;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.staff-workspace {
+    min-height: 100vh;
+    background: #faf9fc;
+    color: #30283d;
+}
+
+/* =======================
+   SHARED HEADER
+======================= */
+
+.staff-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e9e2ed;
+}
+
+.staff-header-inner {
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.staff-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.staff-brand strong {
+    color: #33213d;
+    font-size: 17px;
+}
+
+.staff-brand small {
+    color: #81758d;
+    font-size: 12px;
+}
+
+.staff-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.staff-role {
+    padding: 8px 12px;
+    border-radius: 20px;
+    background: #f0e7f7;
+    color: #76518e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.staff-username {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.staff-logout {
+    padding: 10px 15px;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #76518e;
+    font-size: 12px;
+}
+
+.staff-logout:hover {
+    background: #f3edf7;
+}
+
+/* =======================
+   SHARED MAIN
+======================= */
+
+.staff-main {
+    width: min(1150px, calc(100% - 40px));
+    margin: 35px auto 60px;
+}
+
+.staff-page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.staff-eyebrow {
+    color: #9473ac;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.staff-page-heading h1 {
+    margin: 8px 0;
+    color: #30213e;
+    font-size: 28px;
+}
+
+.staff-page-heading p {
+    margin: 0;
+    color: #81758d;
+    font-size: 14px;
+}
+
+.staff-count {
+    padding: 10px 14px;
+    border: 1px solid #e4d8ee;
+    border-radius: 9px;
+    background: white;
+    color: #76518e;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =======================
+   SHARED PANELS
+======================= */
+
+.staff-panel {
+    margin-bottom: 20px;
+    padding: 24px;
+    border: 1px solid #e8e0ef;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.staff-panel-heading {
+    margin-bottom: 20px;
+}
+
+.staff-panel h2 {
+    margin: 0;
+    color: #30213e;
+    font-size: 18px;
+}
+
+.staff-table-scroll {
+    overflow-x: auto;
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.staff-table th {
+    padding: 14px;
+    background: #f8f5fb;
+    color: #776487;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.staff-table td {
+    padding: 17px 14px;
+    border-bottom: 1px solid #eee8f2;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.staff-table td strong {
+    display: block;
+    font-weight: 600;
+}
+
+.staff-table td small {
+    display: block;
+    margin-top: 5px;
+    color: #81758d;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.staff-table tbody tr:hover {
+    background: #fdfbff;
+}
+
+.staff-status {
+    display: inline-block;
+    padding: 7px 11px;
+    border-radius: 20px;
+    background: #f1eaf7;
+    color: #76518e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =======================
+   SHARED BUTTONS
+======================= */
+
+.staff-primary-btn {
+    min-height: 38px;
+    padding: 10px 15px;
+    border: 1px solid #76518e;
+    border-radius: 8px;
+    background: #76518e;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background .15s ease;
+}
+
+.staff-primary-btn:hover {
+    background: #5f3c78;
+}
+
+.staff-secondary-btn {
+    min-height: 38px;
+    padding: 10px 15px;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #76518e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.staff-secondary-btn:hover {
+    background: #f8f4fb;
+}
+
+.staff-reject-btn {
+    background: #fff5f4;
+    border-color: #efcbc7;
+    color: #a7433d;
+}
+
+.staff-reject-btn:hover {
+    background: #fce9e7;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+    outline: 2px solid #76518e;
+    outline-offset: 2px;
+}
+
+/* =======================
+   EMPTY STATE
+======================= */
+
+.staff-empty {
+    padding: 45px 20px;
+    text-align: center;
+}
+
+.staff-empty h3 {
+    margin: 0 0 9px;
+    color: #30213e;
+    font-size: 17px;
+}
+
+.staff-empty p {
+    color: #81758d;
+    font-size: 13px;
+}
+
+/* =======================
+   PASSWORD FORM
+======================= */
+
+.staff-password-form {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr)) auto;
+    gap: 14px;
+    align-items: end;
+}
+
+.staff-password-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.staff-password-form input {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.staff-muted {
+    color: #81758d;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =======================
+   FLASH MESSAGES
+======================= */
+
+.staff-messages {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.staff-message {
+    margin-bottom: 8px;
+    padding: 12px 15px;
+    border: 1px solid #e3d7ec;
+    border-radius: 8px;
+    background: #f0e9f6;
+    font-size: 13px;
+}
+
+.staff-message-danger,
+.staff-message-error {
+    background: #fff0ed;
+    border-color: #f1d4cd;
+    color: #a83e32;
+}
+
+/* =======================
+   ADMIN STAFF MANAGEMENT
+======================= */
+
+.staff-management-tabs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0 24px;
+}
+
+.staff-management-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 10px 17px;
+    border: 1px solid #e4d8ee;
+    border-radius: 8px;
+    background: white;
+    color: #76518e;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.staff-management-tab:hover {
+    background: #f3edf7;
+}
+
+.staff-management-tab.is-active {
+    background: #76518e;
+    border-color: #76518e;
+    color: white;
+}
+
+.staff-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.staff-section-heading h2 {
+    margin-bottom: 5px;
+}
+
+.staff-form-note {
+    margin-top: 14px;
+}
+
+.staff-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.staff-pagination-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.staff-page-indicator {
+    color: #756781;
+    font-size: 12px;
+}
+
+.staff-assignment-form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.staff-assignment-form label {
+    min-width: 160px;
+}
+
+/* =======================
+   CONFIRMATION MODAL
+======================= */
+
+.staff-confirm-dialog {
+    width: min(420px, calc(100vw - 32px));
+    max-width: none;
+    padding: 0;
+    border: 1px solid #e8dfef;
+    border-radius: 14px;
+    background: white;
+    color: #30283d;
+    box-shadow: 0 22px 65px #26162b38;
+}
+
+.staff-confirm-dialog::backdrop {
+    background: #21182b77;
+    backdrop-filter: blur(3px);
+}
+
+.staff-confirm-header {
+    padding: 24px;
+}
+
+.staff-confirm-eyebrow {
+    display: block;
+    margin-bottom: 10px;
+    color: #805d99;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+
+.staff-confirm-header h2 {
+    margin: 0 0 8px;
+    font-size: 19px;
+}
+
+.staff-confirm-header p {
+    margin: 0;
+    color: #716579;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.staff-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 22px;
+    border-top: 1px solid #eee7f1;
+}
+
+.staff-confirm-cancel {
+    padding: 10px 16px;
+    border: 1px solid #ddd0e7;
+    border-radius: 7px;
+    background: white;
+    color: #664578;
+}
+
+.staff-confirm-accept {
+    padding: 10px 16px;
+    border: 1px solid #76518e;
+    border-radius: 7px;
+    background: #76518e;
+    color: white;
+}
+
+.staff-confirm-accept:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+/* =======================
+   BAKERY RIDER ASSIGNMENT
+======================= */
+
+.staff-rider-assignment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 210px;
+}
+
+.staff-rider-pending {
+    display: inline-flex;
+    padding: 7px 11px;
+    border: 1px solid #eee0c4;
+    border-radius: 7px;
+    background: #fff9ed;
+    color: #956920;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.staff-rider-assigned {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    width: 100%;
+    border: 1px solid #d9e9df;
+    border-radius: 8px;
+    background: #f4faf6;
+}
+
+.staff-rider-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #399567;
+}
+
+.staff-rider-assigned strong {
+    display: block;
+    color: #246d49;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.staff-rider-assigned small {
+    display: block;
+    margin-top: 3px;
+    color: #426c55;
+    font-size: 11px;
+}
+
+.staff-assign-rider-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 240px;
+    margin: 0;
+}
+
+.staff-rider-label {
+    color: #635371;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.staff-assign-rider-form select {
+    width: 100%;
+    min-height: 39px;
+    padding: 9px 11px;
+    border: 1px solid #ded2e9;
+    border-radius: 8px;
+    background: white;
+    color: #382b47;
+    font-size: 12px;
+}
+
+.staff-assign-rider-form .staff-primary-btn {
+    width: 100%;
+}
+
+.staff-rider-warning {
+    max-width: 220px;
+    margin: 0;
+    color: #a35a35;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* =======================
+   BAKERY ORDER ACTIONS
+======================= */
+
+.staff-order-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.staff-order-actions form {
+    margin: 0;
+}
+
+/* =====================================================
+   BAKERY STAFF DASHBOARD
+   Existing sidebar and layout
+   Only applies to .staff-bakery-workspace
+===================================================== */
+
+.staff-bakery-workspace {
+    --staff-purple: #51306d;
+    --staff-purple-dark: #39214e;
+    --staff-purple-light: #f3edf9;
+    --staff-border: #e9e4ed;
+
+    min-height: 100vh;
+    padding-left: 226px;
+    background: #faf9fc;
+    color: #2f2440;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.staff-bakery-workspace .staff-side {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 15;
+    width: 226px;
+    padding: 27px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    background: #39214e;
+    color: white;
+}
+
+.staff-bakery-workspace .staff-side-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 34px;
+    color: white;
+    text-decoration: none;
+}
+
+.staff-bakery-workspace .staff-side-mark {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 11px;
+    background: #79559b;
+    font-size: 21px;
+}
+
+.staff-bakery-workspace .staff-side-brand strong {
+    display: block;
+    font-size: 17px;
+    letter-spacing: -.4px;
+}
+
+.staff-bakery-workspace .staff-side-brand small {
+    display: block;
+    padding-top: 3px;
+    color: #e6d8f1;
+    font-size: 10px;
+}
+
+.staff-bakery-workspace .staff-side-caption {
+    padding: 0 13px 13px;
+    color: #baa2cf;
+    letter-spacing: 1.1px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.staff-bakery-workspace .staff-side-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.staff-bakery-workspace .staff-side-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    border-radius: 9px;
+    color: #f1eaf6;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.staff-bakery-workspace .staff-side-nav a span {
+    width: 19px;
+    font-size: 19px;
+    text-align: center;
+}
+
+.staff-bakery-workspace .staff-side-nav a:hover,
+.staff-bakery-workspace .staff-side-nav a.active {
+    background: #6e4c8b;
+    color: white;
+}
+
+.staff-bakery-workspace .staff-side-footer {
+    margin-top: auto;
+    padding: 19px 10px 4px;
+    border-top: 1px solid #6b527e;
+    color: #ddd1e7;
+    font-size: 12px;
+}
+
+.staff-bakery-workspace .staff-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    border-bottom: 1px solid #e9e4ed;
+}
+
+.staff-bakery-workspace .staff-header-inner {
+    max-width: 1400px;
+    padding: 17px 30px;
+}
+
+.staff-bakery-workspace .staff-brand strong {
+    color: #39214e;
+    font-size: 16px;
+}
+
+.staff-bakery-workspace .staff-brand small {
+    font-size: 11px;
+}
+
+.staff-bakery-workspace .staff-main {
+    width: min(1400px, calc(100% - 60px));
+    margin: 28px auto 65px;
+}
+
+.staff-bakery-workspace .staff-welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.staff-bakery-workspace .staff-welcome h2 {
+    margin: 7px 0 8px;
+    color: #2f1e42;
+    font-size: clamp(21px, 2.2vw, 27px);
+    line-height: 1.2;
+}
+
+.staff-bakery-workspace .staff-welcome p {
+    margin: 0;
+    color: #776b81;
+    font-size: 13px;
+}
+
+.staff-bakery-workspace .staff-welcome-tag {
+    padding: 9px 13px;
+    border: 1px solid #e8def0;
+    border-radius: 20px;
+    background: white;
+    color: #694783;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.staff-bakery-workspace .staff-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 25px;
+}
+
+.staff-bakery-workspace .staff-summary-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 145px;
+    padding: 19px;
+    border: 1px solid #e9e4ed;
+    border-radius: 12px;
+    background: white;
+}
+
+.staff-bakery-workspace .staff-summary-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 12px;
+    border-radius: 9px;
+    background: #f3edf9;
+    color: #51306d;
+    font-size: 19px;
+}
+
+.staff-bakery-workspace .staff-summary-card > span:nth-child(2) {
+    color: #6d5c78;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.staff-bakery-workspace .staff-summary-card strong {
+    color: #2f1e42;
+    font-size: 28px;
+    line-height: 1.35;
+}
+
+.staff-bakery-workspace .staff-summary-card small {
+    color: #8b8192;
+    font-size: 11px;
+}
+
+.staff-bakery-workspace .staff-page-heading {
+    margin: 0 0 18px;
+}
+
+.staff-bakery-workspace .staff-page-heading h1 {
+    font-size: 20px;
+}
+
+.staff-bakery-workspace .staff-page-heading p {
+    font-size: 12px;
+}
+
+.staff-bakery-workspace .staff-panel {
+    padding: 22px;
+    border: 1px solid #e9e4ed;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(46, 29, 64, .025);
+}
+
+.staff-bakery-workspace .staff-panel-heading h2 {
+    font-size: 17px;
+}
+
+.staff-bakery-workspace .staff-table th {
+    background: #f8f5fb;
+    color: #766783;
+    white-space: nowrap;
+}
+
+.staff-bakery-workspace .staff-table td {
+    padding: 17px 12px;
+    line-height: 1.45;
+}
+
+.staff-bakery-workspace .staff-table td:nth-child(2) {
+    min-width: 195px;
+}
+
+.staff-bakery-workspace .staff-table td:last-child {
+    min-width: 185px;
+}
+
+.staff-bakery-workspace .staff-status {
+    background: #f3ecf9;
+    color: #6c448a;
+    white-space: nowrap;
+}
+
+.staff-bakery-workspace .staff-status-pending {
+    background: #fceced;
+    color: #a44855;
+}
+
+.staff-bakery-workspace .staff-status-confirmed {
+    background: #edf0fd;
+    color: #515da2;
+}
+
+.staff-bakery-workspace .staff-status-preparing {
+    background: #fff1db;
+    color: #98652c;
+}
+
+.staff-bakery-workspace .staff-status-ready {
+    background: #e7f6ed;
+    color: #2e8055;
+}
+
+.staff-bakery-workspace .staff-status-completed {
+    background: #e7f6ed;
+    color: #2e8055;
+}
+
+.staff-bakery-workspace .staff-primary-btn {
+    min-height: 37px;
+    border-radius: 7px;
+    background: #69428b;
+    border-color: #69428b;
+}
+
+.staff-bakery-workspace .staff-primary-btn:hover {
+    background: #4d2f69;
+}
+
+.staff-bakery-workspace .staff-assign-rider-form select {
+    max-width: 240px;
+}
+
+.staff-bakery-workspace #staff-orders,
+.staff-bakery-workspace #staff-settings {
+    scroll-margin-top: 100px;
+}
+
+/* =====================================================
+   NEW RIDER DASHBOARD REDESIGN
+   Scoped to rider only.
+
+   Bakery Staff is excluded automatically.
+===================================================== */
+
+body.staff-workspace:not(.staff-bakery-workspace) {
+    --rider-purple: #684589;
+    --rider-purple-dark: #392847;
+    --rider-border: #e9e4ed;
+    --rider-muted: #81758d;
+
+    min-height: 100vh;
+    background: #f8f7fa;
+    color: #32283e;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* RIDER HEADER */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
+    border-bottom: 1px solid var(--rider-border);
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-header-inner {
+    max-width: 1160px;
+    padding: 20px 30px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-brand strong {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--rider-purple-dark);
+    letter-spacing: -.4px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-brand small {
+    font-size: 11px;
+    color: var(--rider-muted);
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-role {
+    background: #f2ebf7;
+    border: 1px solid #eadff1;
+    color: var(--rider-purple);
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-username {
+    font-size: 13px;
+    color: #43334d;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-logout {
+    border: 1px solid #e3daea;
+    border-radius: 8px;
+    padding: 10px 17px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* RIDER MAIN */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-main {
+    max-width: 1100px;
+    width: calc(100% - 48px);
+    margin: 42px auto 80px;
+}
+
+/* RIDER PAGE HEADING */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-page-heading {
+    align-items: flex-end;
+    margin-bottom: 28px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-page-heading h1 {
+    margin: 10px 0 8px;
+    font-size: clamp(27px, 3vw, 35px);
+    letter-spacing: -.8px;
+    font-weight: 700;
+    color: #30213e;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-page-heading p {
+    max-width: 550px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-eyebrow {
+    color: #8e6aaa;
+    font-size: 10px;
+    letter-spacing: 1.8px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-count {
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: #f1eaf7;
+    border: 1px solid #e8dcf0;
+    color: var(--rider-purple);
+    font-size: 13px;
+}
+
+/* ASSIGNED DELIVERIES PANEL */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-panel {
+    border: 1px solid var(--rider-border);
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 26px;
+    box-shadow: 0 7px 28px rgba(44, 26, 59, .035);
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-panel-heading {
+    margin-bottom: 22px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-panel-heading h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -.3px;
+}
+
+/* TRANSFORM EXISTING RIDER TABLE INTO CARDS */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table-scroll {
+    overflow: visible;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table {
+    display: block;
+    width: 100%;
+    border-collapse: separate;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table thead {
+    display: none;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table tbody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px 12px;
+
+    align-content: start;
+
+    padding: 22px;
+    border: 1px solid #e9e3ee;
+    border-radius: 13px;
+    background: #ffffff;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table tbody tr:hover {
+    background: #ffffff;
+    border-color: #d9c9e5;
+    box-shadow: 0 6px 20px rgba(64, 39, 84, .06);
+    transform: translateY(-2px);
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    font-size: 13px;
+}
+
+/* ORDER NUMBER */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(1)::before {
+    content: "ORDER NUMBER";
+    display: block;
+    margin-bottom: 8px;
+    color: #94869e;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(1) strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: #372347;
+    overflow-wrap: anywhere;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(1) small {
+    margin-top: 7px;
+    font-size: 12px;
+    color: #81758d;
+}
+
+/* STATUS */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    align-self: start;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-status {
+    padding: 8px 11px;
+    border-radius: 7px;
+    background: #edf7f0;
+    color: #2b7950;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-status-out_for_delivery {
+    background: #fff3de;
+    color: #96651e;
+}
+
+/* CUSTOMER INFORMATION */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    border-top: 1px solid #eee8f2;
+    padding-top: 18px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(2)::before {
+    content: "DELIVERY DETAILS";
+    display: block;
+    margin-bottom: 12px;
+    color: #94869e;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(2) strong {
+    margin-bottom: 4px;
+    color: #30213e;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(2) small {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.65;
+    color: #776b82;
+    overflow-wrap: anywhere;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(2) small:last-child {
+    padding: 12px 14px;
+    background: #f8f6fa;
+    border: 1px solid #eee9f1;
+    border-radius: 9px;
+    color: #5c5066;
+    font-size: 12px;
+}
+
+/* DELIVERY ACTIONS */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(4) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: auto;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(4) form {
+    width: 100%;
+    margin: 0;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(4) .staff-primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 46px;
+    border-radius: 9px;
+    background: #6b478a;
+    border: 1px solid #6b478a;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .1px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(4) .staff-primary-btn:hover {
+    background: #56356f;
+    border-color: #56356f;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-table td:nth-child(4) .staff-muted {
+    display: block;
+    padding: 12px;
+    border-radius: 9px;
+    background: #f7f4fa;
+    text-align: center;
+}
+
+/* RIDER EMPTY STATE */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-empty {
+    padding: 75px 20px;
+    border-radius: 12px;
+    background: #fcfbfd;
+    text-align: center;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-empty::before {
+    content: "✓";
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 20px;
+    border-radius: 17px;
+    background: #efe8f6;
+    color: #725191;
+    font-size: 29px;
+    font-weight: 700;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-empty h3 {
+    color: #352642;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-empty p {
+    max-width: 350px;
+    margin: 10px auto 0;
+    color: #887d91;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* RIDER PASSWORD PANEL */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-panel:last-child {
+    margin-top: 25px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-password-form {
+    gap: 16px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-password-form label {
+    color: #4d4057;
+    font-size: 12px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-password-form input {
+    min-height: 43px;
+    border: 1px solid #e3dce9;
+    border-radius: 8px;
+    background: white;
+    padding: 12px 14px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-password-form button {
+    min-height: 43px;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+/* RIDER MODAL */
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-confirm-dialog {
+    border-radius: 15px;
+}
+
+body.staff-workspace:not(.staff-bakery-workspace)
+.staff-confirm-accept {
+    background: #684589;
+    border-color: #684589;
+}
+
+/* =====================================================
+   RESPONSIVE LAYOUTS
+===================================================== */
+
+@media (max-width: 1100px) {
+    .staff-bakery-workspace .staff-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 850px) {
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table tbody {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .staff-header-inner {
+        padding: 15px;
+    }
+
+    .staff-main {
+        width: calc(100% - 30px);
+        margin: 25px auto;
+    }
+
+    .staff-panel {
+        padding: 17px;
+    }
+
+    .staff-password-form {
+        grid-template-columns: 1fr;
+    }
+
+    .staff-password-form button {
+        width: 100%;
+    }
+
+    .staff-management-tab {
+        flex: 1;
+    }
+
+    .staff-pagination {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .staff-assignment-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .staff-assignment-form label {
+        width: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+    .staff-bakery-workspace {
+        padding-left: 0;
+        padding-bottom: 63px;
+    }
+
+    .staff-bakery-workspace .staff-side {
+        top: auto;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 62px;
+        padding: 5px 8px;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .staff-bakery-workspace .staff-side-brand,
+    .staff-bakery-workspace .staff-side-caption,
+    .staff-bakery-workspace .staff-side-footer {
+        display: none;
+    }
+
+    .staff-bakery-workspace .staff-side-nav {
+        width: 100%;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: space-around;
+        gap: 3px;
+    }
+
+    .staff-bakery-workspace .staff-side-nav a {
+        flex: 1;
+        min-width: 0;
+        flex-direction: column;
+        gap: 2px;
+        padding: 6px 2px;
+        font-size: 10px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .staff-bakery-workspace .staff-side-nav a span {
+        font-size: 17px;
+    }
+
+    .staff-bakery-workspace .staff-header-inner {
+        padding: 13px 16px;
+    }
+
+    .staff-bakery-workspace .staff-main {
+        width: calc(100% - 26px);
+        margin-top: 22px;
+    }
+
+    .staff-bakery-workspace .staff-welcome-tag {
+        display: none;
+    }
+
+    .staff-bakery-workspace .staff-summary-grid {
+        gap: 9px;
+    }
+
+    .staff-bakery-workspace .staff-summary-card {
+        min-height: 135px;
+        padding: 14px;
+    }
+
+    .staff-bakery-workspace .staff-panel {
+        padding: 16px;
+    }
+
+    .staff-bakery-workspace .staff-table {
+        min-width: 780px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-header-inner {
+        padding: 16px 20px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-main {
+        width: calc(100% - 30px);
+        margin-top: 26px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-page-heading h1 {
+        font-size: 28px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-panel {
+        padding: 19px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table {
+        min-width: 0;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table tbody tr {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .staff-header-actions {
+        gap: 8px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-header-inner {
+        padding: 14px 15px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-brand strong {
+        font-size: 16px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-brand small {
+        font-size: 10px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-role {
+        display: none;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-username {
+        display: none;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-logout {
+        padding: 9px 12px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-page-heading {
+        align-items: flex-start;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-page-heading h1 {
+        font-size: 25px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-count {
+        padding: 9px 12px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-panel {
+        padding: 16px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table tbody tr {
+        grid-template-columns: 1fr;
+        gap: 13px;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table td:nth-child(1),
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table td:nth-child(3) {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table td:nth-child(3) {
+        justify-self: start;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table td:nth-child(2),
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-table td:nth-child(4) {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    body.staff-workspace:not(.staff-bakery-workspace)
+    .staff-empty {
+        padding: 55px 15px;
+    }
+
+    .staff-bakery-workspace .staff-summary-card strong {
+        font-size: 24px;
+    }
+
+    .staff-bakery-workspace .staff-username,
+    .staff-bakery-workspace .staff-role {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
